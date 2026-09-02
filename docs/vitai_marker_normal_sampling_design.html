@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vitai Marker 法线采样：任务理解</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0a1020;
+      --panel: #111a2d;
+      --panel-2: #17233b;
+      --text: #e9f0ff;
+      --muted: #9cadca;
+      --line: #2a3b5f;
+      --blue: #5aa2ff;
+      --cyan: #55d6d0;
+      --orange: #ffb15a;
+      --green: #65d995;
+      --red: #ff7085;
+      --shadow: 0 18px 48px rgb(0 0 0 / 28%);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgb(57 98 173 / 22%), transparent 32rem),
+        radial-gradient(circle at 95% 18%, rgb(39 162 156 / 14%), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.65 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 56px 0 96px; }
+    header { margin-bottom: 28px; }
+    h1 { margin: 0 0 10px; font-size: clamp(30px, 5vw, 54px); line-height: 1.08; letter-spacing: -.035em; }
+    h2 { margin: 0 0 18px; font-size: 23px; letter-spacing: -.015em; }
+    h3 { margin: 0 0 8px; font-size: 16px; }
+    p { margin: 0 0 12px; }
+    code {
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgb(6 12 25 / 55%);
+      color: #cde1ff;
+    }
+    .eyebrow { color: var(--cyan); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { max-width: 860px; color: var(--muted); font-size: 18px; }
+    .stamp { margin-top: 14px; color: #7487aa; font-size: 13px; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgb(23 35 59 / 96%), rgb(13 22 39 / 96%));
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    section { margin-top: 22px; }
+    .summary { border-left: 4px solid var(--blue); }
+    .summary strong { color: #fff; }
+    .tag {
+      display: inline-block;
+      margin: 0 6px 6px 0;
+      padding: 3px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .current { border-top: 3px solid var(--red); }
+    .target { border-top: 3px solid var(--green); }
+    .current h3 { color: var(--red); }
+    .target h3 { color: var(--green); }
+    ul, ol { margin: 8px 0 0; padding-left: 21px; }
+    li { margin: 5px 0; }
+
+    .diagram {
+      overflow-x: auto;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #09101d;
+    }
+    svg { display: block; min-width: 820px; width: 100%; height: auto; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; color: var(--muted); font-size: 13px; }
+    .legend i { display: inline-block; width: 22px; height: 3px; margin-right: 7px; vertical-align: middle; }
+
+    .flow { display: grid; grid-template-columns: 1fr 42px 1fr 42px 1fr; align-items: stretch; gap: 8px; }
+    .flow .step {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel-2);
+      padding: 17px;
+    }
+    .arrow { display: grid; place-items: center; color: var(--blue); font-size: 26px; }
+    .formula {
+      overflow-x: auto;
+      margin: 12px 0;
+      padding: 14px 16px;
+      border-left: 3px solid var(--cyan);
+      background: #09101d;
+      color: #d9e9ff;
+      font: 14px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace;
+      white-space: pre;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--cyan); font-size: 13px; }
+    td:first-child { color: #d9e9ff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .decision { border-left: 4px solid var(--orange); }
+    .decision h2 { color: var(--orange); }
+    .ok { color: var(--green); }
+    .warn { color: var(--orange); }
+    .no { color: var(--red); }
+    footer { margin-top: 30px; color: #7183a4; font-size: 13px; text-align: center; }
+
+    @media (max-width: 820px) {
+      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Task understanding · v1</div>
+    <h1>Vitai Marker 法线采样</h1>
+    <p class="lede">
+      目标不是把一张规则网格“挪到” marker 附近，而是建立两类用途明确、互不混淆的射线：
+      <strong>相机射线负责反解 marker 的三维位置</strong>，
+      <strong>marker 表面法线负责运行时触觉采样</strong>。
+    </p>
+    <p class="stamp">BC_Tactile_Lab · 2026-07-25 · 本文只定义设计，不修改运行时实现</p>
+  </header>
+
+  <section class="card summary">
+    <h2>一句话结论</h2>
+    <p>
+      离线阶段把每个 marker 的 <code>位置、法线、相机射线、有效性</code> 统一保存于相机坐标系；
+      运行时把它们变换到世界坐标系，以 marker 为锚点、沿各自外法线向物体发射采样射线。
+    </p>
+    <span class="tag">相机坐标为标定真值</span>
+    <span class="tag">固定 marker ID</span>
+    <span class="tag">每点独立法线</span>
+    <span class="tag">拒绝外推点</span>
+    <span class="tag">不吸附到 32×24 网格</span>
+  </section>
+
+  <section class="grid two">
+    <article class="card current">
+      <h3>当前实现</h3>
+      <ul>
+        <li>在 rubber-link 坐标系中生成规则 <code>32×24</code> 矩形起点网格。</li>
+        <li>每根手指的全部射线共用一根“平均表面法线”。</li>
+        <li>蓝色 marker 只参与可视化，不参与 TacMap 采样。</li>
+        <li>HydroShear marker 从稠密网格中取邻近格点，因此分布会继承网格误差。</li>
+      </ul>
+    </article>
+    <article class="card target">
+      <h3>目标实现</h3>
+      <ul>
+        <li>marker 几何以 OpenCV 相机坐标系为标准数据。</li>
+        <li>每个有效 marker 独立提供采样起点与表面外法线。</li>
+        <li>marker ID 固定为 <code>M002–M101</code>；无效槽位保留但输出零。</li>
+        <li>运行时不再做 nearest-grid snapping。</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card">
+    <h2>两种射线的职责</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1040 430" role="img" aria-label="相机射线定位 marker，marker 法线射线采样物体">
+        <defs>
+          <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5aa2ff"/>
+          </marker>
+          <marker id="arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffb15a"/>
+          </marker>
+          <marker id="arrow-axis" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <path d="M 360 340 C 500 205, 705 155, 900 195" fill="none" stroke="#55d6d0" stroke-width="36" opacity=".18"/>
+        <path d="M 360 340 C 500 205, 705 155, 900 195" fill="none" stroke="#55d6d0" stroke-width="3"/>
+        <text x="765" y="245" fill="#8ee8e3" font-size="15">rubber 外表面</text>
+
+        <path d="M 915 112 C 835 94, 770 111, 710 134" fill="none" stroke="#687997" stroke-width="14" opacity=".55"/>
+        <text x="845" y="75" fill="#9cadca" font-size="15">物体表面</text>
+
+        <circle cx="150" cy="320" r="9" fill="#e9f0ff"/>
+        <text x="113" y="351" fill="#e9f0ff" font-size="15">相机光心 C</text>
+        <line x1="150" y1="320" x2="260" y2="320" stroke="#ff7085" stroke-width="3" marker-end="url(#arrow-axis)" style="color:#ff7085"/>
+        <line x1="150" y1="320" x2="150" y2="220" stroke="#65d995" stroke-width="3" marker-end="url(#arrow-axis)" style="color:#65d995"/>
+        <line x1="150" y1="320" x2="230" y2="255" stroke="#5aa2ff" stroke-width="3" marker-end="url(#arrow-axis)" style="color:#5aa2ff"/>
+        <text x="266" y="326" fill="#ff8b9b">+x₍C₎</text>
+        <text x="121" y="211" fill="#83e5aa">−y₍C₎</text>
+        <text x="236" y="251" fill="#79b5ff">+z₍C₎ optical</text>
+
+        <line x1="150" y1="320" x2="610" y2="191" stroke="#5aa2ff" stroke-width="3" stroke-dasharray="8 8" marker-end="url(#arrow-blue)"/>
+        <text x="315" y="224" fill="#79b5ff" font-size="15">① 相机射线 d<tspan baseline-shift="sub" font-size="11">C</tspan>：只负责反解位置</text>
+
+        <circle cx="610" cy="191" r="11" fill="#5aa2ff" stroke="#dbeaff" stroke-width="3"/>
+        <text x="575" y="166" fill="#dbeaff" font-size="15">可信 marker p</text>
+
+        <line x1="548" y1="246" x2="610" y2="191" stroke="#ffb15a" stroke-width="3" stroke-dasharray="5 5"/>
+        <circle cx="548" cy="246" r="6" fill="#ffb15a"/>
+        <text x="430" y="278" fill="#ffcb8a" font-size="14">数值起点 o = p − b·n</text>
+
+        <line x1="548" y1="246" x2="804" y2="88" stroke="#ffb15a" stroke-width="4" marker-end="url(#arrow-orange)"/>
+        <text x="650" y="110" fill="#ffcb8a" font-size="15">② marker 外法线 n：运行时采样</text>
+
+        <line x1="610" y1="191" x2="674" y2="151" stroke="#65d995" stroke-width="3" marker-end="url(#arrow-axis)" style="color:#65d995"/>
+        <text x="675" y="155" fill="#83e5aa" font-size="14">n<tspan baseline-shift="sub" font-size="10">C/W</tspan></text>
+
+        <rect x="52" y="26" width="390" height="86" rx="13" fill="#111a2d" stroke="#2a3b5f"/>
+        <text x="74" y="55" fill="#55d6d0" font-size="15" font-weight="700">关键约束</text>
+        <text x="74" y="80" fill="#c9d8f1" font-size="14">相机射线方向 ≠ 触觉采样方向</text>
+        <text x="74" y="102" fill="#9cadca" font-size="13">前者穿过光心；后者穿过 marker 且沿局部表面法线。</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--blue)"></i>相机标定射线</span>
+      <span><i style="background:var(--orange)"></i>marker 法线采样射线</span>
+      <span><i style="background:var(--cyan)"></i>rubber 外表面</span>
+      <span><i style="background:var(--green)"></i>单位外法线</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>坐标变换</h2>
+    <div class="flow">
+      <div class="step">
+        <h3>1. 像素 → 相机射线</h3>
+        <p>Brown 反畸变后，在 OpenCV 相机系中构造单位方向。</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <h3>2. 相机射线 → marker</h3>
+        <p>与 rubber 外层 mesh 求交，得到相机系位置和 mesh 法线。</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="step">
+        <h3>3. marker → 世界采样射线</h3>
+        <p>随手指位姿变换，并沿每个 marker 自己的法线采样物体。</p>
+      </div>
+    </div>
+
+    <div class="formula">xₙ, yₙ = BrownInverse(u, v, K, D)
+d_C      = normalize([xₙ, yₙ, 1])
+p_C      = IntersectOuterRubber(o_C = 0, d_C)
+n_C      = R_CL · n_L
+
+p_W      = R_WC · p_C + t_WC
+n_W      = normalize(R_WC · n_C)
+o_W      = p_W − b · n_W
+d_W      = n_W
+
+assert o_W + b · d_W ≈ p_W</div>
+    <p class="warn">
+      <strong>为什么不能真的从 marker 表面直接向外起射：</strong>
+      当物体压入 undeformed marker 表面后，物体边界会落在起点后方，正向射线反而看不到它。
+      因此“从 marker 打”应解释为射线<strong>经过 marker</strong>；数值起点沿 <code>−n</code>
+      后退距离 <code>b</code>。
+    </p>
+    <div class="formula">object_distance = Raycast(o_W, d_W)
+penetration     = valid ? max(b − object_distance, 0) : 0</div>
+  </section>
+
+  <section class="card">
+    <h2>建议的数据契约</h2>
+    <table>
+      <thead>
+        <tr><th>字段</th><th>形状（每指）</th><th>坐标系</th><th>用途</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>marker_ids</td><td>[100]</td><td>—</td><td>固定 M002–M101，不允许重新排序</td></tr>
+        <tr><td>marker_valid</td><td>[100]</td><td>—</td><td>仅 Brown 有效且真实命中外表面的点为 true</td></tr>
+        <tr><td>camera_ray_C</td><td>[100, 3]</td><td>camera</td><td>记录像素反解方向，只用于标定/复核</td></tr>
+        <tr><td>marker_position_C</td><td>[100, 3]</td><td>camera</td><td>marker 三维真值</td></tr>
+        <tr><td>marker_normal_C</td><td>[100, 3]</td><td>camera</td><td>运行时采样方向的标准表示</td></tr>
+        <tr><td>ray_backoff_m</td><td>scalar</td><td>—</td><td>大于最大预期压入量；保留为物理校准参数</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px">
+      当前 NPZ 已有 <code>points_camera_m</code>、<code>points_link_m</code> 和
+      <code>normals_link</code>；缺少的是显式 <code>camera_ray_C</code>、
+      <code>marker_normal_C</code> 与运行时 marker-ray 接线。
+    </p>
+  </section>
+
+  <section class="grid two">
+    <article class="card">
+      <h2>固定形状与有效点</h2>
+      <table>
+        <thead><tr><th>手指</th><th>固定槽位</th><th>高可信有效点</th></tr></thead>
+        <tbody>
+          <tr><td>middle</td><td>100</td><td>86</td></tr>
+          <tr><td>index</td><td>100</td><td>86</td></tr>
+          <tr><td>ring</td><td>100</td><td>86</td></tr>
+          <tr><td>pinky</td><td>100</td><td>85</td></tr>
+          <tr><td>thumb</td><td>100</td><td>0（尚无 Vitai 标定）</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:12px">无效槽位的深度、位移和法线统一置零，保证 batch tensor 形状稳定。</p>
+    </article>
+    <article class="card">
+      <h2>观测形状影响</h2>
+      <ul>
+        <li><code>ours</code> marker 采样建议改为 <code>[env, 5, 100]</code>。</li>
+        <li>原有 <code>32×24</code> 网格保留给 baseline，避免破坏对比实验。</li>
+        <li>旧策略若直接消费 TacMap <code>5×32×24</code>，不能无声复用。</li>
+        <li>可视化必须直接画 marker-ray，不再从稠密网格反选位置。</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="card">
+    <h2>实现 seam（下一步，不在本文执行）</h2>
+    <ol>
+      <li>
+        <strong>离线生成：</strong>
+        在 <code>project_vitai_markers_to_mesh.py</code> 中补齐相机系 ray 与 normal；
+        不再生成任何外推 marker 供运行时使用。
+      </li>
+      <li>
+        <strong>运行时射线：</strong>
+        复用 <code>SharpaTacmapLinkSurface</code>，为它增加“显式 starts/directions”这一种输入；
+        不新建第二套 ray caster。
+      </li>
+      <li>
+        <strong>Revo3 配置：</strong>
+        仅 <code>ours</code> 使用 marker layout；baseline 继续使用规则网格。
+      </li>
+      <li>
+        <strong>观测与显示：</strong>
+        RL、HydroShear、debug visualization 共用同一份 marker ID、valid mask、世界坐标射线。
+      </li>
+    </ol>
+    <p style="margin-top:12px">
+      这个 seam 把 Brown 反解、URDF 外参、坐标变换和有效性隐藏在一份小的数据契约后面；
+      调用者只需要 marker 世界射线与 mask。
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>验收条件</h2>
+    <ol>
+      <li><span class="ok">像素回投：</span>所有有效 marker 的 Brown 回投误差 ≤ 0.5 px。</li>
+      <li><span class="ok">表面一致：</span>marker 位于 rubber 外层 mesh，且不使用 nearest-surface 回退。</li>
+      <li><span class="ok">方向一致：</span><code>||n_C|| = 1</code>，并满足 <code>dot(n_C, d_C) &gt; 0</code>。</li>
+      <li><span class="ok">射线过点：</span><code>o_W + b·d_W</code> 与蓝色 marker 重合。</li>
+      <li><span class="ok">深度符号：</span>无接触为 0；压入 δ 时输出约为 δ，而不是 gap。</li>
+      <li><span class="ok">形状稳定：</span>每指始终 100 槽，invalid slot 永远为 0。</li>
+      <li><span class="ok">可视化同源：</span>屏幕上的蓝点、法线和实际 Warp ray 使用同一 tensor。</li>
+    </ol>
+  </section>
+
+  <section class="card decision">
+    <h2>实施前只需确认一个物理参数</h2>
+    <p>
+      <code>marker_ray_backoff_m = b</code> 必须大于最大预期压入深度，同时不能穿过不相关几何。
+      它应保留为配置项，并在 index 指尖上用已知压入量做一次标定；其余结构不需要再做设计选择。
+    </p>
+  </section>
+
+  <footer>Designed as a single source of truth for calibration, runtime sampling, RL observation, and visualization.</footer>
+</main>
+</body>
+</html>

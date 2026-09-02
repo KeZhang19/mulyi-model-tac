@@ -1,0 +1,223 @@
+{
+  "markers": "/home/abc/BC_Tactile_Lab/vitai_4Fingers-320*240/marker_annotations/marker_centers.csv",
+  "intrinsics": "/home/abc/BC_Tactile_Lab/vitai_4Fingers-320*240/camera_intrinsics_320x240.yaml",
+  "urdf": "/home/abc/BC_Tactile_Lab/assets/revo21_right_touch/urdf/revo21_dv2_urdf_right-touch.SLDASM.urdf",
+  "image_size": [
+    320,
+    240
+  ],
+  "marker_count": 100,
+  "surface": "fingertip rubber visual mesh",
+  "camera_convention": "OpenCV: +x right, +y down, +z forward",
+  "distortion_inverse": {
+    "model": "Brown-Conrady exact branch with monotonic atan extrapolation",
+    "max_valid_reprojection_error_px": 0.5,
+    "valid_marker_count": 87,
+    "extrapolated_marker_count": 13,
+    "extrapolated_marker_ids": [
+      "M009",
+      "M010",
+      "M020",
+      "M021",
+      "M032",
+      "M048",
+      "M052",
+      "M065",
+      "M073",
+      "M077",
+      "M082",
+      "M087",
+      "M097"
+    ],
+    "monotonic_radial_scale": 0.8974487307185802,
+    "fit_radius": 1.586009921145599,
+    "fit_rms_px": 0.17838392586543217
+  },
+  "fingers": {
+    "middle": {
+      "camera_joint": "right_middip_camera_joint",
+      "surface_link": "right_middip_roll_rubber_link",
+      "surface_mesh": "/home/abc/BC_Tactile_Lab/assets/revo21_right_touch/meshes/right_middip_roll_rubber_link.STL",
+      "exact_ray_hits": 99,
+      "nearest_surface_fallbacks": 1,
+      "distance_m": {
+        "min": 0.009131249040365219,
+        "median": 0.01241025049239397,
+        "max": 0.016093453392386436
+      },
+      "max_reprojection_error_px": 0.46665897965431213,
+      "camera_plane_ray_layout": {
+        "shape": [
+          32,
+          24
+        ],
+        "marker_overridden_base_ray_count": 0,
+        "marker_ray_shape": [
+          100
+        ],
+        "marker_ray_count": 86,
+        "marker_first_hit_count": 12,
+        "marker_second_hit_count": 74,
+        "base_first_hit_count": 35,
+        "base_second_hit_count": 733,
+        "origin_camera_z_m": 0.0,
+        "direction_camera": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "sampling_boundary": "camera_range_aug4",
+        "camera_range_boundary_segment_count": 178,
+        "camera_range_boundary_vertex_count": 178
+      }
+    },
+    "index": {
+      "camera_joint": "right_index_camera",
+      "surface_link": "right_indexdip_roll_rubber_link",
+      "surface_mesh": "/home/abc/BC_Tactile_Lab/assets/revo21_right_touch/meshes/right_indexdip_roll_rubber_link.STL",
+      "exact_ray_hits": 98,
+      "nearest_surface_fallbacks": 2,
+      "distance_m": {
+        "min": 0.00912998802959919,
+        "median": 0.012406805530190468,
+        "max": 0.01616697944700718
+      },
+      "max_reprojection_error_px": 7.1424784660339355,
+      "camera_plane_ray_layout": {
+        "shape": [
+          32,
+          24
+        ],
+        "marker_overridden_base_ray_count": 0,
+        "marker_ray_shape": [
+          100
+        ],
+        "marker_ray_count": 86,
+        "marker_first_hit_count": 11,
+        "marker_second_hit_count": 75,
+        "base_first_hit_count": 37,
+        "base_second_hit_count": 731,
+        "origin_camera_z_m": 0.0,
+        "direction_camera": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "sampling_boundary": "camera_range_aug4",
+        "camera_range_boundary_segment_count": 179,
+        "camera_range_boundary_vertex_count": 179
+      }
+    },
+    "ring": {
+      "camera_joint": "right_ring_camera_joint",
+      "surface_link": "right_ringdip_roll_rubber_link",
+      "surface_mesh": "/home/abc/BC_Tactile_Lab/assets/revo21_right_touch/meshes/right_ringdip_roll_rubber_link.STL",
+      "exact_ray_hits": 99,
+      "nearest_surface_fallbacks": 1,
+      "distance_m": {
+        "min": 0.009145905263721943,
+        "median": 0.012332465499639511,
+        "max": 0.016112608835101128
+      },
+      "max_reprojection_error_px": 2.4887049198150635,
+      "camera_plane_ray_layout": {
+        "shape": [
+          32,
+          24
+        ],
+        "marker_overridden_base_ray_count": 0,
+        "marker_ray_shape": [
+          100
+        ],
+        "marker_ray_count": 86,
+        "marker_first_hit_count": 11,
+        "marker_second_hit_count": 75,
+        "base_first_hit_count": 34,
+        "base_second_hit_count": 734,
+        "origin_camera_z_m": 0.0,
+        "direction_camera": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "sampling_boundary": "camera_range_aug4",
+        "camera_range_boundary_segment_count": 176,
+        "camera_range_boundary_vertex_count": 176
+      }
+    },
+    "pinky": {
+      "camera_joint": "right_pinky_camera_joint",
+      "surface_link": "right_pinkydip_roll_rubber_link",
+      "surface_mesh": "/home/abc/BC_Tactile_Lab/assets/revo21_right_touch/meshes/right_pinkydip_roll_rubber_link.STL",
+      "exact_ray_hits": 98,
+      "nearest_surface_fallbacks": 2,
+      "distance_m": {
+        "min": 0.009174770675599575,
+        "median": 0.012519272044301033,
+        "max": 0.016042860224843025
+      },
+      "max_reprojection_error_px": 5.15159797668457,
+      "camera_plane_ray_layout": {
+        "shape": [
+          32,
+          24
+        ],
+        "marker_overridden_base_ray_count": 0,
+        "marker_ray_shape": [
+          100
+        ],
+        "marker_ray_count": 85,
+        "marker_first_hit_count": 15,
+        "marker_second_hit_count": 70,
+        "base_first_hit_count": 35,
+        "base_second_hit_count": 733,
+        "origin_camera_z_m": 0.0,
+        "direction_camera": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "sampling_boundary": "camera_range_aug4",
+        "camera_range_boundary_segment_count": 178,
+        "camera_range_boundary_vertex_count": 178
+      }
+    },
+    "thumb": {
+      "camera_joint": "right_thumbdip_camera_joint",
+      "surface_link": "right_thumbdip_roll_rubber_link",
+      "surface_mesh": "/home/abc/BC_Tactile_Lab/assets/revo21_right_touch/meshes/right_thumbdip_roll_rubber_link.STL",
+      "exact_ray_hits": 100,
+      "nearest_surface_fallbacks": 0,
+      "distance_m": {
+        "min": 0.00876548234373331,
+        "median": 0.013695474714040756,
+        "max": 0.01940665952861309
+      },
+      "max_reprojection_error_px": 0.46665897965431213,
+      "camera_plane_ray_layout": {
+        "shape": [
+          32,
+          24
+        ],
+        "marker_overridden_base_ray_count": 0,
+        "marker_ray_shape": [
+          100
+        ],
+        "marker_ray_count": 87,
+        "marker_first_hit_count": 7,
+        "marker_second_hit_count": 80,
+        "base_first_hit_count": 1,
+        "base_second_hit_count": 767,
+        "origin_camera_z_m": 0.0,
+        "direction_camera": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "sampling_boundary": "camera_range_aug4",
+        "camera_range_boundary_segment_count": 163,
+        "camera_range_boundary_vertex_count": 163
+      }
+    }
+  }
+}

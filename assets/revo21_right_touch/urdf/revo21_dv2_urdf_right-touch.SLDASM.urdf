@@ -1,0 +1,2887 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com)
+     Commit Version:   Build Version: 1.6.9691.23984
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="revo21_dv2_urdf_right-touch.SLDASM">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.00705530870630709 0.00112866609810753 0.0455803488338874"
+        rpy="0 0 0" />
+      <mass
+        value="0.289507307144996" />
+      <inertia
+        ixx="0.000494493625832953"
+        ixy="5.8462218849475E-06"
+        ixz="4.57029896417959E-05"
+        iyy="0.000352865298435179"
+        iyz="-1.18105206636403E-05"
+        izz="0.000271483159187933" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+
+  <link
+    name="right_midmcp_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.00047126 8.9151E-05 0.005114"
+        rpy="0 0 0" />
+      <mass
+        value="0.0083558" />
+      <inertia
+        ixx="6.4042E-07"
+        ixy="1.6028E-09"
+        ixz="3.5875E-08"
+        iyy="6.6085E-07"
+        iyz="3.0504E-11"
+        izz="5.8732E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midmcp_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midmcp_yaw_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_midmcp_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="-0.00794102299681282 0.0125316383697077 0.107927151340908"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_midmcp_yaw_link" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.26"
+      upper="0.44"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_midmcp_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.00023747 0.00046807 0.022676"
+        rpy="0 0 0" />
+      <mass
+        value="0.060963" />
+      <inertia
+        ixx="1.6715E-05"
+        ixy="-2.0065E-09"
+        ixz="-2.7332E-07"
+        iyy="1.6898E-05"
+        iyz="-2.6895E-07"
+        izz="3.4894E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midmcp_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midmcp_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_midmcp_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00187499938080231 0.000291231468728878 0.0159999493531394"
+      rpy="0 0 0" />
+    <parent
+      link="right_midmcp_yaw_link" />
+    <child
+      link="right_midmcp_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.05"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_midpip_roll_link">
+    <inertial>
+      <origin
+        xyz="7.8714E-05 0.00032015 0.01846"
+        rpy="0 0 0" />
+      <mass
+        value="0.032587" />
+      <inertia
+        ixx="3.9663E-06"
+        ixy="-8.8474E-09"
+        ixz="-2.3312E-07"
+        iyy="3.7591E-06"
+        iyz="-6.96E-08"
+        izz="1.7778E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midpip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.69804 0.69804 0.69804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midpip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_midpip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.000838318300903245 0.000944547070528053 0.0469914081397934"
+      rpy="0 0 0" />
+    <parent
+      link="right_midmcp_roll_link" />
+    <child
+      link="right_midpip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.21"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_middip_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.000507165139936886 0.000241531986959191 0.0142717958414587"
+        rpy="0 0 0" />
+      <mass
+        value="0.0083351940071304" />
+      <inertia
+        ixx="8.58753372510636E-07"
+        ixy="-2.65704919948123E-09"
+        ixz="-3.64848502033115E-08"
+        iyy="7.44607434117882E-07"
+        iyz="-1.15655221239335E-08"
+        izz="4.9172142991398E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_middip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_middip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_middip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00139151820394552 0.000576118195242635 0.0294848218597647"
+      rpy="0 0 0" />
+    <parent
+      link="right_midpip_roll_link" />
+    <child
+      link="right_middip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.35"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_middip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.0052426534991665 0.000915527250836483 0.0496943590346743"
+        rpy="0 0 0" />
+      <mass
+        value="0.00185193640956618" />
+      <inertia
+        ixx="1.04030466410909E-07"
+        ixy="-7.46610022649014E-10"
+        ixz="1.070515612363E-08"
+        iyy="5.34847599701617E-08"
+        iyz="4.41995116688657E-10"
+        izz="8.50840539255725E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_middip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_middip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_middip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="-0.00139151820394552 -0.000576118195242635 -0.0294848218597647"
+      rpy="0 0 0" />
+    <parent
+      link="right_middip_roll_link" />
+    <child
+      link="right_middip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_middip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_midpip_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00444737008135702 0.000244531926198298 0.0162040504375068"
+        rpy="0 0 0" />
+      <mass
+        value="0.000509150334287101" />
+      <inertia
+        ixx="4.83753754390664E-08"
+        ixy="-5.11771529752483E-10"
+        ixz="-5.989203761396E-09"
+        iyy="2.849373502294E-08"
+        iyz="4.87949230873694E-10"
+        izz="4.63591539613765E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midpip_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midpip_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_midpip_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01014256 0.00010799 0.01694991" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_midpip_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_midpip_roll_link" />
+    <child
+      link="right_midpip_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_midpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_midpip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.0044799258390082 0.000231253805054926 0.0155150416907753"
+        rpy="0 0 0" />
+      <mass
+        value="0.00120580880715959" />
+      <inertia
+        ixx="1.15792847392409E-07"
+        ixy="-1.27883120311013E-09"
+        ixz="-1.13209698051132E-08"
+        iyy="6.10358549293743E-08"
+        iyz="1.41458817189856E-09"
+        izz="1.19477561539418E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midpip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midpip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_midpip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_midpip_roll_link" />
+    <child
+      link="right_midpip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_midpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_midmcp_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00465124961472852 0.00043401441305075 0.0255797314585103"
+        rpy="0 0 0" />
+      <mass
+        value="0.00090657309306753" />
+      <inertia
+        ixx="1.43311456125136E-07"
+        ixy="-8.28437094654533E-10"
+        ixz="-6.33530764021825E-09"
+        iyy="1.06964270348048E-07"
+        iyz="-1.8166818186163E-10"
+        izz="9.22674547693094E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midmcp_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midmcp_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_midmcp_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01214378 0.00050907 0.02738998" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_midmcp_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_midmcp_roll_link" />
+    <child
+      link="right_midmcp_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_midmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_midmcp_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00477241601312627 0.000419926014095365 0.0249575123341773"
+        rpy="0 0 0" />
+      <mass
+        value="0.00218925068670428" />
+      <inertia
+        ixx="3.33188060467711E-07"
+        ixy="-2.09284002364463E-09"
+        ixz="-1.02014993035968E-08"
+        iyy="2.34516926940435E-07"
+        iyz="3.01059532903323E-10"
+        izz="2.39857508993878E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_midmcp_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_midmcp_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_midmcp_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_midmcp_roll_link" />
+    <child
+      link="right_midmcp_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_midmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_thumbcmp_roll_link">
+    <inertial>
+      <origin
+        xyz="-8.84778610867271E-06 -0.000192705445798833 0.000446212207766056"
+        rpy="0 0 0" />
+      <mass
+        value="0.0160021203097764" />
+      <inertia
+        ixx="9.7412832483338E-07"
+        ixy="1.54521001622562E-09"
+        ixz="-1.27049703315296E-10"
+        iyy="1.05601685781061E-06"
+        iyz="5.02865377779564E-09"
+        izz="8.20644813975703E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbcmp_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbcmp_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbcmp_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00199783670091196 0.0195358719276065 0.0520279736546372"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_thumbcmp_roll_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="0"
+      upper="1.92"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_thumbcmr_roll_link">
+    <inertial>
+      <origin
+        xyz="0.0012525545392548 0.00616495646885014 5.67974005067501E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.00880643045989415" />
+      <inertia
+        ixx="7.09571706704936E-07"
+        ixy="-1.5565597390199E-08"
+        ixz="-4.68741438403721E-12"
+        iyy="7.1843566380224E-07"
+        iyz="8.18944414010654E-12"
+        izz="4.2316390005989E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbcmr_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 3.14 0" />
+      <geometry>
+        <!-- <box size="0.02 0.008 0.03" /> -->
+        <mesh
+            filename="../collision/right_thumbcmr_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbcmr_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.00946412807232854 -3.50804279772229E-05"
+      rpy="0 3.14159265358979 0" />
+    <parent
+      link="right_thumbcmp_roll_link" />
+    <child
+      link="right_thumbcmr_roll_link" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      lower="-0.523598775598"
+      upper="1.57079632679"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_thumbmcp_roll_link">
+    <inertial>
+      <origin
+        xyz="0.00243202873730993 0.0225899647582402 1.26892715951038E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.0725660695119331" />
+      <inertia
+        ixx="1.53715818938925E-05"
+        ixy="-8.94139090686312E-07"
+        ixz="1.26576145126388E-09"
+        iyy="6.98389411496794E-06"
+        iyz="-1.73366112297564E-08"
+        izz="1.58508669953274E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbmcp_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbmcp_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbmcp_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.011999952200815 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbcmr_roll_link" />
+    <child
+      link="right_thumbmcp_roll_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="0"
+      upper="1.31"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_thumbpip_roll_link">
+    <inertial>
+      <origin
+        xyz="0.00118047821592935 0.0194555013803321 1.81690925180923E-07"
+        rpy="0 0 0" />
+      <mass
+        value="0.0421939214588348" />
+      <inertia
+        ixx="5.90104639404351E-06"
+        ixy="4.83637753249322E-08"
+        ixz="-4.40698782899035E-11"
+        iyy="2.77551160792784E-06"
+        iyz="-5.2653534639634E-11"
+        izz="5.37799275144134E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbpip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbpip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbpip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00136670811596501 0.042587296541035 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbmcp_roll_link" />
+    <child
+      link="right_thumbpip_roll_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.17"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_thumbdip_roll_link">
+    <inertial>
+      <origin
+        xyz="0.000549744241862726 0.0155407908583428 -0.000294016198015421"
+        rpy="0 0 0" />
+      <mass
+        value="0.0112429491485572" />
+      <inertia
+        ixx="1.44013579115751E-06"
+        ixy="9.01629306173922E-08"
+        ixz="9.04309865837006E-10"
+        iyy="7.55014503612259E-07"
+        iyz="-2.07278420433586E-08"
+        izz="1.24611728193095E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbdip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbdip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbdip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00052076828619 0.03199998974972 0.000226056185573833"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbpip_roll_link" />
+    <child
+      link="right_thumbdip_roll_link" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.17"
+      upper="1.8"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_thumbdip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="-0.00482249267105059 0.0234748468286574 -0.000225186748525695"
+        rpy="0 0 0" />
+      <mass
+        value="0.00191614963063543" />
+      <inertia
+        ixx="1.27525701791823E-07"
+        ixy="-1.0152876827919E-08"
+        ixz="1.2671761425478E-12"
+        iyy="9.84270072477967E-08"
+        iyz="-8.3497069199108E-13"
+        izz="6.29935392479394E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbdip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbdip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbdip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbdip_roll_link" />
+    <child
+      link="right_thumbdip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_thumbdip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_thumbpip_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="-0.0037046613721643 0.0167137702794563 -1.02397409096735E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.000431188093806293" />
+      <inertia
+        ixx="4.48889544002524E-08"
+        ixy="1.2940857750369E-09"
+        ixz="-2.5594828638949E-12"
+        iyy="5.05433679969215E-08"
+        iyz="2.29509569551693E-12"
+        izz="1.77485781373418E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbpip_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbpip_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_thumbpip_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="-1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="-0.00973271 0.01680773 0.00000045" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_thumbpip_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbpip_roll_link" />
+    <child
+      link="right_thumbpip_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_thumbpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_thumbpip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="-0.00415714786882947 0.0178611702121966 1.44641741418178E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.00135268138690721" />
+      <inertia
+        ixx="1.52724098582511E-07"
+        ixy="9.63889026059556E-09"
+        ixz="-4.10286814595263E-12"
+        iyy="1.56525410083956E-07"
+        iyz="6.62190298325352E-13"
+        izz="7.35384542916854E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbpip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbpip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbpip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbpip_roll_link" />
+    <child
+      link="right_thumbpip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_thumbpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_thumbmcp_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="-0.00183956843407664 0.0258988622015516 2.74656145721466E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.000956186881130387" />
+      <inertia
+        ixx="2.09036774861808E-07"
+        ixy="-1.56674150445717E-08"
+        ixz="-3.51315515468784E-10"
+        iyy="1.8309693701496E-07"
+        iyz="2.79685683325952E-10"
+        izz="1.34253015369591E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbmcp_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.996078431372549 1 0.498039215686275 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbmcp_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_thumbmcp_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="-1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="-0.01275706 0.02951270 0.00000000" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_thumbmcp_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbmcp_roll_link" />
+    <child
+      link="right_thumbmcp_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_thumbmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_thumbmcp_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="-0.00203375457104148 0.02548910661571 2.26797764848281E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.00239161580827144" />
+      <inertia
+        ixx="5.26296793024208E-07"
+        ixy="-3.75530141535361E-08"
+        ixz="-1.9474734980166E-10"
+        iyy="4.79640132201622E-07"
+        iyz="-9.64736075005521E-10"
+        izz="3.33910992682214E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_thumbmcp_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.898039215686275 0.917647058823529 0.929411764705882 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_thumbmcp_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_thumbmcp_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_thumbmcp_roll_link" />
+    <child
+      link="right_thumbmcp_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_thumbmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_indexmcp_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.000476073467705411 0.000316590522482445 0.00510452104487305"
+        rpy="0 0 0" />
+      <mass
+        value="0.00835579279708227" />
+      <inertia
+        ixx="6.40452088572873E-07"
+        ixy="3.84930134970617E-09"
+        ixz="3.58111772114756E-08"
+        iyy="6.60463343354736E-07"
+        iyz="-4.32842876990175E-09"
+        izz="5.87670197741481E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexmcp_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexmcp_yaw_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexmcp_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="-0.00729368998766236 0.036976393244618 0.0978111781534073"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_indexmcp_yaw_link" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.26"
+      upper="0.52"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_indexmcp_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.000257387945972615 0.00140609612638827 0.022636935079676"
+        rpy="0 0 0" />
+      <mass
+        value="0.0609628623557019" />
+      <inertia
+        ixx="1.67159355615612E-05"
+        ixy="-5.33437946627569E-09"
+        ixz="-2.61245337084635E-07"
+        iyy="1.68537235325447E-05"
+        iyz="-8.06789338881789E-07"
+        izz="3.53220453723514E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexmcp_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexmcp_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexmcp_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00185797304403404 0.000875573004293424 0.0159806171918112"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexmcp_yaw_link" />
+    <child
+      link="right_indexmcp_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.09"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_indexpip_roll_link">
+    <inertial>
+      <origin
+        xyz="5.99808813375059E-05 0.00107354039829437 0.0184315270282459"
+        rpy="0 0 0" />
+      <mass
+        value="0.0325868445419081" />
+      <inertia
+        ixx="3.96614257261066E-06"
+        ixy="-2.61011443618816E-08"
+        ixz="-2.31062302249357E-07"
+        iyy="3.75180217323967E-06"
+        iyz="-1.41735739610657E-07"
+        izz="1.78534267947076E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexpip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexpip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexpip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.000795103017743352 0.00283792606781085 0.0469158967997792"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexmcp_roll_link" />
+    <child
+      link="right_indexpip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.21"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_indexdip_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.000521462995970736 0.000845576739662658 0.0142482555788891"
+        rpy="0 0 0" />
+      <mass
+        value="0.0083351940071304" />
+      <inertia
+        ixx="8.5850796484746E-07"
+        ixy="-8.45813199514554E-09"
+        ixz="-3.59689617473117E-08"
+        iyy="7.43715243427874E-07"
+        iyz="-2.05250849237129E-08"
+        izz="4.92859028267164E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexdip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexdip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexdip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00136314376279897 0.00173127244230926 0.0294409152371543"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexpip_roll_link" />
+    <child
+      link="right_indexdip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.35"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_indexdip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00382746825830385 0.00102121333982241 0.0201910733850238"
+        rpy="0 0 0" />
+      <mass
+        value="0.00185193640956618" />
+      <inertia
+        ixx="1.03864447020294E-07"
+        ixy="-2.22523165958986E-09"
+        ixz="1.08459842774561E-08"
+        iyy="5.36702766163528E-08"
+        iyz="1.32007967296508E-09"
+        izz="8.50645566699967E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexdip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexdip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexdip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexdip_roll_link" />
+    <child
+      link="right_indexdip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_indexdip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_indexpip_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.0044263542817476 0.000739608579847208 0.0161947681059599"
+        rpy="0 0 0" />
+      <mass
+        value="0.000509150334287102" />
+      <inertia
+        ixx="4.83275360092663E-08"
+        ixy="-1.51151763172192E-09"
+        ixz="-5.90597710612731E-09"
+        iyy="2.86498728801766E-08"
+        iyz="1.43945827972498E-09"
+        izz="4.625085553394E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexpip_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexpip_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_indexpip_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01016522 0.00056174 0.01676985" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_indexpip_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexpip_roll_link" />
+    <child
+      link="right_indexpip_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_indexpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_indexpip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00445953283906289 0.000696864565606997 0.0155069880746192"
+        rpy="0 0 0" />
+      <mass
+        value="0.00120580880715959" />
+      <inertia
+        ixx="1.15653760674494E-07"
+        ixy="-3.82108803192446E-09"
+        ixz="-1.11179589525351E-08"
+        iyy="6.14611734980289E-08"
+        iyz="4.21827744751645E-09"
+        izz="1.19191329688679E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexpip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexpip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexpip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexpip_roll_link" />
+    <child
+      link="right_indexpip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_indexpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_indexmcp_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00462162405208328 0.00130546373583137 0.0255554594663133"
+        rpy="0 0 0" />
+      <mass
+        value="0.000906573093067531" />
+      <inertia
+        ixx="1.43216738870714E-07"
+        ixy="-2.46385324790387E-09"
+        ixz="-6.15659075285786E-09"
+        iyy="1.07059695178251E-07"
+        iyz="-5.5183273945965E-10"
+        izz="9.22667471935275E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexmcp_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexmcp_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_indexmcp_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01213802 0.00151203 0.02719285" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_indexmcp_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexmcp_roll_link" />
+    <child
+      link="right_indexmcp_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_indexmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_indexmcp_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00474320630303828 0.00126128346132093 0.0249347322497614"
+        rpy="0 0 0" />
+      <mass
+        value="0.00218925068670429" />
+      <inertia
+        ixx="3.32919456904486E-07"
+        ixy="-6.24913447835351E-09"
+        ixz="-9.77901955896955E-09"
+        iyy="2.34883417575762E-07"
+        iyz="8.82308567908955E-10"
+        izz="2.39759621921776E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_indexmcp_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_indexmcp_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_indexmcp_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_indexmcp_roll_link" />
+    <child
+      link="right_indexmcp_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_indexmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_ringmcp_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.000478916474350475 -0.000138042246591565 0.0051122004999689"
+        rpy="0 0 0" />
+      <mass
+        value="0.00835579279708227" />
+      <inertia
+        ixx="6.40263472079718E-07"
+        ixy="-6.51443769756195E-10"
+        ixz="3.58984645299325E-08"
+        iyy="6.60702312861087E-07"
+        iyz="4.40241743117146E-09"
+        izz="5.87619844728285E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringmcp_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringmcp_yaw_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringmcp_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="-0.0080884226587773 -0.0124508350538633 0.103836133387329"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_ringmcp_yaw_link" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.26"
+      upper="0.35"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_ringmcp_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.000275554478593584 -0.00046877504135942 0.0226755045007331"
+        rpy="0 0 0" />
+      <mass
+        value="0.0609628623557019" />
+      <inertia
+        ixx="1.67157943382067E-05"
+        ixy="1.54193232210341E-09"
+        ixz="-2.51103409419827E-07"
+        iyy="1.68975240649817E-05"
+        iyz="2.69427586255502E-07"
+        izz="3.48854522815255E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringmcp_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringmcp_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringmcp_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00184812472405304 -0.000291808729386604 0.0160030653444649"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringmcp_yaw_link" />
+    <child
+      link="right_ringmcp_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.21"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_ringpip_roll_link">
+    <inertial>
+      <origin
+        xyz="4.98369581541985E-05 -0.000432033632330502 0.0184577392576662"
+        rpy="0 0 0" />
+      <mass
+        value="0.0325868445419081" />
+      <inertia
+        ixx="3.96711976730568E-06"
+        ixy="8.4975256123185E-09"
+        ixz="-2.28162084839416E-07"
+        iyy="3.76186056397398E-06"
+        iyz="2.7373460275525E-09"
+        izz="1.77430709404144E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringpip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringpip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringpip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.000759391663384322 -0.000946080138159208 0.0469927190357876"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringmcp_roll_link" />
+    <child
+      link="right_ringpip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.35"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_ringdip_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.000528846248020843 -0.000361664308574067 0.0142684698301545"
+        rpy="0 0 0" />
+      <mass
+        value="0.0083351940071304" />
+      <inertia
+        ixx="8.58853994516659E-07"
+        ixy="3.17945383945108E-09"
+        ixz="-3.55861178235085E-08"
+        iyy="7.45206480682228E-07"
+        iyz="-2.57556929057433E-09"
+        izz="4.91021761343611E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringdip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringdip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringdip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00134199494912658 -0.00057711102740254 0.0294870979855161"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringpip_roll_link" />
+    <child
+      link="right_ringdip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.35"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_ringdip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00381719304347938 -0.000340411241425684 0.0202159588406955"
+        rpy="0 0 0" />
+      <mass
+        value="0.00185193640956618" />
+      <inertia
+        ixx="1.03994453811207E-07"
+        ixy="7.46975986403475E-10"
+        ixz="1.07369424870582E-08"
+        iyy="5.34847901069088E-08"
+        iyz="-4.41828916372706E-10"
+        izz="8.51200363885277E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringdip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringdip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringdip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringdip_roll_link" />
+    <child
+      link="right_ringdip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_ringdip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_ringpip_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00442021633905117 -0.000248637213035301 0.0162114161669184"
+        rpy="0 0 0" />
+      <mass
+        value="0.000509150334287101" />
+      <inertia
+        ixx="4.83962078130144E-08"
+        ixy="4.93989002941125E-10"
+        ixz="-5.98645692975337E-09"
+        iyy="2.84923941408402E-08"
+        iyz="-4.71708158738325E-10"
+        izz="4.63396624695283E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringpip_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringpip_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_ringpip_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01011537 -0.00010824 0.01694887" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_ringpip_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringpip_roll_link" />
+    <child
+      link="right_ringpip_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_ringpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_ringpip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00445387473245066 -0.000232483975439367 0.01552252181769"
+        rpy="0 0 0" />
+      <mass
+        value="0.00120580880715959" />
+      <inertia
+        ixx="1.15830965152188E-07"
+        ixy="1.27952157192957E-09"
+        ixz="-1.13272002704103E-08"
+        iyy="6.10356432455269E-08"
+        iyz="-1.40883703645597E-09"
+        izz="1.19439655463487E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringpip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringpip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringpip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringpip_roll_link" />
+    <child
+      link="right_ringpip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_ringpip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_ringmcp_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00460828246622426 -0.000434975368619042 0.025587490735102"
+        rpy="0 0 0" />
+      <mass
+        value="0.000906573093067532" />
+      <inertia
+        ixx="1.43332959514351E-07"
+        ixy="8.18762623017083E-10"
+        ixz="-6.24961477747991E-09"
+        iyy="1.06964092788442E-07"
+        iyz="1.78631094561974E-10"
+        izz="9.22461289397E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringmcp_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringmcp_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_ringmcp_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01212206 -0.00050981 0.02739350" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_ringmcp_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringmcp_roll_link" />
+    <child
+      link="right_ringmcp_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_ringmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_ringmcp_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00473045769041304 -0.000418980966699387 0.02496551500288"
+        rpy="0 0 0" />
+      <mass
+        value="0.00218925068670429" />
+      <inertia
+        ixx="3.33222040836763E-07"
+        ixy="2.09431049830851E-09"
+        ixz="-1.00444596597185E-08"
+        iyy="2.34517281941556E-07"
+        iyz="-3.05320166914274E-10"
+        izz="2.39823173623705E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_ringmcp_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_ringmcp_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ringmcp_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_ringmcp_roll_link" />
+    <child
+      link="right_ringmcp_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_ringmcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_pinkymcp_yaw_link">
+    <inertial>
+      <origin
+        xyz="-0.000488716747413168 -0.000365974623550286 0.00510002246258245"
+        rpy="0 0 0" />
+      <mass
+        value="0.00835579279708227" />
+      <inertia
+        ixx="6.40126989578414E-07"
+        ixy="-2.916142339085E-09"
+        ixz="3.57735273069513E-08"
+        iyy="6.60027439553225E-07"
+        iyz="8.72905623818823E-09"
+        izz="5.88431200537451E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkymcp_yaw_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkymcp_yaw_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkymcp_yaw_joint"
+    type="revolute">
+    <origin
+      xyz="-0.0070232453424197 -0.0365118989929991 0.0905157916992934"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_pinkymcp_yaw_link" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.26"
+      upper="0.17"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_pinkymcp_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.000325833659843927 -0.00140994158000879 0.0226358141413097"
+        rpy="0 0 0" />
+      <mass
+        value="0.0609628623557019" />
+      <inertia
+        ixx="1.67173939807516E-05"
+        ixy="2.94057793260183E-09"
+        ixz="-2.21383159588807E-07"
+        iyy="1.68534353819793E-05"
+        iyz="8.09182844521009E-07"
+        izz="3.53103426861004E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkymcp_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkymcp_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkymcp_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00180966648562762 -0.000878675609979826 0.0159859893072852"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkymcp_yaw_link" />
+    <child
+      link="right_pinkymcp_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.09"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_pinkypip_roll_link">
+    <inertial>
+      <origin
+        xyz="1.0630198110366E-05 -0.00118766938277273 0.0184246195000594"
+        rpy="0 0 0" />
+      <mass
+        value="0.0325868445419081" />
+      <inertia
+        ixx="3.96753079820394E-06"
+        ixy="2.53811802467075E-08"
+        ixz="-2.20636535703243E-07"
+        iyy="3.75993067841737E-06"
+        iyz="7.57910916596142E-08"
+        izz="1.77582594869978E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkypip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkypip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkypip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.000653256286638686 -0.00284616885776814 0.0469175869451931"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkymcp_roll_link" />
+    <child
+      link="right_pinkypip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.21"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_pinkydip_roll_link">
+    <inertial>
+      <origin
+        xyz="-0.00055768717585442 -0.000967257207765665 0.0142391400452444"
+        rpy="0 0 0" />
+      <mass
+        value="0.0083351940071304" />
+      <inertia
+        ixx="8.58657935380962E-07"
+        ixy="8.90878940827854E-09"
+        ixz="-3.40174133565641E-08"
+        iyy="7.45503524805127E-07"
+        iyz="6.56564406354273E-09"
+        izz="4.90920776356408E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkydip_roll_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkydip_roll_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkydip_roll_joint"
+    type="revolute">
+    <origin
+      xyz="0.00127413664280688 -0.00173660639709333 0.0294445874351449"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkypip_roll_link" />
+    <child
+      link="right_pinkydip_roll_link" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      lower="-0.35"
+      upper="1.57"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_pinkydip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.0037664559329744 -0.00102562920233661 0.0202023198875141"
+        rpy="0 0 0" />
+      <mass
+        value="0.00185193640956618" />
+      <inertia
+        ixx="1.03799565089515E-07"
+        ixy="2.2197318367673E-09"
+        ixz="1.09026434794173E-08"
+        iyy="5.3670067706566E-08"
+        iyz="-1.32052577072857E-09"
+        izz="8.51296475105628E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkydip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkydip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkydip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkydip_roll_link" />
+    <child
+      link="right_pinkydip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_pinkydip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_pinkypip_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00437761252315645 -0.000746646712318395 0.0162076887423479"
+        rpy="0 0 0" />
+      <mass
+        value="0.000509150334287101" />
+      <inertia
+        ixx="4.83657311272111E-08"
+        ixy="1.49526252072265E-09"
+        ixz="-5.90162361880153E-09"
+        iyy="2.8645818946858E-08"
+        iyz="-1.42138214342392E-09"
+        izz="4.62167143493137E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkypip_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkypip_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_pinkypip_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01011729 -0.00056416 0.01677868" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_pinkypip_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkypip_roll_link" />
+    <child
+      link="right_pinkypip_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_pinkypip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_pinkypip_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00441270724558607 -0.00070094491894878 0.0155201940547538"
+        rpy="0 0 0" />
+      <mass
+        value="0.00120580880715959" />
+      <inertia
+        ixx="1.15722207024922E-07"
+        ixy="3.82551080009246E-09"
+        ixz="-1.11288299681099E-08"
+        iyy="6.14605722623908E-08"
+        iyz="-4.2096294908934E-09"
+        izz="1.19123484573889E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkypip_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkypip_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkypip_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkypip_roll_link" />
+    <child
+      link="right_pinkypip_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_pinkypip_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_pinkymcp_roll_touch_link">
+    <inertial>
+      <origin
+        xyz="0.00454438337418222 -0.00131071259400263 0.0255690391924125"
+        rpy="0 0 0" />
+      <mass
+        value="0.000906573093067532" />
+      <inertia
+        ixx="1.43255224530783E-07"
+        ixy="2.4482635840702E-09"
+        ixz="-6.00269516900924E-09"
+        iyy="1.07058272898485E-07"
+        iyz="5.5778602298796E-10"
+        izz="9.22296838132247E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkymcp_roll_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkymcp_roll_touch_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_pinkymcp_roll_touch_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.0035" col_distance="0.002357142857142857" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01209902 -0.00151572 0.02719868" rpy="0 0 0" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_pinkymcp_roll_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkymcp_roll_link" />
+    <child
+      link="right_pinkymcp_roll_touch_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_pinkymcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_pinkymcp_roll_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.00466773482757238 -0.00126456341790186 0.0249488044866251"
+        rpy="0 0 0" />
+      <mass
+        value="0.00218925068670429" />
+      <inertia
+        ixx="3.32979368569907E-07"
+        ixy="6.2392658659001E-09"
+        ixz="-9.49660972104991E-09"
+        iyy="2.3488284131437E-07"
+        iyz="-8.70409607903091E-10"
+        izz="2.39700286517748E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_pinkymcp_roll_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_pinkymcp_roll_rubber_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_pinkymcp_roll_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_pinkymcp_roll_link" />
+    <child
+      link="right_pinkymcp_roll_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+    <mimic
+      joint="right_pinkymcp_roll_joint"
+      multiplier="1"
+      offset="0" />
+  </joint>
+  <link
+    name="right_hand_touch_link">
+    <inertial>
+      <origin
+        xyz="0.0132229921574737 -0.00500397851894011 0.0693797994571784"
+        rpy="0 0 0" />
+      <mass
+        value="0.00646962293934755" />
+      <inertia
+        ixx="6.58591531520839E-06"
+        ixy="2.19513712559324E-07"
+        ixz="8.20321085697414E-07"
+        iyy="3.50611659192979E-06"
+        iyz="-8.30427284364442E-07"
+        izz="3.50068576266492E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_hand_touch_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_hand_touch_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_hand_touch_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_hand_touch_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="right_hand_rubber_link">
+    <inertial>
+      <origin
+        xyz="0.0143312969860656 -0.00431291781727736 0.0683442789186439"
+        rpy="0 0 0" />
+      <mass
+        value="0.049173247700021" />
+      <inertia
+        ixx="5.54131017621806E-05"
+        ixy="1.51891976477361E-06"
+        ixz="6.72051636233209E-06"
+        iyy="2.94861950633325E-05"
+        iyz="-5.5410700965617E-06"
+        izz="2.93310503180968E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../meshes/right_hand_rubber_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.698039215686274 0.698039215686274 0.698039215686274 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="../collision/right_hand_rubber_link.STL" />
+      </geometry>
+    </collision>
+    <pressure_pad name="right_hand_rubber_link_pressure_pad" rows="4" cols="8" taxel_count="32" row_distance="0.007" col_distance="0.004714285714285714" normal_axis="0" normal_offset="0" normal_sign="1" origin_semantics="pad_surface" stiffness="5000" damping="0" max_force="10" gain="1" bias="0" gamma="1" threshold="0" area="1">
+      <origin xyz="0.01468121 -0.00419611 0.06899167" rpy="-0.00105742 -0.27007035 0.00778298" />
+    </pressure_pad>
+  </link>
+  <joint
+    name="right_hand_rubber_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_hand_rubber_link" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+
+  <!-- Camera-frame extrinsics from the right hand 7.22 CAD export. -->
+  <link name="right_middip_camera_link" />
+  <link name="right_thumbdip_camera_link" />
+  <link name="right_index_camera" />
+  <link name="right_ring_camera_link" />
+  <link name="right_pinky_camera_link" />
+  <joint name="right_middip_camera_joint" type="fixed">
+    <origin xyz="0.000422185650486755 0.000230553967918183 0.0140291971472168" rpy="0.734798080437383 0 1.57436210878442" />
+    <parent link="right_middip_roll_link" />
+    <child link="right_middip_camera_link" />
+  </joint>
+  <joint name="right_thumbdip_camera_joint" type="fixed">
+    <!-- CAD rpy followed by a pi rotation about camera X so OpenCV +Z faces the rubber. -->
+    <origin xyz="-0.0016627 0.014713 -0.0002248" rpy="-0.782892653589793 -1.5708 0" />
+    <parent link="right_thumbdip_roll_link" />
+    <child link="right_thumbdip_camera_link" />
+  </joint>
+  <joint name="right_index_camera" type="fixed">
+    <origin xyz="0.000407199894029124 0.000789369590070955 0.0140093130576646" rpy="0.732642540505513 0 1.58177569739672" />
+    <parent link="right_indexdip_roll_link" />
+    <child link="right_index_camera" />
+  </joint>
+  <joint name="right_ring_camera_joint" type="fixed">
+    <origin xyz="0.000400462615055252 -0.000327250087309969 0.0140279116594516" rpy="0.733117203824051 0 1.56725770326019" />
+    <parent link="right_ringdip_roll_link" />
+    <child link="right_ring_camera_link" />
+  </joint>
+  <joint name="right_pinky_camera_joint" type="fixed">
+    <origin xyz="0.000370359400855362 -0.000887794003758567 0.0140044430154208" rpy="0.729626129382148 0 1.55950529765316" />
+    <parent link="right_pinkydip_roll_link" />
+    <child link="right_pinky_camera_link" />
+  </joint>
+
+  <mujoco>
+    <contact>
+      <!-- base_link ↔ 拇指 cmp/cmr（相邻关节） -->
+      <pair body1="base_link" body2="right_thumbcmp_roll_link" />
+      <pair body1="base_link" body2="right_thumbcmr_roll_link" />
+      <pair body1="right_thumbcmp_roll_link" body2="right_thumbcmr_roll_link" />
+      <!-- base_link ↔ 所有手指 MCP（yaw + roll） -->
+      <pair body1="base_link" body2="right_thumbmcp_roll_link" />
+      <pair body1="base_link" body2="right_indexmcp_yaw_link" />
+      <pair body1="base_link" body2="right_indexmcp_roll_link" />
+
+      <pair body1="base_link" body2="right_midmcp_yaw_link" />
+      <pair body1="base_link" body2="right_midmcp_roll_link" />
+
+      <pair body1="base_link" body2="right_ringmcp_yaw_link" />
+      <pair body1="base_link" body2="right_ringmcp_roll_link" />
+
+      <pair body1="base_link" body2="right_pinkymcp_yaw_link" />
+      <pair body1="base_link" body2="right_pinkymcp_roll_link" />
+
+    </contact>
+  </mujoco>
+</robot>

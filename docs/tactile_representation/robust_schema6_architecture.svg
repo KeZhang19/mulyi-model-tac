@@ -1,0 +1,249 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1350" viewBox="0 0 2400 1350" role="img" aria-labelledby="title desc">
+  <title id="title">版本一：Robust Cross-Modal Tactile Network（Schema 6）</title>
+  <desc id="desc">RGB、Depth、Marker 分别编码，通过跨模态可靠性估计和可靠性感知融合形成共享触觉 latent，再解码并自动选择需要恢复的模态。</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fbff"/>
+      <stop offset="0.55" stop-color="#f4f1ff"/>
+      <stop offset="1" stop-color="#fff9f2"/>
+    </linearGradient>
+    <linearGradient id="fusionGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7257d6"/>
+      <stop offset="1" stop-color="#4630a5"/>
+    </linearGradient>
+    <linearGradient id="gateGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff4d8"/>
+      <stop offset="1" stop-color="#ffe2a1"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#263451" flood-opacity="0.13"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6d52cc"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2878c7"/>
+    </marker>
+    <style>
+      text { font-family: "Noto Sans CJK SC", "Microsoft YaHei", "PingFang SC", Arial, sans-serif; fill: #182338; }
+      .title { font-size: 48px; font-weight: 800; }
+      .subtitle { font-size: 23px; fill: #53617a; }
+      .stage { font-size: 21px; font-weight: 800; fill: #36425a; letter-spacing: 0.5px; }
+      .box-title { font-size: 24px; font-weight: 800; }
+      .box-sub { font-size: 18px; fill: #4d5a72; }
+      .tiny { font-size: 16px; fill: #617089; }
+      .mono { font-family: "DejaVu Sans Mono", monospace; }
+      .main-arrow { fill: none; stroke: #475569; stroke-width: 4; marker-end: url(#arrow); }
+      .aux-arrow { fill: none; stroke: #2878c7; stroke-width: 3; stroke-dasharray: 10 8; marker-end: url(#arrowBlue); }
+      .latent-arrow { fill: none; stroke: #6d52cc; stroke-width: 5; marker-end: url(#arrowPurple); }
+      .bypass { fill: none; stroke: #c48523; stroke-width: 3; stroke-dasharray: 12 9; marker-end: url(#arrow); }
+      .chip { font-size: 17px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="2400" height="1350" fill="url(#bg)"/>
+  <rect x="28" y="25" width="2344" height="1300" rx="32" fill="#ffffff" fill-opacity="0.58" stroke="#dce4f2" stroke-width="2"/>
+
+  <text x="1200" y="86" class="title" text-anchor="middle">版本一 · Robust Cross-Modal Tactile Network</text>
+  <text x="1200" y="126" class="subtitle" text-anchor="middle">自动检测轻微异常 → 可靠性感知共享 latent → 只修复最不可靠的观测</text>
+
+  <text x="155" y="188" class="stage" text-anchor="middle">1  输入观测</text>
+  <text x="500" y="188" class="stage" text-anchor="middle">2  模态编码</text>
+  <text x="835" y="188" class="stage" text-anchor="middle">3  可靠性估计</text>
+  <text x="1245" y="188" class="stage" text-anchor="middle">4  可靠性感知融合</text>
+  <text x="1625" y="188" class="stage" text-anchor="middle">5  条件解码</text>
+  <text x="2020" y="188" class="stage" text-anchor="middle">6  自动恢复</text>
+
+  <!-- Input cards -->
+  <g filter="url(#shadow)">
+    <rect x="55" y="245" width="250" height="145" rx="22" fill="#fff1ee" stroke="#e66b5f" stroke-width="3"/>
+    <rect x="55" y="475" width="250" height="145" rx="22" fill="#edf5ff" stroke="#4d8ed9" stroke-width="3"/>
+    <rect x="55" y="705" width="250" height="160" rx="22" fill="#eff9ee" stroke="#62a660" stroke-width="3"/>
+    <rect x="55" y="920" width="250" height="112" rx="22" fill="#fff6e7" stroke="#d89935" stroke-width="3"/>
+  </g>
+  <circle cx="91" cy="282" r="12" fill="#df574d"/><text x="116" y="291" class="box-title">RGB 当前帧</text>
+  <text x="180" y="331" class="box-sub mono" text-anchor="middle">[B, 3, 240, 320]</text>
+  <text x="180" y="361" class="tiny" text-anchor="middle">视触觉彩色图像</text>
+
+  <circle cx="91" cy="512" r="12" fill="#3d82cc"/><text x="116" y="521" class="box-title">Depth</text>
+  <text x="180" y="561" class="box-sub mono" text-anchor="middle">[B, 1, 240, 320]</text>
+  <text x="180" y="591" class="tiny" text-anchor="middle">接触深度场</text>
+
+  <circle cx="91" cy="742" r="12" fill="#55a255"/><text x="116" y="751" class="box-title">Marker</text>
+  <text x="180" y="791" class="box-sub mono" text-anchor="middle">[B, 100, 5]</text>
+  <text x="180" y="821" class="tiny" text-anchor="middle">x0, y0, dx, dy, valid</text>
+
+  <text x="180" y="959" class="box-title" text-anchor="middle">RGB 初始参考帧</text>
+  <text x="180" y="993" class="tiny" text-anchor="middle">未按压参考，仅供 RGB 残差解码</text>
+
+  <!-- Encoders -->
+  <g filter="url(#shadow)">
+    <rect x="365" y="245" width="275" height="145" rx="22" fill="#fff8f7" stroke="#e66b5f" stroke-width="3"/>
+    <rect x="365" y="475" width="275" height="145" rx="22" fill="#f4f8ff" stroke="#4d8ed9" stroke-width="3"/>
+    <rect x="365" y="705" width="275" height="160" rx="22" fill="#f4fbf3" stroke="#62a660" stroke-width="3"/>
+  </g>
+  <text x="502" y="291" class="box-title" text-anchor="middle">RGB Image Encoder</text>
+  <text x="502" y="329" class="box-sub" text-anchor="middle">Residual CNN · stride 16</text>
+  <text x="502" y="361" class="tiny mono" text-anchor="middle">300 tokens × 256</text>
+
+  <text x="502" y="521" class="box-title" text-anchor="middle">Depth Image Encoder</text>
+  <text x="502" y="559" class="box-sub" text-anchor="middle">Residual CNN · zero-safe</text>
+  <text x="502" y="591" class="tiny mono" text-anchor="middle">300 tokens × 256</text>
+
+  <text x="502" y="748" class="box-title" text-anchor="middle">Marker Encoder</text>
+  <text x="502" y="784" class="box-sub" text-anchor="middle">Motion/Position MLP</text>
+  <text x="502" y="812" class="box-sub" text-anchor="middle">Transformer ×2 + Summary Attention</text>
+  <text x="502" y="842" class="tiny mono" text-anchor="middle">4 summary tokens × 256</text>
+
+  <!-- Reliability cards -->
+  <g filter="url(#shadow)">
+    <rect x="705" y="245" width="260" height="145" rx="22" fill="#fff4f2" stroke="#e66b5f" stroke-width="3"/>
+    <rect x="705" y="475" width="260" height="145" rx="22" fill="#f0f6ff" stroke="#4d8ed9" stroke-width="3"/>
+    <rect x="705" y="705" width="260" height="160" rx="22" fill="#f0faef" stroke="#62a660" stroke-width="3"/>
+  </g>
+  <text x="835" y="287" class="box-title" text-anchor="middle">RGB Quality Head</text>
+  <text x="835" y="322" class="box-sub" text-anchor="middle">与 Depth / Marker 比较</text>
+  <text x="835" y="357" class="chip mono" text-anchor="middle">qR ∈ [0,1]</text>
+
+  <text x="835" y="517" class="box-title" text-anchor="middle">Depth Quality Head</text>
+  <text x="835" y="552" class="box-sub" text-anchor="middle">与 RGB / Marker 比较</text>
+  <text x="835" y="587" class="chip mono" text-anchor="middle">qD ∈ [0,1]</text>
+
+  <text x="835" y="747" class="box-title" text-anchor="middle">Marker Quality Head</text>
+  <text x="835" y="782" class="box-sub" text-anchor="middle">与 RGB / Depth 比较</text>
+  <text x="835" y="817" class="chip mono" text-anchor="middle">qM ∈ [0,1]</text>
+  <text x="835" y="845" class="tiny" text-anchor="middle">不使用真实损坏标签进行推理</text>
+
+  <!-- Fusion -->
+  <g filter="url(#shadow)">
+    <rect x="1025" y="240" width="440" height="630" rx="28" fill="url(#fusionGrad)"/>
+  </g>
+  <text x="1245" y="288" font-size="28" font-weight="800" fill="#ffffff" text-anchor="middle">Reliability-Aware Fusion</text>
+  <rect x="1065" y="320" width="360" height="96" rx="18" fill="#ffffff" fill-opacity="0.15" stroke="#cfc3ff" stroke-width="2"/>
+  <text x="1245" y="356" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">Soft Quality Gate</text>
+  <text x="1245" y="387" font-size="17" fill="#eeeaff" text-anchor="middle">threshold 0.9 · temperature 0.05 · floor 0.01</text>
+
+  <rect x="1065" y="449" width="360" height="94" rx="18" fill="#ffffff" fill-opacity="0.15" stroke="#cfc3ff" stroke-width="2"/>
+  <text x="1245" y="485" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">Modality Embedding + Weight</text>
+  <text x="1245" y="516" font-size="17" fill="#eeeaff" text-anchor="middle">低质量 token 降权，不直接硬删除</text>
+
+  <rect x="1065" y="578" width="360" height="130" rx="18" fill="#ffffff" fill-opacity="0.18" stroke="#d9d0ff" stroke-width="2"/>
+  <text x="1245" y="615" font-size="20" font-weight="700" fill="#ffffff" text-anchor="middle">Learned [TACT] Query</text>
+  <text x="1245" y="648" font-size="19" fill="#ffffff" text-anchor="middle">Reliability-Biased Cross-Attention ×3</text>
+  <text x="1245" y="681" font-size="17" fill="#eeeaff" text-anchor="middle">8 heads · FFN ratio 4</text>
+
+  <rect x="1110" y="748" width="270" height="82" rx="41" fill="#ffffff"/>
+  <text x="1245" y="783" class="box-title" text-anchor="middle" fill="#4630a5">Shared tactile latent</text>
+  <text x="1245" y="812" class="chip mono" text-anchor="middle" fill="#4630a5">h : [B, 256]</text>
+
+  <!-- Decoders -->
+  <g filter="url(#shadow)">
+    <rect x="1520" y="230" width="300" height="180" rx="22" fill="#fff3f0" stroke="#e66b5f" stroke-width="3"/>
+    <rect x="1520" y="465" width="300" height="180" rx="22" fill="#eef6ff" stroke="#4d8ed9" stroke-width="3"/>
+    <rect x="1520" y="700" width="300" height="195" rx="22" fill="#eff9ee" stroke="#62a660" stroke-width="3"/>
+  </g>
+  <text x="1670" y="273" class="box-title" text-anchor="middle">RGB Residual Decoder</text>
+  <text x="1670" y="310" class="box-sub" text-anchor="middle">共享 h + 初始 RGB</text>
+  <text x="1670" y="340" class="box-sub" text-anchor="middle">+ 可靠 Depth 空间 tokens</text>
+  <text x="1670" y="375" class="tiny mono" text-anchor="middle">candidate R̂ [B,3,240,320]</text>
+
+  <text x="1670" y="508" class="box-title" text-anchor="middle">Depth Decoder</text>
+  <text x="1670" y="545" class="box-sub" text-anchor="middle">共享 h</text>
+  <text x="1670" y="575" class="box-sub" text-anchor="middle">+ 可靠 RGB 空间 tokens</text>
+  <text x="1670" y="610" class="tiny mono" text-anchor="middle">candidate D̂ [B,1,240,320]</text>
+
+  <text x="1670" y="743" class="box-title" text-anchor="middle">Marker Motion Decoder</text>
+  <text x="1670" y="780" class="box-sub" text-anchor="middle">共享 h + 固定 (x0,y0)</text>
+  <text x="1670" y="810" class="box-sub" text-anchor="middle">+ 可靠 RGB/Depth 空间 tokens</text>
+  <text x="1670" y="850" class="tiny mono" text-anchor="middle">candidate ΔM̂ [B,100,2]</text>
+
+  <!-- Restoration gate -->
+  <g filter="url(#shadow)">
+    <rect x="1880" y="275" width="285" height="620" rx="28" fill="url(#gateGrad)" stroke="#d89935" stroke-width="3"/>
+  </g>
+  <text x="2022" y="326" class="box-title" text-anchor="middle">Automatic Restore Gate</text>
+  <text x="2022" y="361" class="box-sub" text-anchor="middle">自动恢复门</text>
+  <rect x="1912" y="398" width="221" height="90" rx="17" fill="#ffffff" fill-opacity="0.72" stroke="#e0b967"/>
+  <text x="2022" y="432" class="chip mono" text-anchor="middle">k = argmin(qR,qD,qM)</text>
+  <text x="2022" y="463" class="tiny" text-anchor="middle">找到最不可靠模态</text>
+
+  <rect x="1912" y="518" width="221" height="90" rx="17" fill="#ffffff" fill-opacity="0.72" stroke="#e0b967"/>
+  <text x="2022" y="553" class="chip mono" text-anchor="middle">if qk &lt; 0.9</text>
+  <text x="2022" y="584" class="tiny" text-anchor="middle">才启动恢复</text>
+
+  <rect x="1912" y="638" width="221" height="120" rx="17" fill="#ffffff" fill-opacity="0.72" stroke="#e0b967"/>
+  <text x="2022" y="674" class="chip" text-anchor="middle">仅混合第 k 个候选结果</text>
+  <text x="2022" y="707" class="tiny" text-anchor="middle">其他两个正常观测</text>
+  <text x="2022" y="735" class="tiny" text-anchor="middle">保持原始输入不变</text>
+
+  <text x="2022" y="811" class="box-sub" text-anchor="middle">无上帝视角 mask</text>
+  <text x="2022" y="842" class="tiny" text-anchor="middle">依据网络预测质量自动决策</text>
+
+  <!-- Outputs -->
+  <g filter="url(#shadow)">
+    <rect x="2220" y="285" width="130" height="115" rx="20" fill="#fff" stroke="#e66b5f" stroke-width="3"/>
+    <rect x="2220" y="520" width="130" height="115" rx="20" fill="#fff" stroke="#4d8ed9" stroke-width="3"/>
+    <rect x="2220" y="755" width="130" height="115" rx="20" fill="#fff" stroke="#62a660" stroke-width="3"/>
+  </g>
+  <text x="2285" y="327" class="box-title" text-anchor="middle">R*</text>
+  <text x="2285" y="358" class="tiny" text-anchor="middle">恢复/原始</text>
+  <text x="2285" y="389" class="tiny" text-anchor="middle">RGB</text>
+  <text x="2285" y="562" class="box-title" text-anchor="middle">D*</text>
+  <text x="2285" y="593" class="tiny" text-anchor="middle">恢复/原始</text>
+  <text x="2285" y="624" class="tiny" text-anchor="middle">Depth</text>
+  <text x="2285" y="797" class="box-title" text-anchor="middle">ΔM*</text>
+  <text x="2285" y="828" class="tiny" text-anchor="middle">恢复/原始</text>
+  <text x="2285" y="859" class="tiny" text-anchor="middle">Marker motion</text>
+
+  <!-- Main arrows -->
+  <path class="main-arrow" d="M305 318 H365"/>
+  <path class="main-arrow" d="M305 548 H365"/>
+  <path class="main-arrow" d="M305 785 H365"/>
+  <path class="main-arrow" d="M640 318 H705"/>
+  <path class="main-arrow" d="M640 548 H705"/>
+  <path class="main-arrow" d="M640 785 H705"/>
+  <path class="main-arrow" d="M965 318 C995 318,995 400,1025 400"/>
+  <path class="main-arrow" d="M965 548 H1025"/>
+  <path class="main-arrow" d="M965 785 C995 785,995 690,1025 690"/>
+  <path class="latent-arrow" d="M1465 554 H1490 V320 H1520"/>
+  <path class="latent-arrow" d="M1490 554 H1520"/>
+  <path class="latent-arrow" d="M1490 554 V797 H1520"/>
+  <path class="main-arrow" d="M1820 320 H1880"/>
+  <path class="main-arrow" d="M1820 555 H1880"/>
+  <path class="main-arrow" d="M1820 797 H1880"/>
+  <path class="main-arrow" d="M2165 342 H2220"/>
+  <path class="main-arrow" d="M2165 577 H2220"/>
+  <path class="main-arrow" d="M2165 812 H2220"/>
+
+  <!-- Auxiliary/reference and original-observation routes -->
+  <path class="aux-arrow" d="M305 976 H1438 V286 H1520"/>
+  <text x="1050" y="958" class="tiny" fill="#2878c7">RGB reference</text>
+  <path class="aux-arrow" d="M640 548 C1180 548,1180 250,1520 250"/>
+  <text x="1195" y="267" class="tiny" fill="#2878c7">Depth spatial skip</text>
+  <path class="aux-arrow" d="M640 318 C1160 318,1180 610,1520 610"/>
+  <text x="1195" y="603" class="tiny" fill="#2878c7">RGB spatial skip</text>
+  <path class="aux-arrow" d="M640 430 C1200 430,1240 875,1520 875"/>
+  <text x="1290" y="902" class="tiny" fill="#2878c7">RGB/Depth spatial context</text>
+  <path class="aux-arrow" d="M305 785 C1040 785,1160 935,1520 845"/>
+  <text x="1130" y="828" class="tiny" fill="#2878c7">fixed x0,y0</text>
+
+  <path class="bypass" d="M180 390 V1120 H1880"/>
+  <path class="bypass" d="M180 620 V1120"/>
+  <path class="bypass" d="M180 865 V1120"/>
+  <text x="935" y="1104" class="tiny" fill="#a86d13" text-anchor="middle">原始观测旁路：正常模态不被 Decoder 改写</text>
+
+  <!-- Policy latent branch and footer -->
+  <path class="latent-arrow" d="M1245 830 V1025"/>
+  <g filter="url(#shadow)">
+    <rect x="1045" y="1025" width="400" height="104" rx="24" fill="#f0ecff" stroke="#6d52cc" stroke-width="3"/>
+  </g>
+  <text x="1245" y="1066" class="box-title" text-anchor="middle">Policy / Downstream Task</text>
+  <text x="1245" y="1101" class="box-sub" text-anchor="middle">直接使用鲁棒共享 latent h</text>
+
+  <rect x="350" y="1190" width="1700" height="85" rx="22" fill="#eef2f8" stroke="#c8d2e2" stroke-width="2"/>
+  <text x="1200" y="1225" class="box-sub" text-anchor="middle">当前检查点：epoch 98 · d_model 256 · 8 heads · fusion layers 3 · 参数量 14.67M</text>
+  <text x="1200" y="1258" class="tiny" text-anchor="middle">核心特性：支持缺失子集；预测质量参与融合；干净输入通过恢复门保护；Marker 仅预测动态变化量 dx/dy</text>
+</svg>

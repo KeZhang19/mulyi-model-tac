@@ -1,0 +1,69 @@
+# Python / native build artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.DS_Store
+
+# Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.nox/
+.tox/
+.ipynb_checkpoints/
+.coverage
+htmlcov/
+
+# Local environments / packaging
+.venv/
+venv/
+env/
+dist/
+build/
+*.egg-info/
+
+# Editors
+.idea/
+.vscode/
+
+# Runtime logs and generated simulation outputs
+logs/
+**/outputs/
+**/output/
+integrate/output*/
+scripts/force_map/official_replay/output*/
+tacmap/output*/
+*.log
+
+# Isaac/Omniverse scratch assets generated while repairing or exporting USDs.
+*_sanitized.usd
+*_sanitized.usda
+*_disable_bad_visual_refs.usd
+*_disable_bad_visual_refs.usda
+assets/revo21_right_touch/urdf/.asset_hash
+assets/revo21_right_touch/urdf/config.yaml
+assets/revo21_right_touch/urdf/*.usd
+assets/revo21_right_touch/urdf/configuration/
+
+# Local/private helper files
+.codex/
+upload-oss.sh
+DV2pointcollection.dxf
+DV2pointcollection_electrode_ids.dxf
+DV2pointcollection_electrodes_pruned.dxf
+DV2pointcollection_electrodes_pruned_palm_ids.dxf
+
+checkpoints/*
+!checkpoints/dynamic_handover/
+!checkpoints/dynamic_handover/revotron_handover.pth
+!checkpoints/hora/
+!checkpoints/hora/revo3_right_ball_stage1_best.pth
+!checkpoints/hora/revo3_right_cylinder_stage1_best.pth
+
+# Image generator: keep source code, ignore generated data/checkpoints.
+image_generator/*
+!image_generator/
+!image_generator/*.py

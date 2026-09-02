@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import sys
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+EXT_ROOT = REPO_ROOT / "source" / "BrainCo_DexHand"
+if str(EXT_ROOT) not in sys.path:
+    sys.path.insert(0, str(EXT_ROOT))
+
+from BrainCo_DexHand.force_map import pressure_reference_frame_diagnostics  # noqa: E402
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Diagnose per-frame pressure/reference map mismatch.")
+    parser.add_argument("trace", type=Path, help="Path to a pressure trace .npz file.")
+    parser.add_argument("--out-json", type=Path, default=None, help="Optional full diagnostics JSON output path.")
+    parser.add_argument("--out-csv", type=Path, default=None, help="Optional per-frame diagnostics CSV output path.")
+    parser.add_argument("--pressure-key", default="pressure_norm")
+    parser.add_argument("--penetration-key", default="penetration_m")
+    parser.add_argument("--reference-key", required=True)
+    parser.add_argument("--reference-layer", default=None)
+    parser.add_argument("--active-threshold", type=float, default=1.0e-6)
+    parser.add_argument("--reference-threshold", type=float, default=0.0)
+    parser.add_argument("--top-k", type=int, default=8)
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    diagnostics = pressure_reference_frame_diagnostics(
+        args.trace,
+        pressure_key=str(args.pressure_key),
+        penetration_key=str(args.penetration_key),
+        reference_key=str(args.reference_key),
+        reference_layer=args.reference_layer,
+        active_threshold=float(args.active_threshold),
+        reference_threshold=float(args.reference_threshold),
+        top_k=int(args.top_k),
+    )
+    summary = diagnostics.get("summary", diagnostics)
+    print(json.dumps(summary, indent=2, sort_keys=True))
+
+    if args.out_json is not None:
+        args.out_json.parent.mkdir(parents=True, exist_ok=True)
+        args.out_json.write_text(json.dumps(diagnostics, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    if args.out_csv is not None:
+        args.out_csv.parent.mkdir(parents=True, exist_ok=True)
+        frames = diagnostics.get("frames", [])
+        if frames:
+            with args.out_csv.open("w", encoding="utf-8", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=list(frames[0].keys()))
+                writer.writeheader()
+                writer.writerows(frames)
+        else:
+            args.out_csv.write_text("", encoding="utf-8")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

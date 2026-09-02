@@ -1,0 +1,595 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper, margin=1in]{geometry}
+\usepackage{amsmath, amssymb}
+\usepackage{bm}
+\usepackage{booktabs}
+
+\newcommand{\ReLU}{\operatorname{ReLU}}
+\newcommand{\R}{\mathbb{R}}
+
+\title{HydroShear: Original Implementation and Our UV-Metric Implementation}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Notation}
+
+Let $\mathbf{p}_i \in \R^3$ be the $i$-th marker point on the elastomer
+surface, and let
+\begin{equation}
+    \mathbf{x}_i =
+    \begin{bmatrix}
+        x_i \\
+        y_i
+    \end{bmatrix}
+    \in \R^2
+\end{equation}
+be its tactile image coordinate. HydroShear decomposes the marker displacement
+field into dilation and shear:
+\begin{equation}
+    \mathbf{M}_t(\mathbf{x},{}^E\mathbf{X}^I_{0:t})
+    =
+    \mathbf{M}^d_t(\mathbf{x})
+    +
+    \mathbf{M}^s_t(\mathbf{x},{}^E\mathbf{X}^I_{0:t}).
+    \label{eq:field-decomposition}
+\end{equation}
+The original paper writes the tactile output as a 2D marker-flow field. The
+local HydroShear code, however, computes an intermediate 3D vector field and
+then projects or slices it to obtain a 2D image-space marker flow.
+
+\section{Original HydroShear Implementation}
+
+\subsection{Original Dilation}
+
+Let $\phi_I(\cdot)$ be the signed distance function (SDF) of the indenter.
+A tactile marker/source point is in contact with the indenter if
+$\phi_I(\mathbf{p}_k)<0$. Define
+\begin{align}
+    C_t
+    &=
+    \{k \mid \phi_I(\mathbf{p}_k)<0\}, \\
+    h^d_k
+    &=
+    -\phi_I(\mathbf{p}_k).
+\end{align}
+At the paper-formula level, the dilation displacement is written on the 2D
+tactile plane:
+\begin{align}
+    \mathbf{v}_{ik}
+    &=
+    \mathbf{x}_i-\mathbf{x}_k, \\
+    \mathbf{M}^{d}_{i,t}
+    &=
+    c_d
+    \sum_{k\in C_t}
+    h^d_k
+    \mathbf{v}_{ik}
+    \exp\{-\lambda_d\|\mathbf{v}_{ik}\|_2^2\}.
+    \label{eq:original-paper-dilation}
+\end{align}
+
+The local original implementation uses the same Gaussian idea but computes the
+intermediate displacement in 3D:
+\begin{align}
+    \mathbf{r}_{ik}^{3D}
+    &=
+    \mathbf{p}_i-\mathbf{p}_k, \\
+    \mathbf{M}^{d,3D}_{i,t}
+    &=
+    c_d
+    \sum_{k\in C_t}
+    h^d_k
+    \mathbf{r}^{3D}_{ik}
+    \exp\{-\lambda_d\|\mathbf{r}^{3D}_{ik}\|_2^2\}.
+    \label{eq:original-code-dilation}
+\end{align}
+
+\subsection{Original Hydroelastic Force Tracker}
+
+Let $\mathbf{o}_{j,t}\in\R^3$ be the $j$-th indenter surface sample in the
+elastomer frame at time $t$. Let $\phi_E(\cdot)$ be the elastomer SDF. The
+original tracker first estimates how much of the object-point motion occurs
+inside the elastomer:
+\begin{align}
+    \alpha_{j,t}
+    &=
+    \frac{
+        \ReLU(-\phi_E(\mathbf{o}_{j,t}))
+        -
+        \ReLU(-\phi_E(\mathbf{o}_{j,t-1}))
+    }{
+        \phi_E(\mathbf{o}_{j,t})-\phi_E(\mathbf{o}_{j,t-1})+\epsilon
+    }, \\
+    \mathbf{d}_{j,t}
+    &=
+    \alpha_{j,t}
+    \left(
+        \mathbf{o}_{j,t}-\mathbf{o}_{j,t-1}
+    \right).
+    \label{eq:original-displacement}
+\end{align}
+With contact normal $\mathbf{n}_j$, the in-contact displacement is split into
+normal and tangential components:
+\begin{align}
+    d^n_{j,t}
+    &=
+    \mathbf{d}_{j,t}^{T}\mathbf{n}_j, \\
+    \mathbf{d}^{\tau}_{j,t}
+    &=
+    \mathbf{d}_{j,t}
+    -
+    d^n_{j,t}\mathbf{n}_j.
+    \label{eq:original-normal-tangent-split}
+\end{align}
+The accumulated normal and tangential quantities are then
+\begin{align}
+    f^n_{j,t}
+    &=
+    \tilde{f}^{n}_{j,t-1}
+    +
+    E A_j d^n_{j,t}, \\
+    \mathbf{f}^{\tau}_{j,t}
+    &=
+    \tilde{\mathbf{f}}^{\tau}_{j,t-1}
+    +
+    K A_j \mathbf{d}^{\tau}_{j,t}.
+    \label{eq:original-force-update}
+\end{align}
+Normal pulling is removed, and the tangential component is clipped by Coulomb
+friction:
+\begin{align}
+    \bar{f}^{n}_{j,t}
+    &=
+    \ReLU(f^n_{j,t}), \\
+    \bar{\mathbf{f}}^{\tau}_{j,t}
+    &=
+    \min\left(
+        1,
+        \frac{\mu\bar{f}^{n}_{j,t}}
+        {\|\mathbf{f}^{\tau}_{j,t}\|_2+\epsilon}
+    \right)
+    \mathbf{f}^{\tau}_{j,t}.
+    \label{eq:original-friction}
+\end{align}
+Finally, the force-like tracked vector is reset when the object sample is not
+inside the elastomer:
+\begin{equation}
+    \tilde{\mathbf{f}}_{j,t}
+    =
+    H(-\phi_E(\mathbf{o}_{j,t}))
+    \left(
+        \bar{f}^{n}_{j,t}\mathbf{n}_j
+        +
+        \bar{\mathbf{f}}^{\tau}_{j,t}
+    \right).
+    \label{eq:original-tracked-force}
+\end{equation}
+
+\subsection{Original Projection Point}
+
+The paper distinguishes the contact force $\tilde{\mathbf{f}}_{j,t}$ from a
+projection displacement $\hat{\mathbf{f}}_{j,t}$. The projected elastomer-side
+contact point is
+\begin{equation}
+    \hat{\mathbf{o}}_{j,t}
+    =
+    \mathbf{o}_{j,t}
+    +
+    \hat{\mathbf{f}}_{j,t}.
+    \label{eq:original-projected-point}
+\end{equation}
+Under the simplifying assumption $E=K$, $\mu=\hat{\mu}$, and uniform area
+$A_j=A$, the paper relates the force and projection displacement by
+\begin{equation}
+    \tilde{\mathbf{f}}_{j,t}
+    =
+    KA\hat{\mathbf{f}}_{j,t}.
+    \label{eq:force-projection-relation}
+\end{equation}
+This distinction is important because a physical force should not be directly
+added to a position. In code, the calibrated tracked vector is often used as a
+displacement-like quantity for shifting the Gaussian center.
+
+\subsection{Original Shear}
+
+Let
+\begin{equation}
+    K_t
+    =
+    \{j \mid \phi_E(\mathbf{o}_{j,t})<0\}
+\end{equation}
+be the set of in-contact indenter surface samples. In the paper-level 2D
+formula, shear is aggregated from the projected contact location
+$\hat{\mathbf{o}}_{j,t}^{xy}$:
+\begin{align}
+    h^s_j
+    &=
+    -\phi_E(\mathbf{o}_{j,t}), \\
+    \mathbf{w}_{ij}
+    &=
+    \mathbf{x}_i-\hat{\mathbf{o}}_{j,t}^{xy}, \\
+    \mathbf{M}^{s}_{i,t}
+    &=
+    c_s
+    \sum_{j\in K_t}
+    h^s_j
+    \left(
+        -\tilde{\mathbf{f}}^{xy}_{j,t}
+    \right)
+    \exp\{-\lambda_s\|\mathbf{w}_{ij}\|_2^2\}.
+    \label{eq:original-paper-shear}
+\end{align}
+
+The local original implementation can be viewed as a 3D version. Let
+$\mathbf{b}_{j,t}$ denote the calibrated displacement-like tracked vector used
+by the code. The Gaussian source center is
+\begin{equation}
+    \mathbf{a}_{j,t}
+    =
+    \mathbf{o}_{j,t}
+    +
+    \mathbf{b}_{j,t}.
+    \label{eq:original-code-center}
+\end{equation}
+Then the implemented 3D shear aggregation is
+\begin{equation}
+    \mathbf{M}^{s,3D}_{i,t}
+    =
+    c_s
+    \sum_{j\in K_t}
+    h^s_j
+    (-\mathbf{b}_{j,t})
+    \exp\{
+        -\lambda_s
+        \|\mathbf{p}_i-\mathbf{a}_{j,t}\|_2^2
+    \}.
+    \label{eq:original-code-shear}
+\end{equation}
+The original local code then forms
+\begin{equation}
+    \mathbf{M}^{3D}_{i,t}
+    =
+    \mathbf{M}^{d,3D}_{i,t}
+    +
+    \mathbf{M}^{s,3D}_{i,t}.
+    \label{eq:original-code-total}
+\end{equation}
+
+\section{Our Current Implementation}
+
+\subsection{Raycaster Coordinates and Metric}
+
+For the curved Revo fingertip, every marker or object sample is associated with
+a raycaster grid coordinate
+\begin{equation}
+    \mathbf{u}_i =
+    \begin{bmatrix}
+        u_i \\
+        v_i
+    \end{bmatrix}
+    \in \R^2,
+\end{equation}
+where $u$ is the grid-column coordinate and $v$ is the grid-row coordinate.
+Let $\mathbf{g}_u,\mathbf{g}_v\in\R^3$ be the world-space metric vectors
+corresponding to a one-pixel step along the raycaster column and row
+directions. In the current implementation these are global per-frame metric
+vectors estimated from the ray grid:
+\begin{equation}
+    J
+    =
+    \begin{bmatrix}
+        \mathbf{g}_u & \mathbf{g}_v
+    \end{bmatrix}
+    \in\R^{3\times2},
+    \qquad
+    G
+    =
+    J^T J
+    \in\R^{2\times2}.
+    \label{eq:our-metric}
+\end{equation}
+For two ray-grid points $\mathbf{u}_a$ and $\mathbf{u}_b$,
+\begin{align}
+    \Delta\mathbf{u}_{ab}
+    &=
+    \mathbf{u}_a-\mathbf{u}_b, \\
+    \mathbf{r}^{uv}_{ab}
+    &=
+    J\Delta\mathbf{u}_{ab}, \\
+    d^2_{uv}(a,b)
+    &=
+    \|\mathbf{r}^{uv}_{ab}\|_2^2
+    =
+    \Delta\mathbf{u}_{ab}^{T}G\Delta\mathbf{u}_{ab}.
+    \label{eq:our-uv-distance}
+\end{align}
+This is a raycaster UV metric distance. It is more surface-aware than directly
+using the 3D chord distance $\|\mathbf{p}_i-\mathbf{p}_j\|_2$, but it is still
+not a full geodesic shortest-path distance over the mesh.
+
+\subsection{Our Dilation}
+
+In the current implementation, contact/penetration for marker source points is
+estimated from the ray-depth field. Let $h^{uv}_k$ be this depth-based
+penetration estimate. Our dilation field is
+\begin{equation}
+    \mathbf{M}^{d,uv}_{i,t}
+    =
+    c_d
+    \sum_{k\in C_t}
+    h^{uv}_k
+    \mathbf{r}^{uv}_{ik}
+    \exp\{
+        -\lambda_d d^2_{uv}(i,k)
+    \}.
+    \label{eq:our-dilation}
+\end{equation}
+Compared with Eq.~\eqref{eq:original-code-dilation}, the Gaussian vector and
+distance are no longer computed by the direct 3D difference
+$\mathbf{p}_i-\mathbf{p}_k$. They are computed through the raycaster UV metric
+in Eq.~\eqref{eq:our-uv-distance}.
+
+\subsection{Our Force Split}
+
+The recursive tracker still produces a per-object-sample tracked vector
+$\mathbf{f}_{j,t}\in\R^3$. Let $\mathbf{n}_j$ be the contact normal used for
+splitting this vector. We compute
+\begin{align}
+    q_j
+    &=
+    \mathbf{f}_{j,t}^{T}\mathbf{n}_j, \\
+    h^{uv}_j
+    &=
+    \max(q_j,0), \\
+    \mathbf{f}^{\tau}_{j,t}
+    &=
+    \mathbf{f}_{j,t}
+    -
+    q_j\mathbf{n}_j.
+    \label{eq:our-force-split}
+\end{align}
+Here the normal component $q_j$ is used as the pressure/height weight, while
+the tangential component $\mathbf{f}^{\tau}_{j,t}$ is used to shift and
+propagate the shear field.
+
+\subsection{Our UV Shear Center}
+
+The current implementation moves the shear Gaussian center in raycaster UV
+space using only the tangential component:
+\begin{align}
+    \Delta\mathbf{u}^{\tau}_{j}
+    &=
+    J^+
+    \mathbf{f}^{\tau}_{j,t}, \\
+    \hat{\mathbf{u}}_{j,t}
+    &=
+    \mathbf{u}_{j,t}
+    +
+    \Delta\mathbf{u}^{\tau}_{j}.
+    \label{eq:our-uv-center}
+\end{align}
+Here $J^+$ is the pseudoinverse of the raycaster metric basis. This maps a
+world-space tangential vector back to a 2D UV displacement.
+
+\subsection{Our Tangent-Plane Vector Projection}
+
+Before the source shear vector from object sample $j$ contributes to marker
+$i$, it is projected onto marker $i$'s tangent plane:
+\begin{align}
+    P_i
+    &=
+    I
+    -
+    \mathbf{n}_i\mathbf{n}_i^T, \\
+    T_{j\rightarrow i}
+    \left(
+        \mathbf{f}^{\tau}_{j,t}
+    \right)
+    &\approx
+    P_i\mathbf{f}^{\tau}_{j,t}.
+    \label{eq:our-tangent-projection}
+\end{align}
+This is an approximate tangent-plane projection. It is not a full parallel
+transport operator along a geodesic.
+
+\subsection{Our Shear}
+
+The final UV-metric shear field is
+\begin{equation}
+    \mathbf{M}^{s,uv}_{i,t}
+    =
+    c_s
+    \sum_{j\in K_t}
+    h^{uv}_j
+    \left(
+        -P_i\mathbf{f}^{\tau}_{j,t}
+    \right)
+    \exp\{
+        -\lambda_s
+        d^2_{uv}(i,\hat{\mathbf{u}}_{j,t})
+    \}.
+    \label{eq:our-shear}
+\end{equation}
+The current total 3D marker displacement is
+\begin{equation}
+    \mathbf{M}^{uv}_{i,t}
+    =
+    \mathbf{M}^{d,uv}_{i,t}
+    +
+    \mathbf{M}^{s,uv}_{i,t}
+    \in\R^3.
+    \label{eq:our-total}
+\end{equation}
+
+\subsection{Our Visualization Projection}
+
+For visualization, the 3D displacement is projected onto the normalized
+raycaster axes:
+\begin{align}
+    \Delta u_i
+    &=
+    s_{\mathrm{px}}
+    \mathbf{M}^{uv}_{i,t}
+    \cdot
+    \hat{\mathbf{g}}_u, \\
+    \Delta v_i
+    &=
+    s_{\mathrm{px}}
+    \mathbf{M}^{uv}_{i,t}
+    \cdot
+    \hat{\mathbf{g}}_v,
+    \label{eq:our-visualization}
+\end{align}
+where
+\begin{equation}
+    \hat{\mathbf{g}}_u
+    =
+    \frac{\mathbf{g}_u}{\|\mathbf{g}_u\|_2+\epsilon},
+    \qquad
+    \hat{\mathbf{g}}_v
+    =
+    \frac{\mathbf{g}_v}{\|\mathbf{g}_v\|_2+\epsilon},
+\end{equation}
+and $s_{\mathrm{px}}$ is the pixel-per-meter arrow scale.
+
+\section{What We Changed}
+
+\subsection{Change 1: Euclidean 3D Kernel to Raycaster UV-Metric Kernel}
+
+The original local implementation spreads dilation and shear with a direct 3D
+Euclidean distance:
+\begin{equation}
+    \|\mathbf{p}_i-\mathbf{p}_j\|_2^2.
+\end{equation}
+Our implementation replaces this with the raycaster UV metric:
+\begin{equation}
+    d^2_{uv}(i,j)
+    =
+    (\mathbf{u}_i-\mathbf{u}_j)^T
+    G
+    (\mathbf{u}_i-\mathbf{u}_j).
+\end{equation}
+This makes the Gaussian propagation follow the ray-grid parameterization of the
+curved fingertip instead of the straight 3D chord between two points.
+
+\subsection{Change 2: Tangential Shift of the Shear Center}
+
+The original code-level implementation shifts the shear Gaussian center with
+the full tracked vector:
+\begin{equation}
+    \mathbf{a}_{j,t}
+    =
+    \mathbf{o}_{j,t}
+    +
+    \mathbf{b}_{j,t}.
+\end{equation}
+Our implementation first removes the normal component:
+\begin{equation}
+    \mathbf{f}^{\tau}_{j,t}
+    =
+    \mathbf{f}_{j,t}
+    -
+    (\mathbf{f}_{j,t}^T\mathbf{n}_j)\mathbf{n}_j,
+\end{equation}
+and then shifts the center in UV space:
+\begin{equation}
+    \hat{\mathbf{u}}_{j,t}
+    =
+    \mathbf{u}_{j,t}
+    +
+    J^+
+    \mathbf{f}^{\tau}_{j,t}.
+\end{equation}
+Therefore, pressing into the sensor mostly changes the pressure weight, while
+tangential motion shifts the shear source center.
+
+\subsection{Change 3: Direct Vector Sum to Marker Tangent-Plane Projection}
+
+The original code-level shear contribution uses the same source vector for all
+markers:
+\begin{equation}
+    -\mathbf{b}_{j,t}.
+\end{equation}
+Our implementation projects the source tangential vector onto each target
+marker's tangent plane:
+\begin{equation}
+    -P_i\mathbf{f}^{\tau}_{j,t}
+    =
+    -
+    (I-\mathbf{n}_i\mathbf{n}_i^T)
+    \mathbf{f}^{\tau}_{j,t}.
+\end{equation}
+This makes the propagated vector compatible with each marker's local surface
+tangent plane.
+
+\subsection{Change 4: Raycaster-Axis Visualization}
+
+The original implementation ultimately reads the tactile field in a 2D sensor
+plane. Our curved-fingertip implementation first computes a 3D displacement on
+the surface and then projects it to the raycaster image axes:
+\begin{equation}
+    (\Delta u_i,\Delta v_i)
+    =
+    s_{\mathrm{px}}
+    \left(
+        \mathbf{M}^{uv}_{i,t}\cdot\hat{\mathbf{g}}_u,
+        \mathbf{M}^{uv}_{i,t}\cdot\hat{\mathbf{g}}_v
+    \right).
+\end{equation}
+
+\subsection{Current Limitations}
+
+The current UV metric is still an approximation. It uses global per-frame
+metric vectors $\mathbf{g}_u$ and $\mathbf{g}_v$, so it is not a fully local
+surface metric $G(\mathbf{u})$. It also does not compute a true mesh geodesic
+shortest path. In addition, the RevoLab implementation estimates contact depth
+from the ray/grid surface representation instead of querying a true volumetric
+elastomer mesh SDF.
+
+\section{Compact Comparison}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Component & Original implementation & Our implementation \\
+\midrule
+Dilation distance
+&
+$\|\mathbf{p}_i-\mathbf{p}_k\|_2^2$
+&
+$d^2_{uv}(i,k)=\Delta\mathbf{u}^T G\Delta\mathbf{u}$ \\
+Shear center
+&
+$\mathbf{o}_{j,t}+\mathbf{b}_{j,t}$
+&
+$\mathbf{u}_{j,t}+J^+\mathbf{f}^{\tau}_{j,t}$ \\
+Normal component
+&
+Can enter the full tracked vector
+&
+Used as pressure weight $h^{uv}_j$ \\
+Shear vector
+&
+$-\mathbf{b}_{j,t}$
+&
+$-P_i\mathbf{f}^{\tau}_{j,t}$ \\
+Surface handling
+&
+Direct 3D Euclidean propagation
+&
+Raycaster UV-metric propagation \\
+Visualization
+&
+Planar tactile/image coordinates
+&
+Projection onto raycaster axes \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\end{document}
