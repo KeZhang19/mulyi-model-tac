@@ -9,7 +9,11 @@ from .tri_modal_cross_autoencoder import (
     TriModalCrossAttentionBlock,
     TriModalCrossAutoencoder,
 )
-from .latent_alignment import ProjectionHead, TactileLatentAlignmentNetwork
+from .latent_alignment import (
+    AffineTactileLatentAlignmentNetwork,
+    ProjectionHead,
+    TactileLatentAlignmentNetwork,
+)
 
 __all__ = [
     "ConditionedImageDecoder",
@@ -24,4 +28,5 @@ __all__ = [
     "TriModalCrossAutoencoder",
     "ProjectionHead",
     "TactileLatentAlignmentNetwork",
+    "AffineTactileLatentAlignmentNetwork",
 ]

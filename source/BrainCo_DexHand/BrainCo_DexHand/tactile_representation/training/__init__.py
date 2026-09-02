@@ -22,6 +22,7 @@ from .contrastive import (
     build_negative_pair_indices,
     build_positive_mask,
     symmetric_masked_infonce_loss,
+    symmetric_queued_infonce_loss,
 )
 
 __all__ = [
@@ -42,4 +43,5 @@ __all__ = [
     "build_negative_pair_indices",
     "build_positive_mask",
     "symmetric_masked_infonce_loss",
+    "symmetric_queued_infonce_loss",
 ]

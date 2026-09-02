@@ -156,3 +156,86 @@ def symmetric_masked_infonce_loss(
     real_to_sim = _directional_loss(logits.transpose(0, 1), positive_mask.transpose(0, 1))
     return 0.5 * (sim_to_real + real_to_sim)
 
+
+def symmetric_queued_infonce_loss(
+    sim_queries: torch.Tensor,
+    real_candidates: torch.Tensor,
+    sim_positive_mask: torch.Tensor,
+    real_queries: torch.Tensor,
+    sim_candidates: torch.Tensor,
+    real_positive_mask: torch.Tensor,
+    *,
+    temperature: float = 0.1,
+) -> torch.Tensor:
+    """Bidirectional InfoNCE with detached cross-batch candidate queues.
+
+    ``sim_queries`` and ``real_queries`` are the current minibatch.  The
+    candidate tensors may additionally contain embeddings from previous
+    minibatches, which act as a memory queue.  Queue candidates do not need a
+    positive in the current minibatch; only every query row must have at least
+    one positive candidate.  Embeddings in the queue should be detached by the
+    caller so gradients only update the current minibatch.
+    """
+
+    def _validate_pair(
+        queries: torch.Tensor,
+        candidates: torch.Tensor,
+        positive_mask: torch.Tensor,
+        query_name: str,
+        candidate_name: str,
+    ) -> None:
+        if queries.ndim != 2 or candidates.ndim != 2:
+            raise ValueError(
+                f"{query_name} and {candidate_name} must have shape [N, D]"
+            )
+        if queries.shape[1] != candidates.shape[1]:
+            raise ValueError(
+                f"{query_name} and {candidate_name} must have the same latent dimension"
+            )
+        if queries.shape[0] <= 0 or candidates.shape[0] <= 0:
+            raise ValueError("query and candidate tensors must be non-empty")
+        if tuple(positive_mask.shape) != (queries.shape[0], candidates.shape[0]):
+            raise ValueError(
+                f"positive mask for {query_name} must have shape "
+                f"{(queries.shape[0], candidates.shape[0])}, got {tuple(positive_mask.shape)}"
+            )
+        if not bool(positive_mask.any(dim=1).all()):
+            raise ValueError(f"Every {query_name} row must have a positive candidate")
+
+    _validate_pair(
+        sim_queries,
+        real_candidates,
+        sim_positive_mask,
+        "simulation queries",
+        "real candidates",
+    )
+    _validate_pair(
+        real_queries,
+        sim_candidates,
+        real_positive_mask,
+        "real queries",
+        "simulation candidates",
+    )
+    if float(temperature) <= 0.0:
+        raise ValueError("temperature must be positive")
+
+    def _directional_loss(
+        queries: torch.Tensor,
+        candidates: torch.Tensor,
+        positive_mask: torch.Tensor,
+    ) -> torch.Tensor:
+        logits = (
+            F.normalize(queries, dim=-1)
+            @ F.normalize(candidates, dim=-1).transpose(0, 1)
+        ) / float(temperature)
+        positive_mask = positive_mask.to(device=logits.device, dtype=torch.bool)
+        positive_scores = logits.masked_fill(~positive_mask, float("-inf"))
+        return -(
+            torch.logsumexp(positive_scores, dim=1)
+            - torch.logsumexp(logits, dim=1)
+        ).mean()
+
+    return 0.5 * (
+        _directional_loss(sim_queries, real_candidates, sim_positive_mask)
+        + _directional_loss(real_queries, sim_candidates, real_positive_mask)
+    )

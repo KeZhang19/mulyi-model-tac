@@ -81,7 +81,20 @@ python scripts/tactile_representation/train_tri_modal_cross_autoencoder.py \
 
 ## CLIP/CTTP 风格 Latent 对齐
 
-该阶段冻结两个已经训练好的 encoder，只训练两个 projection head。相同 `(episode_id, episode_step)` 的 sim-real 观测是正样本，batch 内其他错配观测自动作为负样本，使用双向 InfoNCE 对齐投影后的 latent。
+该阶段使用 CTTP 的 two-tower 结构：两个已经训练好的 encoder，各接一个两层 MLP projection head；相同 `(episode_id, episode_step)` 的 sim-real 观测是正样本，batch 内其他错配观测自动作为负样本，使用双向 InfoNCE 对齐投影后的 latent。
+
+先把两个原始 encoder 导出成独立 checkpoint（数据集和 optimizer 状态不会被复制）：
+
+```bash
+python scripts/tactile_representation/export_tactile_encoders.py \
+  --sim-checkpoint runs/revo3_cross_modal_restoration_v1/best.pt \
+  --real-checkpoint runs/revo3_tri_modal_cross_v1/best.pt \
+  --sim-model-type robust \
+  --real-model-type tri_modal \
+  --output-dir runs/revo3_encoder_exports
+```
+
+默认 alignment 阶段冻结 encoder，只训练 projection head。若要按照 CTTP 论文让两个 encoder 也参与端到端训练，使用 `--unfreeze-all-epoch 1`；该选项会在第 1 轮前解冻两路 encoder，并用更小的 encoder learning rate 微调：
 
 当前仓库提供的两个 best checkpoint 可作为对齐实验的两个 tower：
 
@@ -92,24 +105,49 @@ python scripts/tactile_representation/train_latent_alignment.py \
   --sim-model-type robust \
   --real-model-type tri_modal \
   --dataset datasets/revo3_index_sweep_parallel_v1 \
-  --output runs/revo3_latent_alignment_pilot \
+  --output runs/revo3_latent_alignment_cttp_v1 \
   --device cuda:0 \
   --dataset-backend mmap \
   --epochs 100 \
   --batch-size 64 \
   --num-workers 2 \
   --learning-rate 3e-4 \
+  --encoder-learning-rate 1e-5 \
   --weight-decay 1e-4 \
   --projection-dim 64 \
   --temperature 0.1 \
+  --unfreeze-all-epoch 1 \
   --save-every 10
 ```
 
-对齐模型的最佳权重保存在 `runs/revo3_latent_alignment_pilot/best.pt`。如果使用真正分开的仿真和真机数据集，额外指定：
+对齐模型的最佳权重保存在输出目录的 `best.pt`，同时会自动保存两个单独的最佳 encoder：`sim_encoder_best.pt` 和 `real_encoder_best.pt`。如果使用真正分开的仿真和真机数据集，额外指定：
 
 ```bash
   --sim-dataset /path/to/simulation_dataset \
   --real-dataset /path/to/real_dataset
 ```
 
-两个数据集需要共享可匹配的 `episode_id` 和 `episode_step`。数据集和训练过程中的其他 checkpoint 不上传；仓库只保留两个网络各自的 `best.pt`。
+两个数据集需要共享可匹配的 `episode_id` 和 `episode_step`。数据集、中间 checkpoint、alignment 输出和独立 encoder 导出文件均不上传；仓库仅保留上面两个原始 encoder 的 best 权重。
+
+## Latent 匹配可视化
+
+用全局 top-1 检索把 query、模型选中的候选和 ground-truth 配对帧画成 contact sheet：
+
+```bash
+python scripts/tactile_representation/visualize_latent_matches.py \
+  --sim-checkpoint runs/revo3_cross_modal_restoration_v1/best.pt \
+  --real-checkpoint runs/revo3_tri_modal_cross_v1/best.pt \
+  --alignment-checkpoint runs/revo3_latent_alignment_cttp_v1/best.pt \
+  --sim-model-type robust \
+  --real-model-type tri_modal \
+  --dataset datasets/revo3_index_sweep_parallel_v1 \
+  --split test \
+  --direction sim-to-real \
+  --device cuda:0 \
+  --dataset-backend mmap \
+  --output runs/revo3_latent_alignment_cttp_v1/match_visualization_test/sim-to-real
+```
+
+输出目录中的 `sim_to_real_correct.png` 和 `sim_to_real_incorrect.png` 分别展示正确 top-1 和高置信度错误匹配；`matches.json` 保存对应的 episode/frame key 和 cosine similarity。
+
+> 注意：可视化命令中的 `alignment-checkpoint` 需要先按上面的训练命令在本地生成；该 checkpoint 不随仓库上传。
