@@ -1,0 +1,21 @@
+{
+  "source_path": "/home/liuxinyu/workspace/revo3_template_editor_standalone/Data_generation/output/d_peg_custom/editing/simulation_exports/20260913_143755_1688f22c/simulation_state.json",
+  "source_sha256": "551f1ec7a703c8aae3890770344680b6c6b2b0e975be67628fcff851e0d3195f",
+  "imported_at_utc": "2026-09-13T14:39:02.357227+00:00",
+  "model_source_path": "/home/liuxinyu/workspace/revo3_template_editor_standalone/Data_generation/output/d_peg_custom/editing/simulation_exports/20260913_143755_1688f22c/scene.mjb",
+  "source_validation": {
+    "optimization": {
+      "solver_success": false,
+      "message": "The maximum number of function evaluations is exceeded.",
+      "max_contact_distance_m": 0.022240766218743904,
+      "max_penetration_m": 0.004733773245376198,
+      "pose_candidate_pass": false,
+      "trajectory_validated": false,
+      "dynamic_lift_validated": false,
+      "nfev": 150
+    },
+    "trajectory_validated": false,
+    "dynamic_lift_validated": false,
+    "object_settle": null
+  }
+}

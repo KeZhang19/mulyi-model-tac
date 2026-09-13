@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!--
+  Joint-free adapter of the object_sim lightbulb. The visual transforms match
+  Dexonomy's MJCF adapter and are fixed inside a single rigid link.
+-->
+<robot name="lightbulb_with_socket">
+  <link name="lightbulb_with_socket">
+    <inertial>
+      <origin xyz="0.0100487 0.0000647 0.0000479" rpy="0 0 0"/>
+      <mass value="0.1565223603"/>
+      <inertia ixx="5.35852e-05" ixy="3.15364e-07" ixz="2.04577e-07"
+               iyy="1.22100e-04" iyz="-1.76457e-08" izz="1.21995e-04"/>
+    </inertial>
+    <visual name="glass">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="meshes/lightbulb_head.stl" scale="1.01 1 1"/>
+      </geometry>
+      <material name="glass">
+        <color rgba="0.93 0.99 0.97 0.70"/>
+      </material>
+    </visual>
+    <visual name="socket">
+      <origin xyz="0.002 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="meshes/lightbulb_socket.stl" scale="1.05 1 1"/>
+      </geometry>
+      <material name="socket_gray">
+        <color rgba="0.50 0.50 0.50 1"/>
+      </material>
+    </visual>
+    <collision name="glass_collision">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="meshes/contact0.stl"/>
+      </geometry>
+    </collision>
+    <collision name="socket_collision">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="meshes/contact1.stl"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>

@@ -1,0 +1,264 @@
+{
+  "passed": true,
+  "total_envs": 1024,
+  "envs_per_rank": 512,
+  "world_size": 2,
+  "iterations": 3,
+  "total_transitions": 98304,
+  "iteration_seconds": [
+    87.04,
+    77.1,
+    75.84
+  ],
+  "actor_max_parameter_change": 0.008484838530421257,
+  "observation_dim": 1949,
+  "action_dim": 28,
+  "contract_schema": 2,
+  "audit": {
+    "world_size": 2,
+    "workers": [
+      {
+        "rank": 0,
+        "device": "cuda:0",
+        "backend": "nccl",
+        "runner_distributed": true,
+        "algorithm_multi_gpu": true,
+        "world_size": 2,
+        "parameter_sync_enabled": true,
+        "per_task_obs_normalizer": false
+      },
+      {
+        "rank": 1,
+        "device": "cuda:1",
+        "backend": "nccl",
+        "runner_distributed": true,
+        "algorithm_multi_gpu": true,
+        "world_size": 2,
+        "parameter_sync_enabled": true,
+        "per_task_obs_normalizer": false
+      }
+    ],
+    "updates": [
+      {
+        "update": 1,
+        "gradient_reductions": 20,
+        "max_parameter_difference": 0.0
+      },
+      {
+        "update": 2,
+        "gradient_reductions": 20,
+        "max_parameter_difference": 0.0
+      },
+      {
+        "update": 3,
+        "gradient_reductions": 20,
+        "max_parameter_difference": 0.0
+      }
+    ],
+    "first_gradient_mean_verified": true
+  },
+  "ppo_records": [
+    {
+      "schema_version": 1,
+      "iteration": 0,
+      "world_size": 2,
+      "minibatches_per_rank": 20,
+      "ppo": {
+        "first_minibatch_pre_update_kl_mean": 0.0002803802490234375,
+        "first_minibatch_ratio_clip_frac": 0.0,
+        "kl_mean": 0.01038769388833316,
+        "ratio_clip_frac": 0.1546875,
+        "learning_rate_before": 3e-05,
+        "learning_rate_after": 0.00034171875449828804,
+        "learning_rate_used_min": 4.5000000682193786e-05,
+        "learning_rate_used_max": 0.00034171875449828804,
+        "action_mean": 0.00018122430970438506,
+        "action_std": 0.15000750067257032,
+        "action_over_one_frac": 0.0,
+        "policy_noise_std_mean": 0.15000000596046448,
+        "action_abs_max": 0.7410596609115601,
+        "first_minibatch_kl_max": 0.0002803802490234375,
+        "kl_max": 0.06108206510543823,
+        "normalizer_actor_rank0_mean_difference_max": 0.08369205892086029,
+        "normalizer_actor_rank0_std_difference_max": 0.0003893778775818646,
+        "normalizer_critic_rank0_mean_difference_max": 0.08369205892086029,
+        "normalizer_critic_rank0_std_difference_max": 0.0003893778775818646,
+        "normalizer_rollout_actor_count_delta": 16384.0,
+        "normalizer_rollout_actor_mean_max": 4.883007049560547,
+        "normalizer_rollout_actor_std_max": 1.0,
+        "normalizer_rollout_critic_count_delta": 16384.0,
+        "normalizer_rollout_critic_mean_max": 4.883007049560547,
+        "normalizer_rollout_critic_std_max": 1.0,
+        "normalizer_update_entry_actor_count_delta": 0.0,
+        "normalizer_update_entry_actor_mean_max": 0.0,
+        "normalizer_update_entry_actor_std_max": 0.0,
+        "normalizer_update_entry_critic_count_delta": 0.0,
+        "normalizer_update_entry_critic_mean_max": 0.0,
+        "normalizer_update_entry_critic_std_max": 0.0
+      },
+      "episodes": {
+        "completed_episodes": 10,
+        "means": {
+          "dropped": 0.0,
+          "duration_s": 0.2600000683218241,
+          "experienced_grasp_loss": 0.6,
+          "first_grasp_loss_s": 0.12000000514090062,
+          "held_entry": 0.0,
+          "held_fraction": 0.9217871785163879,
+          "held_time_s": 0.23000004328787327,
+          "max_valid_depth_m": 0.0,
+          "mean_other_force_n": 5.5187629699707035,
+          "mean_socket_force_n": 0.0,
+          "mean_thumb_force_n": 1.3951311111450195,
+          "mean_tilt_error_rad": 0.014125510351732373,
+          "mean_xy_error_m": 0.0022849895292893054,
+          "mean_yaw_error_rad": 0.0833841048181057,
+          "nonfinite": 0.0,
+          "out_of_bounds": 0.0,
+          "success": 0.0,
+          "valid_entry": 0.0
+        },
+        "maxima": {
+          "max_socket_force_n": 0.0,
+          "max_thumb_force_n": 2.2380495071411133,
+          "max_valid_depth_m": 0.0
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "iteration": 1,
+      "world_size": 2,
+      "minibatches_per_rank": 20,
+      "ppo": {
+        "first_minibatch_pre_update_kl_mean": 0.00035897579800803214,
+        "first_minibatch_ratio_clip_frac": 0.0,
+        "kl_mean": 0.02147688540062518,
+        "ratio_clip_frac": 0.28984375,
+        "learning_rate_before": 0.00034171875449828804,
+        "learning_rate_after": 9.999999747378752e-06,
+        "learning_rate_used_min": 9.999999747378752e-06,
+        "learning_rate_used_max": 0.0011533007491379976,
+        "action_mean": -0.0006102488707489276,
+        "action_std": 0.14992546311891689,
+        "action_over_one_frac": 0.0,
+        "policy_noise_std_mean": 0.1500272431543895,
+        "action_abs_max": 0.6851432919502258,
+        "first_minibatch_kl_max": 0.0005988478660583496,
+        "kl_max": 0.2769539952278137,
+        "normalizer_actor_rank0_mean_difference_max": 0.08361127227544785,
+        "normalizer_actor_rank0_std_difference_max": 0.0068108439445495605,
+        "normalizer_critic_rank0_mean_difference_max": 0.08361127227544785,
+        "normalizer_critic_rank0_std_difference_max": 0.0068108439445495605,
+        "normalizer_rollout_actor_count_delta": 16384.0,
+        "normalizer_rollout_actor_mean_max": 0.049160320311784744,
+        "normalizer_rollout_actor_std_max": 0.03153981268405914,
+        "normalizer_rollout_critic_count_delta": 16384.0,
+        "normalizer_rollout_critic_mean_max": 0.049160320311784744,
+        "normalizer_rollout_critic_std_max": 0.03153981268405914,
+        "normalizer_update_entry_actor_count_delta": 0.0,
+        "normalizer_update_entry_actor_mean_max": 0.0,
+        "normalizer_update_entry_actor_std_max": 0.0,
+        "normalizer_update_entry_critic_count_delta": 0.0,
+        "normalizer_update_entry_critic_mean_max": 0.0,
+        "normalizer_update_entry_critic_std_max": 0.0
+      },
+      "episodes": {
+        "completed_episodes": 26,
+        "means": {
+          "dropped": 0.0,
+          "duration_s": 0.8512819088422335,
+          "experienced_grasp_loss": 1.0,
+          "first_grasp_loss_s": 0.2256410729426604,
+          "held_entry": 0.0,
+          "held_fraction": 0.8989173953349774,
+          "held_time_s": 0.7602563408704904,
+          "max_valid_depth_m": 0.0,
+          "mean_other_force_n": 5.566879565899189,
+          "mean_socket_force_n": 0.0,
+          "mean_thumb_force_n": 1.326625177493462,
+          "mean_tilt_error_rad": 0.022557626227633312,
+          "mean_xy_error_m": 0.0042327189226993005,
+          "mean_yaw_error_rad": 0.09088489646092057,
+          "nonfinite": 0.0,
+          "out_of_bounds": 0.0,
+          "success": 0.0,
+          "valid_entry": 0.0
+        },
+        "maxima": {
+          "max_socket_force_n": 0.0,
+          "max_thumb_force_n": 2.36694073677063,
+          "max_valid_depth_m": 0.0
+        }
+      }
+    },
+    {
+      "schema_version": 1,
+      "iteration": 2,
+      "world_size": 2,
+      "minibatches_per_rank": 20,
+      "ppo": {
+        "first_minibatch_pre_update_kl_mean": 0.0004692103830166161,
+        "first_minibatch_ratio_clip_frac": 0.0,
+        "kl_mean": 0.017709718469268408,
+        "ratio_clip_frac": 0.194488525390625,
+        "learning_rate_before": 9.999999747378752e-06,
+        "learning_rate_after": 9.999999747378752e-06,
+        "learning_rate_used_min": 9.999999747378752e-06,
+        "learning_rate_used_max": 0.0002562890585977584,
+        "action_mean": -0.0005326484189947364,
+        "action_std": 0.1506658255519066,
+        "action_over_one_frac": 0.0,
+        "policy_noise_std_mean": 0.15023894501583918,
+        "action_abs_max": 0.7685983777046204,
+        "first_minibatch_kl_max": 0.0010191798210144043,
+        "kl_max": 0.3247101306915283,
+        "normalizer_actor_rank0_mean_difference_max": 0.08353530615568161,
+        "normalizer_actor_rank0_std_difference_max": 0.006806433200836182,
+        "normalizer_critic_rank0_mean_difference_max": 0.08353530615568161,
+        "normalizer_critic_rank0_std_difference_max": 0.006806433200836182,
+        "normalizer_rollout_actor_count_delta": 16384.0,
+        "normalizer_rollout_actor_mean_max": 0.017130732536315918,
+        "normalizer_rollout_actor_std_max": 0.03477072715759277,
+        "normalizer_rollout_critic_count_delta": 16384.0,
+        "normalizer_rollout_critic_mean_max": 0.017130732536315918,
+        "normalizer_rollout_critic_std_max": 0.03477072715759277,
+        "normalizer_update_entry_actor_count_delta": 0.0,
+        "normalizer_update_entry_actor_mean_max": 0.0,
+        "normalizer_update_entry_actor_std_max": 0.0,
+        "normalizer_update_entry_critic_count_delta": 0.0,
+        "normalizer_update_entry_critic_mean_max": 0.0,
+        "normalizer_update_entry_critic_std_max": 0.0
+      },
+      "episodes": {
+        "completed_episodes": 10,
+        "means": {
+          "dropped": 0.0,
+          "duration_s": 1.1999995708465576,
+          "experienced_grasp_loss": 1.0,
+          "first_grasp_loss_s": 0.2300000160932541,
+          "held_entry": 0.0,
+          "held_fraction": 0.9156270027160645,
+          "held_time_s": 1.0966663122177125,
+          "max_valid_depth_m": 0.0,
+          "mean_other_force_n": 5.536293077468872,
+          "mean_socket_force_n": 0.0,
+          "mean_thumb_force_n": 1.321344804763794,
+          "mean_tilt_error_rad": 0.031121384352445602,
+          "mean_xy_error_m": 0.004448854015208781,
+          "mean_yaw_error_rad": 0.0577100271359086,
+          "nonfinite": 0.0,
+          "out_of_bounds": 0.0,
+          "success": 0.0,
+          "valid_entry": 0.0
+        },
+        "maxima": {
+          "max_socket_force_n": 0.0,
+          "max_thumb_force_n": 2.1613521575927734,
+          "max_valid_depth_m": 0.0
+        }
+      }
+    }
+  ],
+  "scope": "Execution, numerical, capacity and synchronization validation; insertion success not yet established"
+}

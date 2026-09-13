@@ -1,0 +1,6 @@
+{
+  "source_export": "/home/liuxinyu/workspace/revo3_template_editor_standalone/Data_generation/output/rotate_bulb_custom/editing/simulation_exports/20260912_102202_ed803448/simulation_state.json",
+  "sha256": "fc337d0ea3d3f7ff38ef56ebdef82f127eb18213a6964f6db9ac0afbc45f5d53",
+  "task": "BrainCo-Dexsuite-Revo3-Right-Rotate-Bulb-Custom-v0",
+  "use": "initial/reset poses only; native Isaac Lab dynamics retained"
+}

@@ -30,6 +30,22 @@ gym.register(
 )
 
 gym.register(
+    id="BrainCo-Direct-Revo3-Repose-Cube-Visuotactile-v0",
+    entry_point=f"{inhand_task_entry}.visuotactile_inhand_manipulation_env:VisuotactileInHandManipulationEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": (
+            f"{__name__}.brainco_hand_visuotactile_env_cfg:BrainCoVisuotactileHandEnvCfg"
+        ),
+        "rl_games_cfg_entry_point": f"{agents.__name__}:visuotactile_rl_games_ppo_cfg.yaml",
+        "rsl_rl_cfg_entry_point": (
+            f"{agents.__name__}.visuotactile_rsl_rl_ppo_cfg:BrainCoVisuotactilePPORunnerCfg"
+        ),
+        "skrl_cfg_entry_point": f"{agents.__name__}:visuotactile_skrl_ppo_cfg.yaml",
+    },
+)
+
+gym.register(
     id="BrainCo-Direct-Revo3-Reorient-Cylinder-v0",
     entry_point=f"{inhand_task_entry}.reorient:InHandManipulationEnv",
     disable_env_checker=True,

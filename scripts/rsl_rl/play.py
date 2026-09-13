@@ -116,8 +116,18 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # set the log directory for the environment (works for all environment types)
     env_cfg.log_dir = log_dir
 
+    if hasattr(env_cfg, "repose_training_revision"):
+        from repose_training import configure_repose_checkpoint
+
+        env_cfg.repose_training_revision = configure_repose_checkpoint(agent_cfg, resume_path)
+        env_cfg.repose_curriculum_enabled = False
+
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
+
+    from BrainCo_DexHand.tactile_representation.policy import prepare_policy_run
+
+    prepare_policy_run(env, log_dir, resume_path=resume_path)
 
     # convert to single-agent instance if required by the RL algorithm
     if isinstance(env.unwrapped, DirectMARLEnv):
@@ -146,6 +156,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         runner = DistillationRunner(env, agent_cfg.to_dict(), log_dir=None, device=agent_cfg.device)
     else:
         raise ValueError(f"Unsupported runner class: {agent_cfg.class_name}")
+    if getattr(env.unwrapped, "_repose_training", None) is not None:
+        from repose_run_state import install_repose_run_state
+
+        install_repose_run_state(runner, env.unwrapped)
     runner.load(resume_path, map_location=agent_cfg.device)
 
     # obtain the trained policy for inference
@@ -170,8 +184,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # export policy to onnx/jit
     export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
-    export_policy_as_jit(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.pt")
-    export_policy_as_onnx(policy_nn, normalizer=normalizer, path=export_model_dir, filename="policy.onnx")
+    from repose_training import repose_policy_for_export
+
+    export_policy = repose_policy_for_export(policy_nn)
+    export_policy_as_jit(export_policy, normalizer=normalizer, path=export_model_dir, filename="policy.pt")
+    export_policy_as_onnx(export_policy, normalizer=normalizer, path=export_model_dir, filename="policy.onnx")
 
     dt = env.unwrapped.step_dt
 

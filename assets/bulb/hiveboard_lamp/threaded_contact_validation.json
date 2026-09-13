@@ -1,0 +1,105 @@
+{
+  "usd": "hiveboard_lamp_threaded.usd",
+  "usd_sha256": "b5c9079721c907437326dd390586585ab525db73d1e99f12e541a50001b9cd74",
+  "device": "cuda:0",
+  "pitch_m": 0.006,
+  "fixed_base": true,
+  "travel_m": 0.024,
+  "max_lead_error_m": 1.5104475986981597e-05,
+  "source_geometry_preserved": true,
+  "contacts": {
+    "max_net_force_n": 153.24505615234375,
+    "contact_steps": 819
+  },
+  "samples": [
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 0,
+      "target_rad": -0.010471975511965978,
+      "turn_rad": -5.436693754745647e-05,
+      "slide_m": -5.167942873640641e-08,
+      "extension_m": 0.024299948320571266,
+      "lead_error_m": 2.3717237226996716e-10,
+      "net_force_n": 0.0
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 120,
+      "target_rad": -1.2671090369478832,
+      "turn_rad": -0.06414595991373062,
+      "slide_m": -5.858799340785481e-05,
+      "extension_m": 0.024241412006592147,
+      "lead_error_m": 2.6668861900139675e-06,
+      "net_force_n": 24.301424026489258
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 240,
+      "target_rad": -2.5237460983838007,
+      "turn_rad": -0.06789789348840714,
+      "slide_m": -5.661370960297063e-05,
+      "extension_m": 0.02424338629039703,
+      "lead_error_m": 8.22400264227142e-06,
+      "net_force_n": 81.21678161621094
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 360,
+      "target_rad": -3.780383159819718,
+      "turn_rad": -0.06792549788951874,
+      "slide_m": -5.678902380168438e-05,
+      "extension_m": 0.024243210976198318,
+      "lead_error_m": 8.075048704885699e-06,
+      "net_force_n": 77.2984848022461
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 480,
+      "target_rad": -5.037020221255635,
+      "turn_rad": -0.07421915978193283,
+      "slide_m": -5.5810261983424425e-05,
+      "extension_m": 0.024244189738016578,
+      "lead_error_m": 1.5063814925106428e-05,
+      "net_force_n": 146.4866485595703
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 600,
+      "target_rad": -6.283185307179586,
+      "turn_rad": -0.07408236712217331,
+      "slide_m": -5.5639851780142635e-05,
+      "extension_m": 0.02424436014821986,
+      "lead_error_m": 1.510359776051171e-05,
+      "net_force_n": 152.08709716796875
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 720,
+      "target_rad": -6.283185307179586,
+      "turn_rad": -0.07408245652914047,
+      "slide_m": -5.563930972130038e-05,
+      "extension_m": 0.024244360690278702,
+      "lead_error_m": 1.5104225196718596e-05,
+      "net_force_n": 152.09275817871094
+    },
+    {
+      "cycle": 0,
+      "phase": "insert",
+      "step": 839,
+      "target_rad": -6.283185307179586,
+      "turn_rad": -0.0740826353430748,
+      "slide_m": -5.563922968576662e-05,
+      "extension_m": 0.024244360770314236,
+      "lead_error_m": 1.5104475986981597e-05,
+      "net_force_n": 152.09542846679688
+    }
+  ],
+  "test_mode": "misphased_thread_contact"
+}

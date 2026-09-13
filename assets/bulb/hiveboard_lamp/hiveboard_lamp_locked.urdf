@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!--
+  Joint-free adapter of the HiveBoard lamp at RevoluteJoint=0 rad and
+  PrismaticJoint=0 m. All source links are collapsed into one rigid link.
+-->
+<robot name="hiveboard_lamp_locked">
+  <link name="hiveboard_lamp">
+    <inertial>
+      <origin xyz="0.010899 0 0.012196" rpy="0 0 0"/>
+      <mass value="0.5505"/>
+      <inertia ixx="0.00035" ixy="0" ixz="0"
+               iyy="0.00080" iyz="0" izz="0.00085"/>
+    </inertial>
+    <visual name="base">
+      <origin xyz="-0.0447325 0 0" rpy="0 1.5707964 0"/>
+      <geometry>
+        <mesh filename="source/Simulation/meshes/base_pivot_Mesh.obj"/>
+      </geometry>
+    </visual>
+    <visual name="lamp_body">
+      <origin xyz="0 0 0" rpy="-1.5434489 -1.4170299 1.5429671"/>
+      <geometry>
+        <mesh filename="source/Simulation/meshes/Corpo1_Mesh.obj"/>
+      </geometry>
+    </visual>
+    <visual name="lamp_shell_1">
+      <origin xyz="0 0 0" rpy="-1.5434489 -1.4170299 1.5429671"/>
+      <geometry>
+        <mesh filename="source/Simulation/meshes/tn__Corpo11_j7m1J_Mesh.obj"/>
+      </geometry>
+    </visual>
+    <visual name="lamp_shell_2">
+      <origin xyz="0 0 0" rpy="-1.5434489 -1.4170299 1.5429671"/>
+      <geometry>
+        <mesh filename="source/Simulation/meshes/tn__Corpo12_j7m1J_Mesh.obj"/>
+      </geometry>
+    </visual>
+    <visual name="rotation_pivot">
+      <origin xyz="-0.0390718 0 0" rpy="0 1.5707964 0"/>
+      <geometry>
+        <cylinder radius="0.005" length="0.01"/>
+      </geometry>
+      <material name="pivot_gray">
+        <color rgba="0.5 0.5 0.5 1"/>
+      </material>
+    </visual>
+    <collision name="base_collision">
+      <origin xyz="-0.0447325 0 0" rpy="0 1.5707964 0"/>
+      <geometry>
+        <mesh filename="source/Simulation/meshes/base_pivot_Mesh.obj"/>
+      </geometry>
+    </collision>
+    <collision name="socket_collision">
+      <origin xyz="-0.015 0 0" rpy="0 1.5707964 0"/>
+      <geometry>
+        <cylinder radius="0.014" length="0.030"/>
+      </geometry>
+    </collision>
+    <collision name="bulb_collision">
+      <origin xyz="0.035 0 0" rpy="0 1.5707964 0"/>
+      <geometry>
+        <cylinder radius="0.028" length="0.080"/>
+      </geometry>
+    </collision>
+    <collision name="rotation_pivot_collision">
+      <origin xyz="-0.0390718 0 0" rpy="0 1.5707964 0"/>
+      <geometry>
+        <cylinder radius="0.005" length="0.01"/>
+      </geometry>
+    </collision>
+  </link>
+</robot>

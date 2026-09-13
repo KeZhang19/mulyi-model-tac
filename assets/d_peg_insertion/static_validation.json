@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "validation": "CPU-only static geometry and native USD checks",
+  "physics_rollout_tested": false,
+  "assets": {
+    "peg": {
+      "default_prim": "/DPeg",
+      "rigid_bodies": 1,
+      "joints": 0,
+      "collision_cells": 2,
+      "watertight": true,
+      "canonical_visual_equals_tactile": true,
+      "max_usd_stl_vertex_error_m": 1.920236512337249e-09,
+      "max_cell_hull_volume_difference_mm3": 0.09750285650261503,
+      "max_cell_hull_surface_difference_mm": 0.003763200657135168,
+      "bounds_m": [
+        [
+          -0.02500000037252903,
+          -0.02499505877494812,
+          -3.330669102826791e-19
+        ],
+        [
+          0.02500000037252903,
+          0.02499505877494812,
+          0.08500000089406967
+        ]
+      ]
+    },
+    "socket": {
+      "default_prim": "/DSocket",
+      "rigid_bodies": 1,
+      "joints": 0,
+      "collision_cells": 133,
+      "watertight": true,
+      "canonical_visual_equals_tactile": true,
+      "max_usd_stl_vertex_error_m": 1.5523379005055794e-09,
+      "max_cell_hull_volume_difference_mm3": 0.00017828969521360705,
+      "max_cell_hull_surface_difference_mm": 2.1715089696676363e-07,
+      "bounds_m": [
+        [
+          -0.03999999910593033,
+          -0.03999999910593033,
+          0.0
+        ],
+        [
+          0.03999999910593033,
+          0.03999999910593033,
+          0.05000000074505806
+        ]
+      ]
+    }
+  },
+  "geometric_insertion": {
+    "empty_cavity_probes": 41464,
+    "correct_pose_collision_free": true,
+    "wrong_180_degree_yaw_wall_probe_blocked": true,
+    "blind_bottom_solid": true,
+    "target_depth_m": 0.028,
+    "target_tip_bottom_clearance_m": 0.002,
+    "tip_chamfer_profile": "radius 11 mm / flat x=5 mm at z=0; normal inset 1 mm"
+  }
+}

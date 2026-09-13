@@ -27,3 +27,5 @@ Lift:
 
 # Import to register the public environments only.
 from .config import Revo3  # noqa: F401
+from .config import RotateBulbCustom  # noqa: F401
+from .config import InsertDPegCustom  # noqa: F401

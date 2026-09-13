@@ -1,0 +1,22 @@
+{
+  "pid": 13014,
+  "host": "dsw-715zhrv7l6bux2ldbl",
+  "run_dir": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/dexsuite_revo3_insert_d_peg_v2/20260912T080230Z_dual_gpu_1024",
+  "command": [
+    "bash",
+    "scripts/rsl_rl/launch_d_peg_dual_gpu.sh",
+    "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/dexsuite_revo3_insert_d_peg_v2/20260912T080230Z_dual_gpu_1024"
+  ],
+  "start_utc": "2026-09-12T08:02:30.690142+00:00",
+  "total_envs": 1024,
+  "envs_per_gpu": 512,
+  "gpu_indices": [
+    0,
+    1
+  ],
+  "max_iterations": 15000,
+  "save_interval": 25,
+  "seed": 7,
+  "from_scratch": true,
+  "capacity_validation_report": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/diagnostics/d_peg_v2_server/capacity_1024/report.json"
+}

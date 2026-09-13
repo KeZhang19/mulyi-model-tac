@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "provenance": "Original parametric geometry authored for this project; no external model source.",
+  "units": {
+    "usd": "m",
+    "cad_step": "mm",
+    "stl": "mm",
+    "collision_npz": "mm"
+  },
+  "up_axis": "Z",
+  "flat_normal_local": [
+    1,
+    0,
+    0
+  ],
+  "dimensions_m": {
+    "shaft_radius": 0.012,
+    "shaft_flat_x": 0.006,
+    "shaft_length": 0.035,
+    "tip_chamfer": 0.001,
+    "grip_diameter": 0.05,
+    "grip_height": 0.05,
+    "socket_size": [
+      0.08,
+      0.08,
+      0.05
+    ],
+    "hole_depth": 0.03,
+    "hole_radius": 0.01275,
+    "hole_flat_x": 0.00675,
+    "clearance_per_side": 0.00075,
+    "entry_chamfer": 0.001
+  },
+  "peg": {
+    "usd": "peg.usd",
+    "default_prim": "/DPeg",
+    "mass_kg": 0.1,
+    "tip_local": [
+      0,
+      0,
+      0
+    ],
+    "shaft_top_local": [
+      0,
+      0,
+      0.035
+    ],
+    "grip_center_local": [
+      0,
+      0,
+      0.06
+    ],
+    "top_local": [
+      0,
+      0,
+      0.085
+    ],
+    "visual_mesh_path": "VisualMesh",
+    "tactile_mesh_path": "TactileSurface",
+    "collision_mesh_paths": [
+      "Collisions/Shaft",
+      "Collisions/Grip"
+    ],
+    "kinematic": false,
+    "usd_sha256": "cfcbe23cb954dcadcf2bfe30451a5ae6f88fe81f38a4654b83914d65a1fe73b1"
+  },
+  "socket": {
+    "usd": "socket.usd",
+    "default_prim": "/DSocket",
+    "kinematic": true,
+    "mouth_local": [
+      0,
+      0,
+      0.05
+    ],
+    "hole_bottom_local": [
+      0,
+      0,
+      0.02
+    ],
+    "target_depth_m": 0.028,
+    "target_tip_local": [
+      0,
+      0,
+      0.022
+    ],
+    "visual_mesh_path": "VisualMesh",
+    "tactile_mesh_path": "TactileSurface",
+    "collision_cell_count": 133,
+    "collision_strategy": "Explicit Bottom plus angular convex Wall cells, including entrance chamfer; never a hull of the whole socket.",
+    "usd_sha256": "f15b7243928e9171426b1d4e47ecf4610c7736d5ec6753de994b13c097a27ff1"
+  },
+  "physics": {
+    "contact_offset_m": 0.0001,
+    "rest_offset_m": 0.0,
+    "friction": {
+      "grip": {
+        "static": 0.9,
+        "dynamic": 0.8
+      },
+      "shaft_socket": {
+        "static": 0.5,
+        "dynamic": 0.4
+      }
+    },
+    "peg_joint_count": 0,
+    "collision_approximation": "convexHull per explicit convex piece"
+  },
+  "geometry": {
+    "peg": {
+      "vertices": 690,
+      "triangles": 1376,
+      "bounds_m": [
+        [
+          -0.025,
+          -0.02499505824425164,
+          -3.3306690738754697e-19
+        ],
+        [
+          0.025,
+          0.024995058244251637,
+          0.085
+        ]
+      ],
+      "mesh_sha256": "c9f52011e82468b37aa99cf39c18ac864efdd581f73815a675ca9213b5fa66cb",
+      "watertight": true,
+      "volume_m3": 0.00011084972150411551
+    },
+    "socket": {
+      "vertices": 334,
+      "triangles": 664,
+      "bounds_m": [
+        [
+          -0.04,
+          -0.04,
+          0.0
+        ],
+        [
+          0.04,
+          0.04,
+          0.05
+        ]
+      ],
+      "mesh_sha256": "4f6ea7268feecb77caa36ba3f85a417cbb8bffba4b96462ef3c4a943e6b7d9d0",
+      "watertight": true,
+      "volume_m3": 0.00030739192022758875
+    },
+    "shaft_collision": {
+      "vertices": 374,
+      "triangles": 744,
+      "bounds_m": [
+        [
+          -0.011997612873246282,
+          -0.011999850799940303,
+          -3.3306690738754697e-19
+        ],
+        [
+          0.006,
+          0.011999850799940303,
+          0.035
+        ]
+      ],
+      "mesh_sha256": "3ef699b943f991c436276817e70f17dd4570d99950dc0b5971adedca192494eb",
+      "watertight": true,
+      "volume_m3": 1.2700824858580355e-05
+    },
+    "grip_collision": {
+      "vertices": 316,
+      "triangles": 628,
+      "bounds_m": [
+        [
+          -0.025,
+          -0.02499505824425164,
+          0.035
+        ],
+        [
+          0.025,
+          0.024995058244251637,
+          0.085
+        ]
+      ],
+      "mesh_sha256": "b9d3c5a2307b2a424cfb3851084d381de66791710003de820b7d3263e84534c0",
+      "watertight": true,
+      "volume_m3": 9.814889664553513e-05
+    }
+  },
+  "tessellation_tolerance_m": 3e-05,
+  "notes": [
+    "STL is unitless: import with millimetre units.",
+    "0.75 mm clearance is geometric clearance at the circular arc and flat; printing tolerances require physical calibration.",
+    "The paint-like +X arrow is visual only; it is excluded from the canonical tactile mesh and collision.",
+    "At target depth 28 mm the peg tip remains 2 mm above the blind bottom and the grip shoulder is 7 mm above the mouth."
+  ]
+}

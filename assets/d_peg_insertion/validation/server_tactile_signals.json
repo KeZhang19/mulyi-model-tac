@@ -1,0 +1,293 @@
+{
+  "sample": "cached_encoder_inputs_immediately_after_reset",
+  "common_step_counter": 0,
+  "finger_order": [
+    "little",
+    "ring",
+    "middle",
+    "index",
+    "thumb"
+  ],
+  "depth_active_threshold_m": 1e-06,
+  "depth_has_contact_per_env": [
+    true,
+    true
+  ],
+  "input_depth_shape": [
+    2,
+    5,
+    1,
+    240,
+    320
+  ],
+  "latent_shape": [
+    2,
+    5,
+    256
+  ],
+  "per_finger": {
+    "little": {
+      "latent_l2_per_env": [
+        1.0,
+        1.0
+      ],
+      "depth_max_m_per_env": [
+        0.0,
+        0.0
+      ],
+      "depth_active_pixels_per_env": [
+        0,
+        0
+      ],
+      "depth_positive_pixels_per_env": [
+        0,
+        0
+      ],
+      "marker_valid_count_per_env": [
+        85,
+        85
+      ],
+      "marker_displacement_max_px_per_env": [
+        0.0,
+        0.0
+      ],
+      "marker_displacement_mean_px_per_env": [
+        0.0,
+        0.0
+      ],
+      "marker_dx_dy_min_px_per_env": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "marker_dx_dy_max_px_per_env": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "ring": {
+      "latent_l2_per_env": [
+        1.0000001192092896,
+        1.0000001192092896
+      ],
+      "depth_max_m_per_env": [
+        0.0,
+        0.0
+      ],
+      "depth_active_pixels_per_env": [
+        0,
+        0
+      ],
+      "depth_positive_pixels_per_env": [
+        0,
+        0
+      ],
+      "marker_valid_count_per_env": [
+        86,
+        86
+      ],
+      "marker_displacement_max_px_per_env": [
+        0.0,
+        0.0
+      ],
+      "marker_displacement_mean_px_per_env": [
+        0.0,
+        0.0
+      ],
+      "marker_dx_dy_min_px_per_env": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ],
+      "marker_dx_dy_max_px_per_env": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0
+        ]
+      ]
+    },
+    "middle": {
+      "latent_l2_per_env": [
+        0.9999999403953552,
+        0.9999999403953552
+      ],
+      "depth_max_m_per_env": [
+        0.0007563596591353416,
+        0.0007565971463918686
+      ],
+      "depth_active_pixels_per_env": [
+        9462,
+        9468
+      ],
+      "depth_positive_pixels_per_env": [
+        9528,
+        9528
+      ],
+      "marker_valid_count_per_env": [
+        86,
+        86
+      ],
+      "marker_displacement_max_px_per_env": [
+        4.605827808380127,
+        4.608087062835693
+      ],
+      "marker_displacement_mean_px_per_env": [
+        1.558319091796875,
+        1.5592033863067627
+      ],
+      "marker_dx_dy_min_px_per_env": [
+        [
+          -4.3026123046875,
+          -3.5072784423828125
+        ],
+        [
+          -4.3048248291015625,
+          -3.5090789794921875
+        ]
+      ],
+      "marker_dx_dy_max_px_per_env": [
+        [
+          4.31341552734375,
+          3.8858642578125
+        ],
+        [
+          4.315582275390625,
+          3.8875732421875
+        ]
+      ]
+    },
+    "index": {
+      "latent_l2_per_env": [
+        0.9999999403953552,
+        1.0
+      ],
+      "depth_max_m_per_env": [
+        0.001981467939913273,
+        0.0019818227738142014
+      ],
+      "depth_active_pixels_per_env": [
+        29086,
+        29089
+      ],
+      "depth_positive_pixels_per_env": [
+        29206,
+        29206
+      ],
+      "marker_valid_count_per_env": [
+        86,
+        86
+      ],
+      "marker_displacement_max_px_per_env": [
+        18.174270629882812,
+        18.17782974243164
+      ],
+      "marker_displacement_mean_px_per_env": [
+        8.117204666137695,
+        8.119585990905762
+      ],
+      "marker_dx_dy_min_px_per_env": [
+        [
+          -15.367027282714844,
+          -15.295151710510254
+        ],
+        [
+          -15.370536804199219,
+          -15.298308372497559
+        ]
+      ],
+      "marker_dx_dy_max_px_per_env": [
+        [
+          17.571258544921875,
+          15.494415283203125
+        ],
+        [
+          17.57489013671875,
+          15.497894287109375
+        ]
+      ]
+    },
+    "thumb": {
+      "latent_l2_per_env": [
+        1.0,
+        1.0
+      ],
+      "depth_max_m_per_env": [
+        0.0004786308854818344,
+        0.0004783002659678459
+      ],
+      "depth_active_pixels_per_env": [
+        3884,
+        3882
+      ],
+      "depth_positive_pixels_per_env": [
+        3915,
+        3906
+      ],
+      "marker_valid_count_per_env": [
+        87,
+        87
+      ],
+      "marker_displacement_max_px_per_env": [
+        1.6979793310165405,
+        1.6963911056518555
+      ],
+      "marker_displacement_mean_px_per_env": [
+        0.5077418684959412,
+        0.5072228312492371
+      ],
+      "marker_dx_dy_min_px_per_env": [
+        [
+          -1.6116485595703125,
+          -1.6138153076171875
+        ],
+        [
+          -1.6101455688476562,
+          -1.6122894287109375
+        ]
+      ],
+      "marker_dx_dy_max_px_per_env": [
+        [
+          1.6581573486328125,
+          0.76458740234375
+        ],
+        [
+          1.65667724609375,
+          0.7637176513671875
+        ]
+      ]
+    }
+  },
+  "resolved_pressure_target_meshes": {
+    "right_midmcp_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_midpip_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_indexmcp_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_indexpip_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_ringmcp_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_ringpip_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_pinkymcp_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_pinkypip_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_thumbmcp_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_thumbpip_roll_touch_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface",
+    "right_hand_rubber_link_warpsdf_s": "/World/envs/env_0/Object/TactileSurface"
+  }
+}

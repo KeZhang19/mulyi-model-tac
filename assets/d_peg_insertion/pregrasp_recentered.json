@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "validated": false,
+  "provenance": "Gravity-calibrated finger grasp recentered with bounded arm IK; repeat restored-state hold before acceptance",
+  "robot_joint_positions": {
+    "Joint1_R": -0.01741879513348981,
+    "Joint2_R": -0.42310446724621487,
+    "Joint3_R": -0.43581044912160094,
+    "Joint4_R": -0.31234814714265635,
+    "Joint5_R": 0.5529471580251886,
+    "Joint6_R": 0.2871541830305974,
+    "Joint7_R": -0.36950125080043583,
+    "right_indexmcp_yaw_joint": -0.049249451607465744,
+    "right_midmcp_yaw_joint": 0.1643189936876297,
+    "right_pinkymcp_yaw_joint": -0.10215407609939575,
+    "right_ringmcp_yaw_joint": -0.10240151733160019,
+    "right_thumbcmp_roll_joint": 1.1189733743667603,
+    "right_indexmcp_roll_joint": -0.0047537838108837605,
+    "right_midmcp_roll_joint": 0.12781348824501038,
+    "right_pinkymcp_roll_joint": 1.2021183967590332,
+    "right_ringmcp_roll_joint": 1.2023614645004272,
+    "right_thumbcmr_roll_joint": 1.5707955360412598,
+    "right_indexpip_roll_joint": 1.362532138824463,
+    "right_midpip_roll_joint": 1.2633585929870605,
+    "right_pinkypip_roll_joint": 1.298033356666565,
+    "right_ringpip_roll_joint": 1.2979075908660889,
+    "right_thumbmcp_roll_joint": 0.1779777854681015,
+    "right_indexdip_roll_joint": 0.12560050189495087,
+    "right_middip_roll_joint": 0.3171858489513397,
+    "right_pinkydip_roll_joint": 0.8033047914505005,
+    "right_ringdip_roll_joint": 0.8027582764625549,
+    "right_thumbpip_roll_joint": 0.9014272093772888,
+    "right_thumbdip_roll_joint": 0.5034714341163635
+  },
+  "robot_joint_targets": {
+    "Joint1_R": -0.016978525424856387,
+    "Joint2_R": -0.42430681214062405,
+    "Joint3_R": -0.4331404888612097,
+    "Joint4_R": -0.3120454747564869,
+    "Joint5_R": 0.5487441961034967,
+    "Joint6_R": 0.28774486506032154,
+    "Joint7_R": -0.37032135110790043,
+    "right_indexmcp_yaw_joint": -0.0014347684336826205,
+    "right_midmcp_yaw_joint": 0.18933425843715668,
+    "right_pinkymcp_yaw_joint": -0.10000000149011612,
+    "right_ringmcp_yaw_joint": -0.10000000149011612,
+    "right_thumbcmp_roll_joint": 1.1228406429290771,
+    "right_indexmcp_roll_joint": 0.1356942057609558,
+    "right_midmcp_roll_joint": 0.16011349856853485,
+    "right_pinkymcp_roll_joint": 1.2000000476837158,
+    "right_ringmcp_roll_joint": 1.2000000476837158,
+    "right_thumbcmr_roll_joint": 1.5706963539123535,
+    "right_indexpip_roll_joint": 1.4607563018798828,
+    "right_midpip_roll_joint": 1.2883979082107544,
+    "right_pinkypip_roll_joint": 1.2999999523162842,
+    "right_ringpip_roll_joint": 1.2999999523162842,
+    "right_thumbmcp_roll_joint": 0.3927769064903259,
+    "right_indexdip_roll_joint": 0.16563306748867035,
+    "right_middip_roll_joint": 0.3288877606391907,
+    "right_pinkydip_roll_joint": 0.800000011920929,
+    "right_ringdip_roll_joint": 0.800000011920929,
+    "right_thumbpip_roll_joint": 1.0312755107879639,
+    "right_thumbdip_roll_joint": 0.5619765520095825
+  },
+  "peg_pose": {
+    "position": [
+      0.45,
+      0.1,
+      0.84
+    ],
+    "quaternion": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "seed_hand_center": [
+    0.05,
+    0.03,
+    0.135
+  ],
+  "seed_hand_axis": [
+    0.0,
+    0.8191520442889918,
+    -0.573576436351046
+  ],
+  "seed_hand_pose": [
+    [
+      -0.5000000000000002,
+      -0.4967317648921539,
+      -0.7094064799162224,
+      0.5856718277354547
+    ],
+    [
+      -0.8660254037844385,
+      0.28678821817552314,
+      0.4095760221444961,
+      0.07940486065444927
+    ],
+    [
+      0.0,
+      0.8191520442889919,
+      -0.573576436351046,
+      0.9528582575787213
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "hand_fit_cost": 0.057794094239673285,
+  "arm_heading_rad": -2.0943951023931957,
+  "validation": {
+    "gravity_m_s2": 9.81,
+    "hold_seconds": 2.0,
+    "report": "assets/d_peg_insertion/validation/pregrasp.json",
+    "env_index": 0
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "right_indexdip_roll_rubber_link": {
+    "max_distance": 0.015,
+    "ray_axis": "+x",
+    "grid_u_axis": "+y",
+    "grid_v_axis": "+z",
+    "grid_u_size": 0.02068358,
+    "grid_v_size": 0.0184646,
+    "grid_center": [
+      0.0010554423705549443,
+      0.0011446622084231503,
+      0.017652252981855257
+    ]
+  },
+  "right_middip_roll_rubber_link": {
+    "max_distance": 0.015,
+    "ray_axis": "+x",
+    "grid_u_axis": "+y",
+    "grid_v_axis": "+z",
+    "grid_u_size": 0.0202,
+    "grid_v_size": 0.0182,
+    "grid_center": [
+      0.0005121670428580808,
+      0.0004469635344571826,
+      0.0180775774394539
+    ]
+  },
+  "right_pinkydip_roll_rubber_link": {
+    "max_distance": 0.015,
+    "ray_axis": "+x",
+    "grid_u_axis": "+y",
+    "grid_v_axis": "+z",
+    "grid_u_size": 0.02068569,
+    "grid_v_size": 0.01843646,
+    "grid_center": [
+      0.0007743784367408495,
+      -0.0011621187372542509,
+      0.01765468643629458
+    ]
+  },
+  "right_ringdip_roll_rubber_link": {
+    "max_distance": 0.015,
+    "ray_axis": "+x",
+    "grid_u_axis": "+y",
+    "grid_v_axis": "+z",
+    "grid_u_size": 0.02056884,
+    "grid_v_size": 0.01818433,
+    "grid_center": [
+      0.0012263763251875199,
+      -0.00037852326844893384,
+      0.017684507350922175
+    ]
+  },
+  "right_thumbdip_roll_rubber_link": {
+    "max_distance": 0.015,
+    "ray_axis": "+y",
+    "grid_u_axis": "-z",
+    "grid_v_axis": "+x",
+    "grid_u_size": 0.01343826,
+    "grid_v_size": 0.02319049,
+    "grid_center": [
+      -0.0002244497270106147,
+      0.02421595457602751,
+      0.0007235667486920007
+    ]
+  }
+}

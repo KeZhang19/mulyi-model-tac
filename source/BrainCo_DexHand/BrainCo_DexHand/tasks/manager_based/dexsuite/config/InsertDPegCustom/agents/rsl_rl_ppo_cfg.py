@@ -1,0 +1,24 @@
+"""Task-owned PPO model and training parameters for the Flexiv D-peg task."""
+
+from isaaclab.utils import configclass
+from isaaclab_rl.rsl_rl import RslRlOnPolicyRunnerCfg, RslRlPpoActorCriticCfg, RslRlPpoAlgorithmCfg
+
+
+@configclass
+class DexsuiteFlexivInsertDPegPPORunnerCfg(RslRlOnPolicyRunnerCfg):
+    num_steps_per_env = 32
+    obs_groups = {"policy": ["policy", "proprio", "perception"], "critic": ["policy", "proprio", "perception"]}
+    max_iterations = 15000
+    save_interval = 250
+    experiment_name = "dexsuite_flexiv_insert_d_peg_custom"
+    log_all_ranks = False
+    policy = RslRlPpoActorCriticCfg(
+        init_noise_std=0.15, actor_obs_normalization=True, critic_obs_normalization=True,
+        actor_hidden_dims=[512, 256, 128], critic_hidden_dims=[512, 256, 128], activation="elu",
+    )
+    algorithm = RslRlPpoAlgorithmCfg(
+        value_loss_coef=1.0, use_clipped_value_loss=True, clip_param=0.2,
+        entropy_coef=0.001, num_learning_epochs=5, num_mini_batches=4,
+        learning_rate=3.0e-5, schedule="fixed", gamma=0.999, lam=0.95,
+        desired_kl=0.01, max_grad_norm=1.0,
+    )

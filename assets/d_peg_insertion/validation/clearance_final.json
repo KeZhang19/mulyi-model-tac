@@ -1,0 +1,785 @@
+{
+  "passed": true,
+  "source": "assets/d_peg_insertion/pregrasp.json",
+  "source_sha256": "7efff3afb4bb302304d1f70f42dae99f028aa5dc8c3631a3fc0f2e71e4e91be4",
+  "method": "Actual USD mesh vertices and face centers; 16 bounded-IK stations; non-gripping finger search uses a conservative socket swept volume.",
+  "travel_m": 0.058,
+  "search": {},
+  "trajectory": {
+    "stations": [
+      {
+        "down_m": 0.0,
+        "ik_residual": 0.0,
+        "table_minimum": [
+          [
+            0.06111178623105895,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.06179655742865575,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.06330541762276654,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.0664397471368855,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.06677054504045221,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.015120196549897633,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.0180693994714614,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.01822246274156563,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.028225038839293552,
+            "right_pinkypip_roll_touch_link"
+          ],
+          [
+            0.0282584204315694,
+            "right_pinkypip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.0038666666666666667,
+        "ik_residual": 1.3754905521040525e-09,
+        "table_minimum": [
+          [
+            0.057245119616224915,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.057929890803337325,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.05943875100730556,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.06257308052878352,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.06290387843210454,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.012065817382494364,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.015369684263970783,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.015828694253455202,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.025589890346880816,
+            "right_pinkypip_roll_touch_link"
+          ],
+          [
+            0.025627767430039552,
+            "right_pinkypip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.007733333333333333,
+        "ik_residual": 6.0124001861772426e-09,
+        "table_minimum": [
+          [
+            0.05337845268044372,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.05406322392370355,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.05557208407552294,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.05870641355367312,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.05903721145848129,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.009255843136359078,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.012890765889504274,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.013811716337156017,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.02324618227151497,
+            "right_pinkypip_roll_touch_link"
+          ],
+          [
+            0.023277535888163746,
+            "right_pinkypip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.0116,
+        "ik_residual": 1.3492334031273518e-13,
+        "table_minimum": [
+          [
+            0.049511786231053456,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.05019655742865137,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.05170541762276104,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.054839747136879335,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.05517054504044605,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0067952062437627555,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.010835106687194925,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.012012285919577608,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.02119380150942628,
+            "right_pinkypip_roll_touch_link"
+          ],
+          [
+            0.021238118569065226,
+            "right_pinkypip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.015466666666666667,
+        "ik_residual": 1.7324574968549883e-08,
+        "table_minimum": [
+          [
+            0.04564511893567147,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.04632989026036527,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.047838750336003266,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.050973079754650596,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.05130387766146993,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0048169208522410335,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.008966729856518368,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.01031957625119436,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.019211853932801778,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.01942216576848305,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.019333333333333334,
+        "ik_residual": 1.4988684193303946e-10,
+        "table_minimum": [
+          [
+            0.04177845289216631,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.04246322409088843,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.04397208428394883,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.04710641379723113,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.047437211700826265,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0034777831706515453,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.007360435466414231,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.008708639615131143,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.015769385407069254,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.017128808232238887,
+            "right_ringdip_roll_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.0232,
+        "ik_residual": 1.6865340686587224e-08,
+        "table_minimum": [
+          [
+            0.037911785674819565,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.038596556987802955,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.040105417075273375,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.04323974649712137,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.043570544403885414,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0028956717364020113,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.006037645893790644,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.007197917704208296,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.012443691454181727,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.013589684724013125,
+            "right_ringdip_roll_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.027066666666666666,
+        "ik_residual": 8.806494993833054e-09,
+        "table_minimum": [
+          [
+            0.034045119864148266,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.03472989099898505,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.036238751251269075,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.03937308081453472,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.03970387871640779,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.002725491910896667,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.00532708826184614,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005999062000874744,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.009281325660655931,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.010192025028932558,
+            "right_ringdip_roll_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.030933333333333334,
+        "ik_residual": 9.065783940223322e-09,
+        "table_minimum": [
+          [
+            0.03017845319695045,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.0308632243326874,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.03237208458373131,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.03550641414876843,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.035837212050557676,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0027254919295006466,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.0053185711408092265,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770245313559082,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.006465715385737604,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.007096941759422516,
+            "right_ringdip_roll_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.0348,
+        "ik_residual": 9.056509590490337e-09,
+        "table_minimum": [
+          [
+            0.026311785960196676,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.02699655721519767,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.028505417356913587,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.03163974682111004,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.031970544726442895,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.002725489945920763,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.004301396214095538,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.004606988874221104,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.005318569167877436,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.0057702436902002455,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.03866666666666667,
+        "ik_residual": 2.265671047802358e-09,
+        "table_minimum": [
+          [
+            0.02244511948931438,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.02312989070275462,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.024638750882259752,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.027773080383484583,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.02810387828750016,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0027254906908598733,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.0031992972505505346,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.0032302134590953013,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.00531856990879493,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770244299148526,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.04253333333333333,
+        "ik_residual": 1.0829829194618858e-09,
+        "table_minimum": [
+          [
+            0.018578452933888157,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.01926322412382875,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.020772084324992002,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.023906413845376062,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.024237211748724397,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0027254910609372865,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.002863287838925026,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.0029827912208071697,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.005318570276894814,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770244602913012,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.0464,
+        "ik_residual": 5.0017075129200865e-09,
+        "table_minimum": [
+          [
+            0.01471178639206594,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.015396557555226065,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.016905417780927134,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.020039747324025026,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.020370545226574555,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.002725491496454853,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.0028563614730156717,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.002982791412840781,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.005318570710026678,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770244960663813,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.05026666666666667,
+        "ik_residual": 3.3481979406202027e-09,
+        "table_minimum": [
+          [
+            0.01084511969924784,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.011529890869340087,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.013038751089083256,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.01617308062389844,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.01650387852675972,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0027254912999002748,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.002856361385518189,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.0029827913361782712,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.00531857051449456,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770244799420239,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.05413333333333333,
+        "ik_residual": 2.210847812533027e-09,
+        "table_minimum": [
+          [
+            0.006978452967769555,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.007663224150270653,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.009172084358173405,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.01230641388533682,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.012637211788442682,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.002725491187194014,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.002856361318494627,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.0029827912745575627,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.005318570402420293,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770244706795387,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      },
+      {
+        "down_m": 0.058,
+        "ik_residual": 3.9444721614600525e-10,
+        "table_minimum": [
+          [
+            0.0031117862430697363,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.003796557438047632,
+            "right_pinkydip_roll_rubber_link"
+          ],
+          [
+            0.005305417634540066,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.008439747150989718,
+            "right_pinkypip_roll_rubber_link"
+          ],
+          [
+            0.0087705450544735,
+            "right_pinkypip_roll_touch_link"
+          ]
+        ],
+        "socket_minimum": [
+          [
+            0.0027254909853933543,
+            "right_pinkydip_roll_link"
+          ],
+          [
+            0.0028563612194918504,
+            "right_ringdip_roll_link"
+          ],
+          [
+            0.002982791186119084,
+            "right_ringdip_roll_rubber_link"
+          ],
+          [
+            0.0053185702017478145,
+            "right_pinkypip_roll_link"
+          ],
+          [
+            0.005770244540932175,
+            "right_pinkydip_roll_rubber_link"
+          ]
+        ]
+      }
+    ],
+    "min_table_clearance_m": 0.0031117862430697363,
+    "min_socket_clearance_m": 0.002725489945920763,
+    "max_ik_residual": 1.7324574968549883e-08
+  },
+  "physical_hold_revalidated": false,
+  "self_collision_certified": false
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "validated": false,
+  "provenance": "Flexiv Rizon4 + Revo3 joint reference from Rotate-Bulb-Custom; peg tip starts 30 mm above the socket mouth; insertion pose requires physics pregrasp validation.",
+  "robot_joint_positions": {
+    "joint1": -0.14578291835403787,
+    "joint2": 0.9186094318123159,
+    "joint3": -0.14993492942596445,
+    "joint4": -1.5123224505515307,
+    "joint5": -0.4253254083045694,
+    "joint6": 0.6332589990482197,
+    "joint7": -2.7649397222890877,
+    "right_thumb_CMP_joint": 1.646350616079351,
+    "right_thumb_CMR_joint": 1.1615316229107557,
+    "right_thumb_MCP_joint": 0.08009777678774978,
+    "right_thumb_PIP_joint": 0.2393770583844411,
+    "right_thumb_DIP_joint": 0.5015171578522472,
+    "right_index_MPR_joint": 0.06400788788733437,
+    "right_index_MCP_joint": 1.0958454797637813,
+    "right_index_PIP_joint": 0.4748532573615641,
+    "right_index_DIP_joint": 0.4615121284738788,
+    "right_middle_MPR_joint": 0.016586619670846407,
+    "right_middle_MCP_joint": 1.2227916387989486,
+    "right_middle_PIP_joint": 0.27387326313735993,
+    "right_middle_DIP_joint": 0.2662305429573002,
+    "right_ring_MPR_joint": 0.05713587795092009,
+    "right_ring_MCP_joint": 1.1834874010947578,
+    "right_ring_PIP_joint": 0.30295707972009417,
+    "right_ring_DIP_joint": 0.24125208784438665,
+    "right_little_MPR_joint": -0.2140170528978215,
+    "right_little_MCP_joint": 1.2738497729057077,
+    "right_little_PIP_joint": 0.39536127087713185,
+    "right_little_DIP_joint": 0.3611033850610371
+  },
+  "robot_joint_targets": {
+    "joint1": -0.14578291835403787,
+    "joint2": 0.9186094318123159,
+    "joint3": -0.14993492942596445,
+    "joint4": -1.5123224505515307,
+    "joint5": -0.4253254083045694,
+    "joint6": 0.6332589990482197,
+    "joint7": -2.7649397222890877,
+    "right_thumb_CMP_joint": 1.646350616079351,
+    "right_thumb_CMR_joint": 1.1615316229107557,
+    "right_thumb_MCP_joint": 0.08009777678774978,
+    "right_thumb_PIP_joint": 0.2393770583844411,
+    "right_thumb_DIP_joint": 0.5015171578522472,
+    "right_index_MPR_joint": 0.06400788788733437,
+    "right_index_MCP_joint": 1.0958454797637813,
+    "right_index_PIP_joint": 0.4748532573615641,
+    "right_index_DIP_joint": 0.4615121284738788,
+    "right_middle_MPR_joint": 0.016586619670846407,
+    "right_middle_MCP_joint": 1.2227916387989486,
+    "right_middle_PIP_joint": 0.27387326313735993,
+    "right_middle_DIP_joint": 0.2662305429573002,
+    "right_ring_MPR_joint": 0.05713587795092009,
+    "right_ring_MCP_joint": 1.1834874010947578,
+    "right_ring_PIP_joint": 0.30295707972009417,
+    "right_ring_DIP_joint": 0.24125208784438665,
+    "right_little_MPR_joint": -0.2140170528978215,
+    "right_little_MCP_joint": 1.2738497729057077,
+    "right_little_PIP_joint": 0.39536127087713185,
+    "right_little_DIP_joint": 0.3611033850610371
+  },
+  "peg_pose": {
+    "position": [
+      -0.72,
+      0.04,
+      0.07030999999999992
+    ],
+    "quaternion": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "socket_pose": {
+    "position": [
+      -0.72,
+      0.04,
+      -0.009690000000000087
+    ],
+    "quaternion": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "source_grasp_reference": "assets/rotate_bulb_custom/grasp_reference/simulation_state.json",
+  "validation": {
+    "status": "seed_only",
+    "note": "Run Flexiv-specific zero-control and clearance validation before long training."
+  }
+}

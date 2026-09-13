@@ -1,0 +1,16 @@
+{
+  "source_export": "assets/d_peg_insertion/flexiv_grasp_reference/20260913_143755_1688f22c/simulation_state.json",
+  "source_sha256": "551f1ec7a703c8aae3890770344680b6c6b2b0e975be67628fcff851e0d3195f",
+  "accepted_as_default": false,
+  "reason": "optimizer did not converge and static candidate metrics regressed versus previous imported candidate",
+  "metrics": {
+    "solver_success": false,
+    "max_contact_distance_mm": 22.240766218743904,
+    "max_penetration_mm": 4.733773245376198
+  },
+  "previous_default": "assets/d_peg_insertion/flexiv_grasp_reference/20260913_142053_9886dc87/simulation_state.json",
+  "previous_metrics": {
+    "max_contact_distance_mm": 18.42674920725953,
+    "max_penetration_mm": 3.7981803498850586
+  }
+}

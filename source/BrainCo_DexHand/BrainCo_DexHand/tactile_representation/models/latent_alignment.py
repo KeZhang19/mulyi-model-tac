@@ -12,7 +12,7 @@ from ..training.contrastive import symmetric_masked_infonce_loss
 
 
 class ProjectionHead(nn.Module):
-    """Two-layer projection head used only by the contrastive objective."""
+    """Two-layer head defining the contrastive space and aligned policy features."""
 
     def __init__(
         self,
@@ -55,8 +55,9 @@ class TactileLatentAlignmentNetwork(nn.Module):
     different image and text towers.  Each tower produces a task-facing
     representation ``h`` and has a private two-layer projection head that
     produces the normalized contrastive representation ``z``.  Only ``z`` is
-    passed to InfoNCE; callers should keep using ``h`` for policies and
-    downstream probes.
+    passed to InfoNCE. Policies that switch between sim and real towers use
+    ``z``; the two unprojected ``h`` spaces are not guaranteed to align.
+    ``h`` remains available for reconstruction and within-domain probes.
     """
 
     def __init__(

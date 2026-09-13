@@ -1,0 +1,120 @@
+{
+  "usd": "hiveboard_lamp_threaded.usd",
+  "default_prim": "/HiveboardLampThreaded",
+  "physics": "PhysX GPU fixed-base articulation; native mimic screw coupling; static female triangle collision and dynamic male SDF collision",
+  "pitch_m": 0.006,
+  "pitch_basis": "Approx. 6 mm measured from consecutive external-thread radial-profile peaks; nominal value, not a certified CAD specification",
+  "travel_m": 0.024,
+  "turns": 4.0,
+  "initial_extension_m": 0.024300000000000002,
+  "seated_extension_from_source_zero_m": 0.0003,
+  "initial_bulb_rotation_about_x_deg": 180,
+  "limits": {
+    "screw_turn_deg": [
+      -1440,
+      0
+    ],
+    "screw_slide_m": [
+      -0.024,
+      0
+    ]
+  },
+  "coupling": "screw_slide_m = screw_turn_rad * pitch_m / (2*pi)",
+  "meshes": {
+    "Support/InternalThread": {
+      "vertex_count": 3793,
+      "face_count": 5199,
+      "points_sha256": "e06ec8bc04cf8585acb7e9e8eb4a968cfcdbd0eb08429477a256adc6c2c40d36",
+      "indices_sha256": "7f5f07563876d00b99cc8e1a675cdbe912141c371c38e17f53afc642111aa1f0",
+      "bounds_m": [
+        [
+          -0.044732484966516495,
+          -0.0381484180688858,
+          -0.04405000060796738
+        ],
+        [
+          -3.2485189876751974e-05,
+          0.0381484180688858,
+          0.04405000060796738
+        ]
+      ]
+    },
+    "Bulb/ExternalThread": {
+      "vertex_count": 6099,
+      "face_count": 9327,
+      "points_sha256": "9681aeb8e1284dcbb63351f0cb51960a567be4e9ebf3850a028ee33753525446",
+      "indices_sha256": "044cdef40abe200e8bf93c3fa6ad315102b59f1681e14c4b409eb9bde2392e6d",
+      "bounds_m": [
+        [
+          -0.03002103604376316,
+          -0.013484586961567402,
+          -0.013486867770552635
+        ],
+        [
+          5.751998469349928e-05,
+          0.013503709807991982,
+          0.013599645346403122
+        ]
+      ]
+    },
+    "Bulb/ShellA": {
+      "vertex_count": 1807,
+      "face_count": 3199,
+      "points_sha256": "0145816186d0cf05e358d356cfb67d76d781e575a649cc99abcfd51c1a4495ef",
+      "indices_sha256": "4dbbcc2e67893aedcc88d6d4f9c08bcfc4222cf6ae9df49b22914a856b2a8c31",
+      "bounds_m": [
+        [
+          -0.015042055398225784,
+          -0.00425010034814477,
+          -0.02768416702747345
+        ],
+        [
+          0.07749929279088974,
+          0.027434777468442917,
+          0.026958202943205833
+        ]
+      ]
+    },
+    "Bulb/ShellB": {
+      "vertex_count": 1807,
+      "face_count": 3199,
+      "points_sha256": "c01d8a56917bf521862c786849c82f44f86919a824d6b0ea80172b8054ebdd95",
+      "indices_sha256": "4cfc71f88ee798f86c5aaf0bd127b28d907e2d63dd554aae4fc0aa2b8dbd72a4",
+      "bounds_m": [
+        [
+          -0.015042055398225784,
+          -0.02751520648598671,
+          -0.02738167904317379
+        ],
+        [
+          0.07749929279088974,
+          0.004168774001300335,
+          0.027265362441539764
+        ]
+      ]
+    }
+  },
+  "collision": {
+    "female": "Source base triangles with an entrance-only lead-in; bore thread topology retained",
+    "female_entrance_length_m": 0.001,
+    "female_entrance_min_radius_m": 0.01385,
+    "female_modified_vertex_count": 120,
+    "female_max_vertex_displacement_m": 0.00048500089906156063,
+    "male": "Unmodified watertight packaged STL/Lamp_Screw.stl, baked to metres, SDF resolution 512",
+    "male_face_count": 21814,
+    "male_source_sha256": "8951a619be423e0aae62797c954d77143def3395830de6bc02ea35e72f48491c",
+    "shells": "Source meshes, SDF resolution 256",
+    "contact_offset_m": 0.0001,
+    "rest_offset_m": 0,
+    "static_friction": 0.15,
+    "dynamic_friction": 0.1
+  },
+  "source_sha256": "0e715164c0b46e1a5e755f64c08082eda54252974440841478ac219e5769b9b6",
+  "limitations": [
+    "Guided and pre-engaged assembly: axis alignment is constrained and complete detachment is not supported.",
+    "Screw advance is enforced by a native mimic constraint; SDF contacts retain the thread surfaces but do not solely determine the lead.",
+    "Female entrance collision only has a 1 mm lead-in relief; all source visual vertices/faces are unchanged.",
+    "Fully seated pose retains 0.3 mm axial clearance from source CAD zero to avoid end-face interference.",
+    "GPU dynamics are required for SDF contact. Masses, friction and contact resolution are simulation defaults, not calibrated manufacturing data."
+  ]
+}

@@ -1,0 +1,387 @@
+{
+  "task": "BrainCo-Dexsuite-Flexiv-Right-Insert-D-Peg-Custom-v0",
+  "created_at_utc": "2026-09-13T14:31:36.525599+00:00",
+  "passed": false,
+  "failed": [
+    "zero_action_peg_drift_exceeds_threshold",
+    "zero_action_peg_rotation_exceeds_threshold",
+    "zero_action_fingertip_contact_below_threshold"
+  ],
+  "traceback": null,
+  "reference": "/home/liuxinyu/workspace/revo3_template_editor_standalone/Data_generation/output/d_peg_custom/editing/simulation_exports/20260913_142053_9886dc87/simulation_state.json",
+  "reference_sha256": "f6af7f07f4fb08449f0291e7e434952ec24f5e6e95d5280ba274588f3f7fe1af",
+  "source_validation": {
+    "optimization": {
+      "solver_success": true,
+      "message": "`xtol` termination condition is satisfied.",
+      "max_contact_distance_m": 0.018426749207259528,
+      "max_penetration_m": 0.0037981803498850584,
+      "pose_candidate_pass": false,
+      "trajectory_validated": false,
+      "dynamic_lift_validated": false,
+      "nfev": 38
+    },
+    "trajectory_validated": false,
+    "dynamic_lift_validated": false,
+    "object_settle": null
+  },
+  "geometry_only": false,
+  "full_task_observations": true,
+  "tactile_policy_enabled": false,
+  "checks": [
+    {
+      "name": "startup.robot",
+      "max_position_error_m": 0.0,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "startup.object",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "startup.socket",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "startup.robot.joint_positions_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "startup.robot.joint_velocities_rad_s",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "startup.robot.joint_position_targets_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_1.robot",
+      "max_position_error_m": 0.0,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_1.object",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_1.socket",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_1.robot.joint_positions_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_1.robot.joint_velocities_rad_s",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_1.robot.joint_position_targets_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_2.robot",
+      "max_position_error_m": 0.0,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_2.object",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_2.socket",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_2.robot.joint_positions_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_2.robot.joint_velocities_rad_s",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_2.robot.joint_position_targets_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_3.robot",
+      "max_position_error_m": 0.0,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_3.object",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_3.socket",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "full_reset_3.robot.joint_positions_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_3.robot.joint_velocities_rad_s",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "full_reset_3.robot.joint_position_targets_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.robot",
+      "max_position_error_m": 0.0,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.object",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.socket",
+      "max_position_error_m": 2.8610229518832853e-08,
+      "max_rotation_error_rad": 0.0,
+      "position_tolerance_m": 0.0002,
+      "rotation_tolerance_rad": 0.002,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.robot.joint_positions_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.robot.joint_velocities_rad_s",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.robot.joint_position_targets_rad",
+      "max_absolute_error": 0.0,
+      "tolerance": 2e-05,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.untouched.object",
+      "max_absolute_error": 0.0,
+      "tolerance": 1e-07,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.untouched.socket",
+      "max_absolute_error": 0.0,
+      "tolerance": 1e-07,
+      "passed": true
+    },
+    {
+      "name": "partial_reset.untouched.robot.joints",
+      "max_absolute_error": 0.0,
+      "tolerance": 1e-07,
+      "passed": true
+    }
+  ],
+  "failed_checks": [],
+  "import_matches_reference": true,
+  "action_dim": 28,
+  "observation_spaces": "<ObservationManager> contains 4 groups.\n+-----------------------------------------------------------+\n| Active Observation Terms in Group: 'policy' (shape: (43,)) |\n+-----------+-----------------------------------+-----------+\n|   Index   | Name                              |   Shape   |\n+-----------+-----------------------------------+-----------+\n|     0     | object_quat_b                     |    (4,)   |\n|     1     | target_object_pose_b              |    (7,)   |\n|     2     | actions                           |   (28,)   |\n|     3     | insertion_progress                |    (2,)   |\n|     4     | insertion_phase                   |    (2,)   |\n+-----------+-----------------------------------+-----------+\n+------------------------------------------------------------+\n| Active Observation Terms in Group: 'proprio' (shape: (434,)) |\n+-----------+----------------------------------+-------------+\n|   Index   | Name                             |    Shape    |\n+-----------+----------------------------------+-------------+\n|     0     | contact                          |    (15,)    |\n|     1     | rl_ours_pressure                 |    (285,)   |\n|     2     | joint_pos                        |    (28,)    |\n|     3     | joint_vel                        |    (28,)    |\n|     4     | hand_tips_state_b                |    (78,)    |\n|     5     | pretrained_tactile               |     (0,)    |\n+-----------+----------------------------------+-------------+\n+--------------------------------------------------------------+\n| Active Observation Terms in Group: 'perception' (shape: (192,)) |\n+------------+-----------------------------------+-------------+\n|   Index    | Name                              |    Shape    |\n+------------+-----------------------------------+-------------+\n|     0      | object_point_cloud                |    (192,)   |\n+------------+-----------------------------------+-------------+\n+------------------------------------------------------------+\n| Active Observation Terms in Group: 'student_proprio' (shape: (56,)) |\n+----------------+--------------------------+----------------+\n|     Index      | Name                     |     Shape      |\n+----------------+--------------------------+----------------+\n|       0        | joint_pos                |     (28,)      |\n|       1        | joint_vel                |     (28,)      |\n+----------------+--------------------------+----------------+\n",
+  "joint_names": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "joint6",
+    "joint7",
+    "right_index_MPR_joint",
+    "right_little_MPR_joint",
+    "right_middle_MPR_joint",
+    "right_ring_MPR_joint",
+    "right_thumb_CMP_joint",
+    "right_index_MCP_joint",
+    "right_little_MCP_joint",
+    "right_middle_MCP_joint",
+    "right_ring_MCP_joint",
+    "right_thumb_CMR_joint",
+    "right_index_PIP_joint",
+    "right_little_PIP_joint",
+    "right_middle_PIP_joint",
+    "right_ring_PIP_joint",
+    "right_thumb_MCP_joint",
+    "right_index_DIP_joint",
+    "right_little_DIP_joint",
+    "right_middle_DIP_joint",
+    "right_ring_DIP_joint",
+    "right_thumb_PIP_joint",
+    "right_thumb_DIP_joint"
+  ],
+  "sensor_names": [
+    "peg_socket_contact",
+    "peg_table_contact",
+    "right_pinkydip_roll_rubber_link_object_s",
+    "right_ringdip_roll_rubber_link_object_s",
+    "right_middip_roll_rubber_link_object_s",
+    "right_indexdip_roll_rubber_link_object_s",
+    "right_thumbdip_roll_rubber_link_object_s",
+    "right_midmcp_roll_touch_link_warpsdf_s",
+    "right_midpip_roll_touch_link_warpsdf_s",
+    "right_indexmcp_roll_touch_link_warpsdf_s",
+    "right_indexpip_roll_touch_link_warpsdf_s",
+    "right_ringmcp_roll_touch_link_warpsdf_s",
+    "right_ringpip_roll_touch_link_warpsdf_s",
+    "right_pinkymcp_roll_touch_link_warpsdf_s",
+    "right_pinkypip_roll_touch_link_warpsdf_s",
+    "right_thumbmcp_roll_touch_link_warpsdf_s",
+    "right_thumbpip_roll_touch_link_warpsdf_s",
+    "right_hand_rubber_link_warpsdf_s",
+    "right_middip_roll_rubber_link_tacmap_surface_s",
+    "right_middip_roll_rubber_link_tacmap_object_s",
+    "right_middip_roll_rubber_link_hydroshear_marker_surface_s",
+    "right_middip_roll_rubber_link_hydroshear_marker_object_s",
+    "right_indexdip_roll_rubber_link_tacmap_surface_s",
+    "right_indexdip_roll_rubber_link_tacmap_object_s",
+    "right_indexdip_roll_rubber_link_hydroshear_marker_surface_s",
+    "right_indexdip_roll_rubber_link_hydroshear_marker_object_s",
+    "right_ringdip_roll_rubber_link_tacmap_surface_s",
+    "right_ringdip_roll_rubber_link_tacmap_object_s",
+    "right_ringdip_roll_rubber_link_hydroshear_marker_surface_s",
+    "right_ringdip_roll_rubber_link_hydroshear_marker_object_s",
+    "right_pinkydip_roll_rubber_link_tacmap_surface_s",
+    "right_pinkydip_roll_rubber_link_tacmap_object_s",
+    "right_pinkydip_roll_rubber_link_hydroshear_marker_surface_s",
+    "right_pinkydip_roll_rubber_link_hydroshear_marker_object_s",
+    "right_thumbdip_roll_rubber_link_tacmap_surface_s",
+    "right_thumbdip_roll_rubber_link_tacmap_object_s",
+    "right_thumbdip_roll_rubber_link_hydroshear_marker_surface_s",
+    "right_thumbdip_roll_rubber_link_hydroshear_marker_object_s"
+  ],
+  "zero_action": {
+    "seconds": 2.0,
+    "steps": 60,
+    "finger_order": [
+      "thumb",
+      "index",
+      "middle",
+      "ring",
+      "little"
+    ],
+    "minimum_finger_force_N": [
+      [
+        0.27572938799858093,
+        3.618960380554199,
+        0.0,
+        0.3639559745788574,
+        3.9710206985473633
+      ],
+      [
+        1.1121889352798462,
+        0.0,
+        0.0,
+        0.0,
+        0.9981194734573364
+      ]
+    ],
+    "max_peg_drift_m": [
+      0.006593525875359774,
+      0.01155888382345438
+    ],
+    "max_socket_drift_m": [
+      5.587935447692871e-09,
+      5.587935447692871e-09
+    ],
+    "max_peg_angle_deg": [
+      14.228554725646973,
+      7.263571262359619
+    ],
+    "terminated_count": [
+      0.0,
+      0.0
+    ],
+    "truncated_count": [
+      0.0,
+      0.0
+    ],
+    "observations_finite": true,
+    "per_env_passed": [
+      false,
+      false
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+WARNING Sun Sep 13 23:12:50 2026: Model and executable have different number of sizes in mjModel
+
+WARNING Sun Sep 13 23:13:31 2026: Model and executable use different MuJoCo version
+

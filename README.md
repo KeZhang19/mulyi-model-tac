@@ -1,5 +1,9 @@
 ## 触觉可视化观测
 
+Repose-Cube 的多模态恢复与 CLIP latent 策略接入、权重导出及真机张量接口见 [接入说明](docs/tactile_representation/repose_policy_integration.md)。
+
+Rotate-Bulb 默认直接使用已训练的多模态恢复 encoder，无需先完成 CLIP 对齐；训练命令、观测维度及恢复要求见 [Rotate-Bulb 接入说明](docs/tactile_representation/rotate_bulb_policy_integration.md)。
+
 ```bash
 python scripts/rsl_rl/visualize_rl_tactile_obs.py \
   --task BrainCo-Dexsuite-Revo3-Right-Lift-v0 \

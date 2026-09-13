@@ -1,0 +1,21 @@
+{
+  "source_path": "/home/liuxinyu/workspace/revo3_template_editor_standalone/Data_generation/output/d_peg_custom/editing/simulation_exports/20260913_142053_9886dc87/simulation_state.json",
+  "source_sha256": "f6af7f07f4fb08449f0291e7e434952ec24f5e6e95d5280ba274588f3f7fe1af",
+  "imported_at_utc": "2026-09-13T14:39:30.462663+00:00",
+  "model_source_path": "/home/liuxinyu/workspace/revo3_template_editor_standalone/Data_generation/output/d_peg_custom/editing/simulation_exports/20260913_142053_9886dc87/scene.mjb",
+  "source_validation": {
+    "optimization": {
+      "solver_success": true,
+      "message": "`xtol` termination condition is satisfied.",
+      "max_contact_distance_m": 0.018426749207259528,
+      "max_penetration_m": 0.0037981803498850584,
+      "pose_candidate_pass": false,
+      "trajectory_validated": false,
+      "dynamic_lift_validated": false,
+      "nfev": 38
+    },
+    "trajectory_validated": false,
+    "dynamic_lift_validated": false,
+    "object_settle": null
+  }
+}

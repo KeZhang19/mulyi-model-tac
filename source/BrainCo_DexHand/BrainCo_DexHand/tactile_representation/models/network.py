@@ -146,13 +146,13 @@ class RobustCrossModalTactileNetwork(nn.Module):
 
         token_groups: dict[str, torch.Tensor] = {}
         token_validity: dict[str, torch.Tensor] = {}
-        if rgb is not None and bool(presence[:, 0].any()):
+        if rgb is not None and (modality_mask is None or bool(presence[:, 0].any())):
             token_groups["rgb"] = self.rgb_encoder(rgb)
             token_validity["rgb"] = presence[:, 0, None].expand(-1, self.rgb_encoder.token_count)
-        if depth is not None and bool(presence[:, 1].any()):
+        if depth is not None and (modality_mask is None or bool(presence[:, 1].any())):
             token_groups["depth"] = self.depth_encoder(depth)
             token_validity["depth"] = presence[:, 1, None].expand(-1, self.depth_encoder.token_count)
-        if marker is not None and bool(presence[:, 2].any()):
+        if marker is not None and (modality_mask is None or bool(presence[:, 2].any())):
             marker_tokens, valid_markers = self.marker_encoder(marker, marker_valid_mask)
             marker_presence = presence[:, 2] & valid_markers.any(dim=1)
             presence = presence.clone()
@@ -160,7 +160,10 @@ class RobustCrossModalTactileNetwork(nn.Module):
             token_groups["marker"] = marker_tokens
             token_validity["marker"] = valid_markers & marker_presence[:, None]
 
-        if bool((~presence.any(dim=1)).any()):
+        # An unmasked RGB or Depth tensor guarantees a valid modality per row.
+        # Avoid synchronizing the image encoders just to rediscover that fact.
+        image_present = modality_mask is None and (rgb is not None or depth is not None)
+        if not image_present and bool((~presence.any(dim=1)).any()):
             bad_rows = torch.nonzero(~presence.any(dim=1), as_tuple=False).flatten().tolist()
             raise ValueError(f"Every sample needs at least one valid modality; empty rows={bad_rows}")
 
@@ -582,7 +585,9 @@ class RobustCrossModalTactileNetwork(nn.Module):
             [inputs[name] is not None for name in MODALITIES], device=device, dtype=torch.bool
         ).unsqueeze(0).expand(batch_size, -1)
         if modality_mask is None:
-            mask = input_presence.clone()
+            # This mask is constructed from the inputs, so it cannot name a
+            # missing tensor. Explicit user masks still receive validation.
+            return input_presence.clone()
         elif isinstance(modality_mask, torch.Tensor):
             mask = modality_mask.to(device=device, dtype=torch.bool)
             if tuple(mask.shape) == (len(MODALITIES),):

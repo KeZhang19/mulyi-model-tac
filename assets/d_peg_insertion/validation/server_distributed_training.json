@@ -1,0 +1,43 @@
+{
+  "world_size": 2,
+  "workers": [
+    {
+      "rank": 0,
+      "device": "cuda:0",
+      "backend": "nccl",
+      "runner_distributed": true,
+      "algorithm_multi_gpu": true,
+      "world_size": 2,
+      "parameter_sync_enabled": true,
+      "per_task_obs_normalizer": false
+    },
+    {
+      "rank": 1,
+      "device": "cuda:1",
+      "backend": "nccl",
+      "runner_distributed": true,
+      "algorithm_multi_gpu": true,
+      "world_size": 2,
+      "parameter_sync_enabled": true,
+      "per_task_obs_normalizer": false
+    }
+  ],
+  "updates": [
+    {
+      "update": 1,
+      "gradient_reductions": 20,
+      "max_parameter_difference": 0.0
+    },
+    {
+      "update": 2,
+      "gradient_reductions": 20,
+      "max_parameter_difference": 0.0
+    },
+    {
+      "update": 3,
+      "gradient_reductions": 20,
+      "max_parameter_difference": 0.0
+    }
+  ],
+  "first_gradient_mean_verified": true
+}

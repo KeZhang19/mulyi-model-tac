@@ -30,6 +30,11 @@ parser.add_argument("--max_iterations", type=int, default=None, help="RL Policy 
 parser.add_argument(
     "--distributed", action="store_true", default=False, help="Run training with multiple GPUs or nodes."
 )
+parser.add_argument("--log_dir", type=str, default=None, help="Explicit shared output directory for this run.")
+parser.add_argument(
+    "--expected_world_size", type=int, default=None,
+    help="Require this many distributed workers and verify PPO gradient synchronization.",
+)
 parser.add_argument("--export_io_descriptors", action="store_true", default=False, help="Export IO descriptors.")
 parser.add_argument(
     "--ray-proc-id", "-rid", type=int, default=None, help="Automatically configured by Ray integration, otherwise None."
@@ -39,6 +44,8 @@ cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 args_cli, hydra_args = parser.parse_known_args()
+if args_cli.expected_world_size is not None and (not args_cli.distributed or args_cli.expected_world_size < 2):
+    parser.error("--expected_world_size requires --distributed and a value of at least 2")
 
 # always enable cameras to record video
 if args_cli.video:
@@ -82,7 +89,9 @@ from datetime import datetime
 
 import gymnasium as gym
 import torch
-from rsl_rl.runners import DistillationRunner, OnPolicyRunner
+from rsl_rl.runners import DistillationRunner
+from duration_logging import DurationLoggingOnPolicyRunner as OnPolicyRunner
+from distributed_normalization import install_distributed_normalization_fix, install_finite_action_guard
 
 from isaaclab.envs import (
     DirectMARLEnv,
@@ -155,6 +164,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if agent_cfg.run_name:
         log_dir += f"_{agent_cfg.run_name}"
     log_dir = os.path.join(log_root_path, log_dir)
+    if args_cli.log_dir is not None:
+        log_dir = os.path.abspath(args_cli.log_dir)
 
     # set the IO descriptors export flag if requested
     if isinstance(env_cfg, ManagerBasedRLEnvCfg):
@@ -167,6 +178,15 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     # set the log directory for the environment (works for all environment types)
     env_cfg.log_dir = log_dir
 
+    # Resolve saved Repose action semantics before constructing the simulator.
+    resume_path = None
+    if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
+        resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+    if hasattr(env_cfg, "repose_training_revision"):
+        from repose_training import configure_repose_checkpoint
+
+        env_cfg.repose_training_revision = configure_repose_checkpoint(agent_cfg, resume_path)
+
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
 
@@ -174,9 +194,12 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     if isinstance(env.unwrapped, DirectMARLEnv):
         env = multi_agent_to_single_agent(env)
 
-    # save resume path before creating a new log_dir
-    if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
-        resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
+    from BrainCo_DexHand.tactile_representation.policy import prepare_policy_run
+
+    prepare_policy_run(
+        env, log_dir,
+        resume_path=resume_path if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation" else None,
+    )
 
     # wrap for video recording
     if args_cli.video:
@@ -194,6 +217,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # wrap around environment for rsl-rl
     env = RslRlVecEnvWrapper(env, clip_actions=agent_cfg.clip_actions)
+    install_finite_action_guard(env)
 
     # create runner from rsl-rl
     if agent_cfg.class_name == "OnPolicyRunner":
@@ -202,6 +226,19 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         runner = DistillationRunner(env, agent_cfg.to_dict(), log_dir=log_dir, device=agent_cfg.device)
     else:
         raise ValueError(f"Unsupported runner class: {agent_cfg.class_name}")
+    if getattr(env.unwrapped, "_repose_training", None) is not None:
+        from repose_run_state import install_repose_run_state
+
+        install_repose_run_state(runner, env.unwrapped)
+    is_d_peg = getattr(env.unwrapped, "tactile_policy_contract", {}).get("task") in {
+        "BrainCo-Dexsuite-Revo3-Right-Insert-D-Peg-v0",
+        "BrainCo-Dexsuite-Revo3-Right-Insert-D-Peg-Custom-v0",
+        "BrainCo-Dexsuite-Flexiv-Right-Insert-D-Peg-Custom-v0",
+    }
+    if is_d_peg and not agent_cfg.resume:
+        from d_peg_training import initialize_d_peg_policy
+
+        initialize_d_peg_policy(runner)
     # write git state to logs
     runner.add_git_repo_to_log(__file__)
     # load the checkpoint
@@ -210,12 +247,30 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         # load previously trained model
         runner.load(resume_path)
 
+    if agent_cfg.class_name == "OnPolicyRunner":
+        install_distributed_normalization_fix(runner)
+
+    if is_d_peg:
+        from d_peg_training import install_d_peg_training_diagnostics
+        from BrainCo_DexHand.tasks.manager_based.dexsuite.mdp.d_peg_insertion import d_peg_pop_episode_diagnostics
+
+        install_d_peg_training_diagnostics(
+            runner, episode_metrics_provider=lambda: d_peg_pop_episode_diagnostics(env.unwrapped),
+        )
+
+    if args_cli.expected_world_size is not None:
+        from distributed_training import install_distributed_training_audit
+
+        install_distributed_training_audit(runner, expected_world_size=args_cli.expected_world_size)
+
     # dump the configuration into log-directory
-    dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
-    dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
+    if not args_cli.distributed or app_launcher.global_rank == 0:
+        dump_yaml(os.path.join(log_dir, "params", "env.yaml"), env_cfg)
+        dump_yaml(os.path.join(log_dir, "params", "agent.yaml"), agent_cfg)
 
     # run training
-    runner.learn(num_learning_iterations=agent_cfg.max_iterations, init_at_random_ep_len=True)
+    runner.learn(num_learning_iterations=agent_cfg.max_iterations,
+                 init_at_random_ep_len=getattr(env_cfg, "repose_training_revision", 1) != 2)
 
     print(f"Training time: {round(time.time() - start_time, 2)} seconds")
 

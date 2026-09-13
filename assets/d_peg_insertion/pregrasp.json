@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "validated": true,
+  "provenance": "Gravity-calibrated finger grasp recentered with bounded arm IK; repeat restored-state hold before acceptance",
+  "robot_joint_positions": {
+    "Joint1_R": -0.017418794333934784,
+    "Joint2_R": -0.423104465007782,
+    "Joint3_R": -0.4358104467391968,
+    "Joint4_R": -0.3123481571674347,
+    "Joint5_R": 0.5529471635818481,
+    "Joint6_R": 0.2871541976928711,
+    "Joint7_R": -0.3695012629032135,
+    "right_indexmcp_yaw_joint": -0.049249451607465744,
+    "right_midmcp_yaw_joint": 0.1643189936876297,
+    "right_pinkymcp_yaw_joint": -0.0045073130168020725,
+    "right_ringmcp_yaw_joint": -0.02276577614247799,
+    "right_thumbcmp_roll_joint": 1.1189733743667603,
+    "right_indexmcp_roll_joint": -0.0047537838108837605,
+    "right_midmcp_roll_joint": 0.12781348824501038,
+    "right_pinkymcp_roll_joint": 0.2032172679901123,
+    "right_ringmcp_roll_joint": 0.12701065838336945,
+    "right_thumbcmr_roll_joint": 1.5707955360412598,
+    "right_indexpip_roll_joint": 1.362532138824463,
+    "right_midpip_roll_joint": 1.2633585929870605,
+    "right_pinkypip_roll_joint": 1.5685746669769287,
+    "right_ringpip_roll_joint": 0.5925302505493164,
+    "right_thumbmcp_roll_joint": 0.1779777854681015,
+    "right_indexdip_roll_joint": 0.12560050189495087,
+    "right_middip_roll_joint": 0.3171858489513397,
+    "right_pinkydip_roll_joint": 1.0743204355239868,
+    "right_ringdip_roll_joint": 0.5360512137413025,
+    "right_thumbpip_roll_joint": 0.9014272093772888,
+    "right_thumbdip_roll_joint": 0.5034714341163635
+  },
+  "robot_joint_targets": {
+    "Joint1_R": -0.01697852462530136,
+    "Joint2_R": -0.42430680990219116,
+    "Joint3_R": -0.43314048647880554,
+    "Joint4_R": -0.31204548478126526,
+    "Joint5_R": 0.5487442016601562,
+    "Joint6_R": 0.2877448797225952,
+    "Joint7_R": -0.3703213632106781,
+    "right_indexmcp_yaw_joint": -0.0014347684336826205,
+    "right_midmcp_yaw_joint": 0.18933425843715668,
+    "right_pinkymcp_yaw_joint": -0.0045073130168020725,
+    "right_ringmcp_yaw_joint": -0.02276577614247799,
+    "right_thumbcmp_roll_joint": 1.1224817037582397,
+    "right_indexmcp_roll_joint": 0.1356942057609558,
+    "right_midmcp_roll_joint": 0.16011349856853485,
+    "right_pinkymcp_roll_joint": 0.2032172679901123,
+    "right_ringmcp_roll_joint": 0.12701065838336945,
+    "right_thumbcmr_roll_joint": 1.5706957578659058,
+    "right_indexpip_roll_joint": 1.4607563018798828,
+    "right_midpip_roll_joint": 1.2883979082107544,
+    "right_pinkypip_roll_joint": 1.5685746669769287,
+    "right_ringpip_roll_joint": 0.5925302505493164,
+    "right_thumbmcp_roll_joint": 0.41946643590927124,
+    "right_indexdip_roll_joint": 0.16563306748867035,
+    "right_middip_roll_joint": 0.3288877606391907,
+    "right_pinkydip_roll_joint": 1.0743204355239868,
+    "right_ringdip_roll_joint": 0.5360512137413025,
+    "right_thumbpip_roll_joint": 0.9943675398826599,
+    "right_thumbdip_roll_joint": 0.5281298756599426
+  },
+  "peg_pose": {
+    "position": [
+      0.4500000476837158,
+      0.10000002384185791,
+      0.8399999737739563
+    ],
+    "quaternion": [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "seed_hand_center": [
+    0.05,
+    0.03,
+    0.135
+  ],
+  "seed_hand_axis": [
+    0.0,
+    0.8191520442889918,
+    -0.573576436351046
+  ],
+  "seed_hand_pose": [
+    [
+      -0.5000000000000002,
+      -0.4967317648921539,
+      -0.7094064799162224,
+      0.5856718277354547
+    ],
+    [
+      -0.8660254037844385,
+      0.28678821817552314,
+      0.4095760221444961,
+      0.07940486065444927
+    ],
+    [
+      0.0,
+      0.8191520442889919,
+      -0.573576436351046,
+      0.9528582575787213
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "hand_fit_cost": 0.057794094239673285,
+  "arm_heading_rad": -2.0943951023931957,
+  "validation": {
+    "gravity_m_s2": 9.81,
+    "hold_seconds": 2.0,
+    "report": "assets/d_peg_insertion/validation/pregrasp_final.json",
+    "env_index": 0
+  }
+}
