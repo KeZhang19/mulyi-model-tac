@@ -29,6 +29,19 @@ build/
 .idea/
 .vscode/
 
+# Local editor/shell history and temporary backups
+.history/
+.local_history/
+.bash_history
+.zsh_history
+.python_history
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.rej
+
 # Runtime logs and generated simulation outputs
 logs/
 **/outputs/
@@ -37,19 +50,30 @@ integrate/output*/
 scripts/force_map/official_replay/output*/
 tacmap/output*/
 *.log
+MUJOCO_LOG.TXT
 
 # Isaac/Omniverse scratch assets generated while repairing or exporting USDs.
 *_sanitized.usd
 *_sanitized.usda
 *_disable_bad_visual_refs.usd
 *_disable_bad_visual_refs.usda
-assets/revo21_right_touch/urdf/.asset_hash
+.asset_hash
 assets/revo21_right_touch/urdf/config.yaml
 assets/revo21_right_touch/urdf/*.usd
 assets/revo21_right_touch/urdf/configuration/
 
 # Local/private helper files
 .codex/
+.autonomy/
+.claude/
+.gitnexus/
+.cache/
+# Generated agent instructions and local task prompts
+/AGENTS.md
+/CLAUDE.md
+/PEG_TRAINING_GOAL.md
+/bulb_assembly_autonomous.md
+
 upload-oss.sh
 DV2pointcollection.dxf
 DV2pointcollection_electrode_ids.dxf
