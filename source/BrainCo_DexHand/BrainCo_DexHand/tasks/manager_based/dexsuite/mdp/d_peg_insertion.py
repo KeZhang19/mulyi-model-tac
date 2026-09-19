@@ -382,9 +382,10 @@ class DPegRewardState:
         # through the mouth must consume its travel and entry milestone too.
         entry = entered & (g["depth"] >= .002) & ~self.entry_paid
         self.entry_paid |= entry
-        stable = entered & held & (g["depth"] >= .027) & (g["depth"] <= .030)
-        stable &= (g["xy"] < .000375) & (g["tilt"] < math.radians(3)) & (g["yaw"] < math.radians(3))
-        stable &= (snapshot["linear_speed"] < .02) & (snapshot["angular_speed"] < .2)
+        # Completion requires continuous full insertion, including after release.
+        # Entry provenance and containment still reject side entry and wall/floor
+        # penetration; precision, velocity and grip only shape process rewards.
+        stable = entered & (g["depth"] >= .027)
         self.hold_time = torch.where(selected, torch.where(stable, self.hold_time + dt, 0.0), self.hold_time)
         success = active & (self.hold_time >= .5 - 1e-6)
         self.success |= success

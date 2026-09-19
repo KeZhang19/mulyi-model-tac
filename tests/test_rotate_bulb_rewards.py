@@ -274,8 +274,11 @@ def test_soft_contact_pays_progress_but_completion_and_success_remain_strict(rew
     env.scene["object"].data.root_pos_w[:, 2] = .1
     env.command[:, 2] = .1
     success = reward_code.RotateBulbStableSuccess(SimpleNamespace(params={}), env)
-    for _ in range(5):
-        assert not success(env, pos_std=.03, **_params()).any()
+    for step in range(5):
+        result = success(env, pos_std=.03, **_params())
+        # Custom intentionally uses position-only success; standard still
+        # requires strong opposing contact in addition to released position.
+        assert result.all().item() == (reward_code.source_path == CUSTOM_CONFIG and step >= 2)
     for finger in ("thumb", "index"):
         env.scene.sensors[f"right_{finger}dip_roll_rubber_link_object_s"].data.force_matrix_w[..., 2] = 2.
     torch.testing.assert_close(term(env) * env.step_dt, torch.full((3,), .5))
@@ -357,7 +360,7 @@ def test_success_ignores_legacy_clearance_contact_and_speed_gates(reward_code):
     term = reward_code.RotateBulbStableSuccess(SimpleNamespace(params={}), env)
     for _ in range(2):
         assert not term(env, pos_std=.03, **_params()).any()
-    assert term(env, pos_std=.03, **_params()).all()
+    assert term(env, pos_std=.03, **_params()).all().item() == (reward_code.source_path == CUSTOM_CONFIG)
 
 
 def test_progress_uses_each_environments_actual_start_and_survives_release(reward_code):
@@ -397,7 +400,10 @@ def test_drop_detection_requires_release_and_table_contact(reward_code):
     forces = torch.zeros(3, 1, 1, 3)
     forces[:2, ..., 2] = 2
     env.scene.sensors["bulb_table_contact"] = SimpleNamespace(data=SimpleNamespace(force_matrix_w=forces))
-    assert reward_code.rotate_bulb_dropped(env).tolist() == [False, True, False]
+    # Standard keeps its original release gate; Custom also catches sideways
+    # escapes that hit the table before geometric release detection latches.
+    custom = reward_code.source_path == CUSTOM_CONFIG
+    assert reward_code.rotate_bulb_dropped(env).tolist() == [custom, True, False]
 
 
 def test_phase_observation_distinguishes_release_and_time_remaining(reward_code):

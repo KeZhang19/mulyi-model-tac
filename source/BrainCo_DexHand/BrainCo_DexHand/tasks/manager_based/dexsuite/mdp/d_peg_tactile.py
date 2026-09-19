@@ -149,8 +149,9 @@ def initialize_d_peg_tactile_contract(env, env_ids=None):
         env.cfg, "task_id", "BrainCo-Dexsuite-Revo3-Right-Insert-D-Peg-v0"
     )
     # This describes the implemented reward/state-machine semantics, so it
-    # cannot be overridden to claim compatibility with a v2 checkpoint.
-    contract["task_schema_version"] = 3
+    # cannot be overridden to claim compatibility with a v1/v2/v3 checkpoint.
+    # v4 completes a contained insertion >=27 mm held for 0.5 s, even ungrasped.
+    contract["task_schema_version"] = 4
     contract["action_schema"] = env.action_manager.get_term("action").action_contract()
     contract["reward_geometry"] = dict(env.cfg._d_peg_geometry)
     contract["task_assets"] = {

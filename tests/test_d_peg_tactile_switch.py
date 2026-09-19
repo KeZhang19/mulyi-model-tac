@@ -101,11 +101,14 @@ def test_disabled_contract_skips_encoder_assets_and_rejects_enabled_or_v2_resume
     ns["initialize_d_peg_tactile_contract"](env)
     contract = env.tactile_policy_contract
     assert contract["observation_dim"] == 669 and contract["projection_dim"] == 0
-    assert contract["task_schema_version"] == 3
+    assert contract["task_schema_version"] == 4
     assert "simulation_encoder_sha256" not in contract and "simulation_sensor_assets" not in contract
     wrapped = SimpleNamespace(unwrapped=env)
     prepare_policy_run(wrapped, tmp_path / "off")
-    for changed in (dict(contract, observation_dim=1949), dict(contract, task_schema_version=2)):
+    prepare_policy_run(wrapped, tmp_path / "resumed", resume_path=tmp_path / "off" / "model.pt")
+    assert json.loads((tmp_path / "resumed" / "tactile_policy_contract.json").read_text()) == contract
+    for changed in (dict(contract, observation_dim=1949), dict(contract, task_schema_version=2),
+                    dict(contract, task_schema_version=3)):
         other = tmp_path / "other"
         other.mkdir(exist_ok=True)
         (other / "tactile_policy_contract.json").write_text(json.dumps(changed))

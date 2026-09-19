@@ -120,11 +120,11 @@ def test_asset_swap_retains_original_actions_observation_definitions_and_rewards
                 if isinstance(node, ast.ClassDef) and node.name in {
                     "DexsuiteRevo3RotateBulbEnvCfg", "DexsuiteRevo3RotateBulbEnvCfg_PLAY",
                 }:
-                    # The Custom-only opt-in is the sole additional environment
-                    # field; continue comparing every other default and method.
+                    # Custom owns its tactile and physical connection switches.
+                    # Continue comparing every other default and method.
                     node.body = [n for n in node.body if not (
                         isinstance(n, ast.AnnAssign) and isinstance(n.target, ast.Name)
-                        and n.target.id == "tactile_policy_enabled")]
+                        and n.target.id in {"tactile_policy_enabled", "bulb_pure_collision"})]
         return {n.name: ast.dump(n, include_attributes=False) for n in nodes
                 if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
 
@@ -136,10 +136,19 @@ def test_asset_swap_retains_original_actions_observation_definitions_and_rewards
     assert custom_base == original_base
     original_env = definitions(DEX / "config/Revo3/dexsuite_revo3_env_cfg_rotate_bulb.py")
     custom_env = definitions(CUSTOM / "env_cfg.py")
-    # Custom additionally has independent turn rewards and episode metrics.
+    # Custom owns the revised action, collision and failure/reward rules.
+    # Dedicated numerical tests cover these intentional differences; retain
+    # exact equality for the shared reset geometry and observation functions.
     for name in original_env.keys() - {"configure_rotate_bulb_scene", "reset_lamp_on_table",
                                        "release_unscrewed_bulb", "RotateBulbPoseCommand",
-                                       "DexsuiteRevo3RotateBulbRewardCfg"}:
+                                       "DexsuiteRevo3RotateBulbRewardCfg",
+                                       "spawn_tabletop_threaded_lamp", "DexsuiteRevo3RotateBulbSceneCfg",
+                                       "rotate_bulb_screw_progress", "rotate_bulb_screw_complete",
+                                       "rotate_bulb_unscrewed_turns", "rotate_bulb_dropped",
+                                       "rotate_bulb_contact_scores", "rotate_bulb_hand_contacts", "rotate_bulb_grasp_shaping",
+                                       "RotateBulbUnscrewProgress", "rotate_bulb_reach_shell", "RotateBulbReachProgress",
+                                       "rotate_bulb_failed", "rotate_bulb_released_grasp_quality",
+                                       "RotateBulbTransportProgress", "RotateBulbStableSuccess"}:
         assert custom_env[name] == original_env[name], name
     # This port deliberately excludes the donor's action/observation modules.
     for path in CUSTOM.rglob("*.py"):

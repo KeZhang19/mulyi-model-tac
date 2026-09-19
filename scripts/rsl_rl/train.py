@@ -186,6 +186,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         from repose_training import configure_repose_checkpoint
 
         env_cfg.repose_training_revision = configure_repose_checkpoint(agent_cfg, resume_path)
+    from bulb_training import is_bulb_task
+
+    is_custom_bulb = is_bulb_task(args_cli.task)
+    if is_custom_bulb:
+        from bulb_training import configure_bulb_checkpoint
+
+        configure_bulb_checkpoint(agent_cfg, resume_path, training=True)
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -200,6 +207,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         env, log_dir,
         resume_path=resume_path if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation" else None,
     )
+    if is_custom_bulb:
+        from bulb_training import prepare_bulb_policy_run
+
+        prepare_bulb_policy_run(env, log_dir, resume_path=resume_path)
 
     # wrap for video recording
     if args_cli.video:
@@ -270,7 +281,7 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # run training
     runner.learn(num_learning_iterations=agent_cfg.max_iterations,
-                 init_at_random_ep_len=getattr(env_cfg, "repose_training_revision", 1) != 2)
+                 init_at_random_ep_len=not is_custom_bulb and getattr(env_cfg, "repose_training_revision", 1) != 2)
 
     print(f"Training time: {round(time.time() - start_time, 2)} seconds")
 

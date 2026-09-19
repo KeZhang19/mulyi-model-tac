@@ -34,6 +34,10 @@ parser.add_argument(
     help="Use the pre-trained checkpoint from Nucleus.",
 )
 parser.add_argument("--real-time", action="store_true", default=False, help="Run in real-time, if possible.")
+parser.add_argument(
+    "--bulb-legacy-diagnostic", action="store_true",
+    help="Diagnose an original Custom bulb checkpoint with clipped actions and the revised environment rules.",
+)
 # append RSL-RL cli arguments
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
@@ -55,6 +59,7 @@ simulation_app = app_launcher.app
 
 import os
 import time
+from datetime import datetime, timezone
 
 import gymnasium as gym
 import torch
@@ -112,6 +117,22 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
 
     log_dir = os.path.dirname(resume_path)
+    from bulb_training import is_bulb_task
+
+    is_custom_bulb = is_bulb_task(task_name)
+    if args_cli.bulb_legacy_diagnostic and not is_custom_bulb:
+        raise ValueError("--bulb-legacy-diagnostic is only supported by Rotate-Bulb-Custom")
+    legacy_bulb = False
+    if is_custom_bulb:
+        from bulb_training import configure_bulb_checkpoint
+
+        legacy_bulb = configure_bulb_checkpoint(
+            agent_cfg, resume_path, legacy_diagnostic=args_cli.bulb_legacy_diagnostic,
+        )
+        if legacy_bulb:
+            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+            log_dir = os.path.abspath(os.path.join("logs", "diagnostics", "bulb_legacy", stamp))
+            print(f"[INFO] Legacy bulb diagnostic output: {log_dir}")
 
     # set the log directory for the environment (works for all environment types)
     env_cfg.log_dir = log_dir
@@ -128,6 +149,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     from BrainCo_DexHand.tactile_representation.policy import prepare_policy_run
 
     prepare_policy_run(env, log_dir, resume_path=resume_path)
+    if is_custom_bulb:
+        from bulb_training import prepare_bulb_policy_run
+
+        prepare_bulb_policy_run(env, log_dir, resume_path=resume_path, legacy_diagnostic=legacy_bulb)
 
     # convert to single-agent instance if required by the RL algorithm
     if isinstance(env.unwrapped, DirectMARLEnv):
@@ -164,6 +189,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # obtain the trained policy for inference
     policy = runner.get_inference_policy(device=env.unwrapped.device)
+    if is_custom_bulb:
+        from bulb_training import bulb_inference_policy
+
+        policy = bulb_inference_policy(policy, legacy_diagnostic=legacy_bulb)
 
     # extract the neural network module
     # we do this in a try-except to maintain backwards compatibility.
@@ -183,14 +212,24 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         normalizer = None
 
     # export policy to onnx/jit
-    export_model_dir = os.path.join(os.path.dirname(resume_path), "exported")
+    export_model_dir = os.path.join(log_dir, "exported")
     from repose_training import repose_policy_for_export
 
-    export_policy = repose_policy_for_export(policy_nn)
+    if is_custom_bulb:
+        from bulb_training import bulb_policy_for_export
+
+        export_policy = bulb_policy_for_export(policy_nn, legacy_diagnostic=legacy_bulb)
+    else:
+        export_policy = repose_policy_for_export(policy_nn)
     export_policy_as_jit(export_policy, normalizer=normalizer, path=export_model_dir, filename="policy.pt")
     export_policy_as_onnx(export_policy, normalizer=normalizer, path=export_model_dir, filename="policy.onnx")
 
     dt = env.unwrapped.step_dt
+    bulb_recorder = None
+    if legacy_bulb:
+        from bulb_diagnostics import BulbDiagnosticRecorder
+
+        bulb_recorder = BulbDiagnosticRecorder(env, log_dir)
 
     # reset environment
     obs = env.get_observations()
@@ -203,7 +242,9 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             # agent stepping
             actions = policy(obs)
             # env stepping
-            obs, _, dones, _ = env.step(actions)
+            obs, rewards, dones, _ = env.step(actions)
+            if bulb_recorder is not None:
+                bulb_recorder.record(actions, rewards, dones)
             # reset recurrent states for episodes that have terminated
             policy_nn.reset(dones)
         if args_cli.video:
@@ -218,6 +259,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
             time.sleep(sleep_time)
 
     # close the simulator
+    if bulb_recorder is not None:
+        bulb_recorder.close()
     env.close()
 
 

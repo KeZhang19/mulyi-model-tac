@@ -72,7 +72,7 @@ def test_ppo_policy_is_read_from_config_instance_and_copied(monkeypatch):
     assert first.algorithm.entropy_coef == .001
     assert first.algorithm.desired_kl == .01
     assert first.algorithm.num_learning_epochs == 5
-    assert first.experiment_name == "dexsuite_revo3_insert_d_peg_v3"
+    assert first.experiment_name == "dexsuite_revo3_insert_d_peg_v4"
     assert first.save_interval == 25
     assert bulb.save_interval == 250
     assert bulb.policy.init_noise_std == 1.0

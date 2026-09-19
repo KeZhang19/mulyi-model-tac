@@ -151,7 +151,7 @@ def test_dual_gpu_launcher_default_and_override_without_launching_gpu(tmp_path):
     default = subprocess.check_output(["bash", str(script)], env=env, text=True).splitlines()
     assert default[default.index("--num_envs") + 1] == "512"
     assert default[default.index("--max_iterations") + 1] == "15000"
-    assert "/dexsuite_revo3_insert_d_peg_v3/" in default[default.index("--log_dir") + 1]
+    assert "/dexsuite_revo3_insert_d_peg_v4/" in default[default.index("--log_dir") + 1]
     changed = subprocess.check_output(["bash", str(script), str(tmp_path / "run")],
               env={**env, "D_PEG_ENVS_PER_GPU": "4", "D_PEG_MAX_ITERATIONS": "3"}, text=True).splitlines()
     assert changed[changed.index("--num_envs") + 1] == "4"

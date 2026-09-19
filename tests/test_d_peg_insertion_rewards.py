@@ -170,9 +170,8 @@ def test_repeated_reads_in_same_step_do_not_advance_hold_or_progress(code):
     assert s.components["success"].item() == 0
 
 
-@pytest.mark.parametrize("change", [dict(linear_speed=.03), dict(angular_speed=.3),
-                                   dict(held=False), dict(xy=((.0005, 0.),)),
-                                   dict(yaw=math.radians(4)), dict(depths=(.026,))])
+@pytest.mark.parametrize("change", [dict(xy=((.001, 0.),)), dict(yaw=math.radians(10)),
+                                   dict(depths=(.026,)), dict(depths=(.032,))])
 def test_success_requires_continuous_strict_stability(code, change):
     s = state(code)
     for step in range(1, 4):

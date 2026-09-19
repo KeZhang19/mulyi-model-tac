@@ -53,9 +53,9 @@ def test_configured_turn_split_has_fixed_budget_with_and_without_grasp(code, con
         _set_turns(env, [3 * step / hz] * 3)
         for i, (term, func) in enumerate(zip(terms, funcs)):
             sums[i] += func(env, **term.params) * term.weight * env.step_dt
-    torch.testing.assert_close(sums[0], torch.full((3,), 1.5))
-    torch.testing.assert_close(sums[1], torch.tensor([0., 1.125, 4.5]))
-    torch.testing.assert_close(sums.sum(0), torch.tensor([1.5, 2.625, 6.]))
+    torch.testing.assert_close(sums[0], torch.zeros(3))
+    torch.testing.assert_close(sums[1], torch.tensor([0., 1.5, 6.]))
+    torch.testing.assert_close(sums.sum(0), torch.tensor([0., 1.5, 6.]))
     for term, func in zip(terms, funcs):
         assert not func(env, **term.params).any()  # Holding at three turns pays nothing.
 

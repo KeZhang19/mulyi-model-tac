@@ -50,6 +50,6 @@ def test_ppo_config_is_task_owned():
     classes = [node for node in tree.body if isinstance(node, ast.ClassDef)]
     runner = next(node for node in classes if node.name == "DexsuiteFlexivInsertDPegPPORunnerCfg")
     names = {node.targets[0].id: node.value for node in runner.body if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)}
-    assert ast.literal_eval(names["experiment_name"]) == "dexsuite_flexiv_insert_d_peg_custom"
+    assert ast.literal_eval(names["experiment_name"]) == "dexsuite_flexiv_insert_d_peg_custom_v4"
     assert ast.literal_eval(names["max_iterations"]) == 15000
     assert ast.literal_eval(names["save_interval"]) == 250

@@ -4,7 +4,7 @@ set -euo pipefail
 d_peg_repo="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$d_peg_repo"
 d_peg_python="${D_PEG_PYTHON:-/home/admin/workspace/xinyu/IsaacLab/_isaac_sim/python.sh}"
-d_peg_log_dir="${1:-logs/rsl_rl/dexsuite_revo3_insert_d_peg_v3/dual_gpu_$(date -u +%Y%m%dT%H%M%SZ)}"
+d_peg_log_dir="${1:-logs/rsl_rl/dexsuite_revo3_insert_d_peg_v4/dual_gpu_$(date -u +%Y%m%dT%H%M%SZ)}"
 export PYTHONPATH="$d_peg_repo/source/BrainCo_DexHand:$d_peg_repo${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONUNBUFFERED=1
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"

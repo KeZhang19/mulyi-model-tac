@@ -12,7 +12,7 @@
 仍为 18.43 mm、穿透 3.80 mm，状态为未通过物理验收的 `preload_candidate`，必须先做 Flexiv
 物理预抓验收再开始长时间训练。
 
-当前本地实现采用 v3 动作与奖励语义，任务 ID 保持不变。v1/v2 训练记录保留用于对照，v3 从独立目录重新训练。2026-09-13 本地诊断与验证见 [`d_peg_v3_local_fix_2026-09-13.md`](d_peg_v3_local_fix_2026-09-13.md)。本次修改尚未同步到服务器。
+当前本地实现采用 v4 成功判定，沿用 v3 动作及过程奖励，任务 ID 保持不变。普通任务与 Flexiv Custom 共用“有效入孔且深度 ≥27 mm，连续保持 0.5 秒”的完成规则，允许松手后留在孔内完成任务。v1/v2/v3 训练记录保留用于对照，v4 从独立目录重新训练。2026-09-13 的 v3 本地诊断与验证见 [`d_peg_v3_local_fix_2026-09-13.md`](d_peg_v3_local_fix_2026-09-13.md)。本次修改尚未同步到服务器。
 
 每个回合从已抓住柱体的姿态开始，控制机械臂和灵巧手对准 D 形孔、插入并稳定保持。柱体是受重力作用的自由刚体；回合内没有固定关节、位姿传送或自动插入控制。PPO 从头训练，仅复用原多模态恢复 encoder。
 
@@ -40,7 +40,7 @@
 
 ## 动作、观测与网络
 
-动作保持 28 维：7 个机械臂关节、21 个手部关节。v3 使用预抓驱动目标上的位置残差：`q_target = q_pregrasp_drive_target + scale × action`，机械臂 scale=0.1、手指 scale=0.02；v2 的全部关节 scale=0.1。参考值不随实际关节偏移改变，连续残差不积分；策略仍可调整机械臂和手指，也可主动松开柱体。动作没有硬裁剪，不改变 PPO 高斯输出或对数概率。物理频率 240 Hz，策略频率 30 Hz（`decimation=8`），回合长 15 秒，最多 450 个控制步。环境类默认 32 个并行环境；原服务器 v2 已通过每卡 512、共 1024 个环境的双卡容量验证。
+动作保持 28 维：7 个机械臂关节、21 个手部关节。v4 沿用 v3 的预抓驱动目标位置残差：`q_target = q_pregrasp_drive_target + scale × action`，机械臂 scale=0.1、手指 scale=0.02；v2 的全部关节 scale=0.1。参考值不随实际关节偏移改变，连续残差不积分；策略仍可调整机械臂和手指，也可主动松开柱体。动作没有硬裁剪，不改变 PPO 高斯输出或对数概率。物理频率 240 Hz，策略频率 30 Hz（`decimation=8`），回合长 15 秒，最多 450 个控制步。环境类默认 32 个并行环境；原服务器 v2 已通过每卡 512、共 1024 个环境的双卡容量验证。
 
 | 观测组 | 维度 | 内容 |
 | --- | ---: | --- |
@@ -55,11 +55,11 @@
 
 在 `train.py` 或 `play.py` 命令末尾添加 `env.tactile_policy_enabled=true` 可打开通路。打开时默认读取 `runs/revo3_cross_modal_restoration_v1/best.pt`。每指输入 RGB `[3,240,320]`、以米为单位的 Depth `[1,240,320]` 和 100 个二维 marker。encoder 保持 `eval()`、无梯度，每指输出 256 维归一化 `h`；不需要 CLIP 对齐权重，也不加载灯泡 PPO。已训练策略的开关必须与其保存的契约一致。
 
-Actor/Critic 均为 `[512,256,128]` MLP、ELU，带观测归一化。初始动作标准差为 `0.15`；从头训练时将 Actor 最后一层权重与偏置置零，使初始确定性动作精确保留预抓目标，再叠加探索噪声。恢复训练和 PLAY 不重新初始化 Actor。D 柱专属 PPO 初始学习率设为 `3e-5`，继续使用 adaptive 调度，折扣因子保持 `gamma=0.999`，GAE lambda 保持 `0.95`。折扣按控制步计算，在 30 Hz 下延迟 15 秒的奖励保留约 `0.999^450 ≈ 63.7%` 的权重。策略和算法配置均独立复制，灯泡配置不受影响。独立运行目录为 `dexsuite_revo3_insert_d_peg_v3`。
+Actor/Critic 均为 `[512,256,128]` MLP、ELU，带观测归一化。初始动作标准差为 `0.15`；从头训练时将 Actor 最后一层权重与偏置置零，使初始确定性动作精确保留预抓目标，再叠加探索噪声。恢复训练和 PLAY 不重新初始化 Actor。D 柱专属 PPO 学习率设为 `3e-5`，当前配置使用 fixed 调度，折扣因子保持 `gamma=0.999`，GAE lambda 保持 `0.95`。折扣按控制步计算，在 30 Hz 下延迟 15 秒的奖励保留约 `0.999^450 ≈ 63.7%` 的权重。策略和算法配置均独立复制，灯泡配置不受影响。普通任务的独立运行目录为 `dexsuite_revo3_insert_d_peg_v4`，Flexiv Custom 为 `dexsuite_flexiv_insert_d_peg_custom_v4`。
 
 检查点每 25 次迭代保存一次。按 1024 环境容量测试中约 76 秒/迭代估算，保存间隔约 32 分钟；这项配置只改变文件保存频率，不改变 PPO 更新。
 
-`tactile_policy_contract.json` 校验任务 ID、669/1949 维实际布局，以及柱体、孔座、几何元数据和预抓文件；开启还原通路时还校验 encoder 和传感器标定指纹。`task_schema_version=3` 固定描述本地新奖励状态机，`action_schema` 记录实际关节顺序、预抓驱动目标、动作公式与各关节组 scale。v1/v2 D 柱、灯泡及开关不同的 checkpoint 均不能直接恢复；需要 v3 从头训练。几何元数据在配置和启动阶段均校验；本版本不接受仅修改目标深度而保留原成功阈值的配置。
+`tactile_policy_contract.json` 校验任务 ID、669/1949 维实际布局，以及柱体、孔座、几何元数据和预抓文件；开启还原通路时还校验 encoder 和传感器标定指纹。`task_schema_version=4` 固定描述新的完成规则，`action_schema` 记录实际关节顺序、预抓驱动目标、动作公式与各关节组 scale。v1/v2/v3 D 柱、灯泡及开关不同的 checkpoint 均不能直接恢复；v4 从头训练，同一契约的 v4 checkpoint 可以续训和回放。几何元数据在配置和启动阶段均校验；本版本不接受仅修改目标深度而保留原成功阈值的配置。
 
 ## 奖励与成功
 
@@ -73,7 +73,8 @@ Actor/Critic 均为 `[512,256,128]` MLP、ELU，带观测归一化。初始动�
 | 有效抓持丢失 | 未满足原有抓持条件时 −0.2/秒，不添加原地抓持的正奖励 |
 | 入孔里程碑 | 正确入孔至少 2 mm 后一次 +5 |
 | 插入深度 | 新增归一化深度 ×40 |
-| 稳定成功 | 一次 +80 |
+| 插入后的稳定性 | 有效入孔、继续抓持且深度 20–30 mm 时，按位置、姿态和速度误差连续评分，最高 +4/秒 |
+| 插入完成 | 有效入孔、当前满足几何包含且深度 ≥27 mm，连续 0.5 秒后一次 +80，并终止回合 |
 | 掉落、出界、非有限状态 | 一次 −20，并终止回合 |
 | 过大孔座接触力 | 超过 30 N 后连续惩罚，最大 −2/秒 |
 | 时间 | −0.1/秒 |
@@ -81,11 +82,15 @@ Actor/Critic 均为 `[512,256,128]` MLP、ELU，带观测归一化。初始动�
 
 接近、对准、入孔和深度奖励要求实际抓持：拇指和至少另一指的柱体接触力均超过 1 N。历史最好进度按环境独立保存，回退或重新抓取不会重复领取旧进度；无抓持通过孔口也会消耗已发生的里程碑。进度奖励按控制步长换算，避免改变控制频率时改变总计分。
 
-v3 将“实际从孔口进入的历史”和“当前满足几何包含”分开保存。短暂不满足孔壁包含条件时，当前帧不给插入或稳定成功信用；重新对准后可继续领取新增深度。退出孔口、离开孔口区域、穿底或回合结束会清除入孔历史，初始/侧向置入仍不被承认。精细对准同样使用一次性的历史最好进度预算，孔外下沉、无抓持移动或重复进退不能重复领分。
+v4 沿用 v3 对“实际从孔口进入的历史”和“当前满足几何包含”的分别记录。短暂不满足孔壁包含条件时，当前帧不给插入或稳定性奖励，成功计时清零；重新对准后可继续领取新增深度，并重新累计成功保持时间。退出孔口、离开孔口区域、穿底或回合结束会清除入孔历史，初始/侧向置入仍不被承认。精细对准同样使用一次性的历史最好进度预算，孔外下沉、无抓持移动或重复进退不能重复领分。
 
 v2 将接近目标从孔口上方 20 mm 移到实际孔口，并将接近距离尺度设为 30 mm；对准评分的高度项也使用距孔口的正高度、尺度 30 mm，使已对准柱体继续下降到入口时仍能得到有界进度奖励。孔口下方仍需真实轮廓包含和正确入孔过程，无抓持或孔外下沉不能获得插入分。
 
-成功要求正确入孔、继续抓持，插入深度 27–30 mm，横向误差小于 0.375 mm，轴倾角和 D 形绕轴误差均小于 3°，柱体线速度小于 0.02 m/s、角速度小于 0.2 rad/s，并连续满足 0.5 秒（30 Hz 下为 15 个控制步）。桌面接触力超过 0.5 N 判定为掉落；越界范围为环境局部 X `[0.1,0.8]`、Y `[-0.35,0.55]`、Z `[0.60,1.35]` m。
+成功要求有效入孔历史、当前柱体通过孔腔包含检查、插入深度 ≥27 mm，并连续满足 0.5 秒（30 Hz 下第 14 步未成功，第 15 步成功）。不再要求继续抓持，也不再设置额外的横向误差、倾角、D 形绕轴误差、线速度或角速度门槛；不另设 30 mm 深度上限，由原有孔壁、孔底几何检查约束。深度不足或失去包含时计时清零，恢复后需重新保持满 0.5 秒。有效入孔历史仍须由柱尖穿过孔口、进入时倾角小于 10°并通过包含检查建立。
+
+成功当步一次发放 +80 并终止回合；松手后留在孔内也可完成。其他过程奖励和惩罚保持原有规则，抓持丢失仍扣 −0.2/秒，稳定性奖励仍要求抓持，单步总奖励为各项之和。桌面接触力超过 0.5 N 判定为掉落，掉落、越界或非有限状态当步优先判失败，不发成功奖励。普通任务越界范围为环境局部 X `[0.1,0.8]`、Y `[-0.35,0.55]`、Z `[0.60,1.35]` m；Flexiv Custom 按预抓、孔座和桌面位置计算边界。
+
+成功终止、+80 奖励和成功率统计共用同一成功标志。`DPegGlobal/means/success` 是本轮采样中已结束回合的成功比例，多卡按总成功数除以总回合数统计；`DPeg/EpisodeSuccess` 是本次重置批次的成功比例，`DPeg/success` 是当前控制步的成功标志均值。比较 v3/v4 训练曲线时需区分两版成功口径。
 
 ## 本地短训练与回放
 
@@ -99,18 +104,18 @@ OMP_NUM_THREADS=2 python scripts/rsl_rl/train.py \
   --task BrainCo-Dexsuite-Revo3-Right-Insert-D-Peg-v0 \
   --num_envs 4 --max_iterations 3 --headless --device cuda:0 \
   --logger tensorboard \
-  --log_dir logs/rsl_rl/dexsuite_revo3_insert_d_peg_v3/local_smoke
+  --log_dir logs/rsl_rl/dexsuite_revo3_insert_d_peg_v4/local_smoke
 
 OMP_NUM_THREADS=2 python scripts/rsl_rl/train.py \
   --task BrainCo-Dexsuite-Revo3-Right-Insert-D-Peg-v0 \
   --num_envs 4 --max_iterations 2 --headless --device cuda:0 \
   --logger tensorboard --resume --load_run local_smoke --checkpoint model_2.pt \
-  --log_dir logs/rsl_rl/dexsuite_revo3_insert_d_peg_v3/local_resume
+  --log_dir logs/rsl_rl/dexsuite_revo3_insert_d_peg_v4/local_resume
 
 python scripts/rsl_rl/play.py \
   --task BrainCo-Dexsuite-Revo3-Right-Insert-D-Peg-v0 \
   --num_envs 4 --device cuda:0 \
-  --checkpoint logs/rsl_rl/dexsuite_revo3_insert_d_peg_v3/local_resume/model_3.pt
+  --checkpoint logs/rsl_rl/dexsuite_revo3_insert_d_peg_v4/local_resume/model_3.pt
 ```
 
 最后一条命令打开交互回放，需主动关闭窗口。当前训练和 PLAY 任务配置相同；下面的验证工具显式分别创建训练和 PLAY 类，并提供有限步数的无界面回放。
@@ -120,7 +125,10 @@ python scripts/rsl_rl/play.py \
 ```bash
 OMP_NUM_THREADS=2 python -m pytest -q \
   tests/test_d_peg_actions.py tests/test_d_peg_task_integration.py \
-  tests/test_d_peg_ppo_cfg.py tests/test_d_peg_insertion_rewards.py
+  tests/test_d_peg_ppo_cfg.py tests/test_d_peg_insertion_rewards.py \
+  tests/test_d_peg_v3_rewards.py tests/test_d_peg_v4_rewards.py \
+  tests/test_d_peg_tactile_switch.py tests/test_d_peg_training.py \
+  tests/test_flexiv_d_peg_custom.py
 
 python assets/d_peg_insertion/tools/validate_assets.py \
   --report logs/diagnostics/d_peg_assets.json

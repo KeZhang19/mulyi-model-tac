@@ -10,7 +10,7 @@ class DexsuiteFlexivInsertDPegPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     obs_groups = {"policy": ["policy", "proprio", "perception"], "critic": ["policy", "proprio", "perception"]}
     max_iterations = 15000
     save_interval = 250
-    experiment_name = "dexsuite_flexiv_insert_d_peg_custom"
+    experiment_name = "dexsuite_flexiv_insert_d_peg_custom_v4"
     log_all_ranks = False
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=0.15, actor_obs_normalization=True, critic_obs_normalization=True,

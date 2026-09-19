@@ -6,7 +6,7 @@ from .rsl_rl_ppo_cfg_rotate_bulb import DexsuiteRevo3RotateBulbPPORunnerCfg
 
 @configclass
 class DexsuiteRevo3InsertDPegPPORunnerCfg(DexsuiteRevo3RotateBulbPPORunnerCfg):
-    experiment_name = "dexsuite_revo3_insert_d_peg_v3"
+    experiment_name = "dexsuite_revo3_insert_d_peg_v4"
     save_interval = 25
     policy = DexsuiteRevo3RotateBulbPPORunnerCfg().policy.copy()
     policy.init_noise_std = 0.15

@@ -183,7 +183,13 @@ def apply_revo3_touch_compliant_materials(
     damping: float,
     contact_offset: float,
     rest_offset: float,
+    shared_material_path: str | None = None,
 ) -> None:
+    """Bind calibrated compliance, optionally sharing one immutable material.
+
+    Large tasks without material randomization can share across environments
+    to avoid PhysX's 64K material limit. Other tasks keep per-collider materials.
+    """
     stage = sim_utils.get_current_stage()
     material_cfg = sim_utils.RigidBodyMaterialCfg(
         compliant_contact_stiffness=float(stiffness),
@@ -212,9 +218,10 @@ def apply_revo3_touch_compliant_materials(
                 continue
 
             for collision_path in collision_paths:
-                material_path = f"{collision_path}/compliant_material"
+                material_path = shared_material_path or f"{collision_path}/compliant_material"
                 try:
-                    material_cfg.func(material_path, material_cfg)
+                    if shared_material_path is None or not stage.GetPrimAtPath(material_path).IsValid():
+                        material_cfg.func(material_path, material_cfg)
                     sim_utils.modify_collision_properties(collision_path, collision_cfg, stage=stage)
                     sim_utils.bind_physics_material(collision_path, material_path, stage=stage)
                     success_count += 1

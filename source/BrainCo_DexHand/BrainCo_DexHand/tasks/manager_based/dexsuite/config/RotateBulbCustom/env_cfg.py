@@ -13,7 +13,7 @@ import torch
 
 import isaaclab.sim as sim_utils
 from isaaclab.actuators import ImplicitActuatorCfg
-from isaaclab.assets import ArticulationCfg, RigidObjectCfg
+from isaaclab.assets import ArticulationCfg, AssetBaseCfg, RigidObjectCfg
 from isaaclab.envs import ManagerBasedRLEnv
 from isaaclab.managers import EventTermCfg as EventTerm
 from isaaclab.managers import ManagerTermBase
@@ -32,6 +32,7 @@ from ...mdp.commands.pose_commands import ObjectUniformPoseCommand
 from .tactile import RotateBulbPretrainedTactile, initialize_rotate_bulb_tactile_contract
 from .robot_setup import Revo3MixinCfg
 from .robot_contract import GRASP_REFERENCE
+from .actions import BulbJointPositionActionCfg
 
 
 _LAMP_USD = str(
@@ -73,38 +74,41 @@ def spawn_tabletop_threaded_lamp(prim_path, cfg, translation=None, orientation=N
         sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True, disable_gravity=True),
     )
     stage = prim.GetStage()
-    # Keep the two native screw joints in a permanent articulation, but attach
-    # the physical bulb through an EXCLUDED regular joint. Releasing it does
-    # not change articulation topology or invalidate its tensor views.
-    follower = UsdGeom.Xform.Define(stage, prim_path + "/ScrewFollower")
-    follower.AddTranslateOp().Set(Gf.Vec3d(_SCREW_EXIT_EXTENSION, 0, 0))
-    follower.AddOrientOp().Set(Gf.Quatf(0, 1, 0, 0))
-    UsdPhysics.RigidBodyAPI.Apply(follower.GetPrim())
-    mass = UsdPhysics.MassAPI.Apply(follower.GetPrim())
-    mass.CreateMassAttr(0.01)
-    mass.CreateDiagonalInertiaAttr(Gf.Vec3f(1e-5))
-    PhysxSchema.PhysxRigidBodyAPI.Apply(follower.GetPrim()).CreateDisableGravityAttr(True)
-    UsdPhysics.RevoluteJoint.Get(stage, prim_path + "/Joints/screw_turn").GetBody1Rel().SetTargets(
-        [follower.GetPath()]
-    )
-    UsdPhysics.PrismaticJoint.Get(stage, prim_path + "/Joints/screw_slide").GetLocalPos0Attr().Set(
-        Gf.Vec3f(_SCREW_EXIT_EXTENSION, 0, 0)
-    )
-    for name in ("AxialCarrier", "Bulb"):
-        stage.GetPrimAtPath(prim_path + "/" + name).GetAttribute("xformOp:translate").Set(
-            Gf.Vec3d(_SCREW_EXIT_EXTENSION, 0, 0)
-        )
+    if cfg.pure_collision:
+        # Deactivate referenced prims before PhysX creates any views. The bulb
+        # has six free DOFs from the start: no screw, mimic or attachment joint.
+        for name in ("Base", "AxialCarrier", "Joints"):
+            stage.GetPrimAtPath(prim_path + "/" + name).SetActive(False)
+        stage.GetPrimAtPath(prim_path + "/Bulb").GetAttribute("xformOp:translate").Set(
+            Gf.Vec3d(_SCREW_EXIT_EXTENSION, 0, 0))
+    else:
+        # Keep the guided mode's permanent articulation and releasable joint.
+        follower = UsdGeom.Xform.Define(stage, prim_path + "/ScrewFollower")
+        follower.AddTranslateOp().Set(Gf.Vec3d(_SCREW_EXIT_EXTENSION, 0, 0))
+        follower.AddOrientOp().Set(Gf.Quatf(0, 1, 0, 0))
+        UsdPhysics.RigidBodyAPI.Apply(follower.GetPrim())
+        mass = UsdPhysics.MassAPI.Apply(follower.GetPrim())
+        mass.CreateMassAttr(0.01)
+        mass.CreateDiagonalInertiaAttr(Gf.Vec3f(1e-5))
+        PhysxSchema.PhysxRigidBodyAPI.Apply(follower.GetPrim()).CreateDisableGravityAttr(True)
+        UsdPhysics.RevoluteJoint.Get(stage, prim_path + "/Joints/screw_turn").GetBody1Rel().SetTargets(
+            [follower.GetPath()])
+        UsdPhysics.PrismaticJoint.Get(stage, prim_path + "/Joints/screw_slide").GetLocalPos0Attr().Set(
+            Gf.Vec3f(_SCREW_EXIT_EXTENSION, 0, 0))
+        for name in ("AxialCarrier", "Bulb"):
+            stage.GetPrimAtPath(prim_path + "/" + name).GetAttribute("xformOp:translate").Set(
+                Gf.Vec3d(_SCREW_EXIT_EXTENSION, 0, 0))
+        attachment = UsdPhysics.FixedJoint.Define(stage, prim_path + "/Joints/bulb_attachment")
+        attachment.CreateBody0Rel().SetTargets([follower.GetPath()])
+        attachment.CreateBody1Rel().SetTargets([Sdf.Path(prim_path + "/Bulb")])
+        attachment.CreateLocalPos0Attr(Gf.Vec3f(0))
+        attachment.CreateLocalPos1Attr(Gf.Vec3f(0))
+        attachment.CreateLocalRot0Attr(Gf.Quatf(1))
+        attachment.CreateLocalRot1Attr(Gf.Quatf(1))
+        attachment.CreateExcludeFromArticulationAttr(True)
+        attachment.CreateJointEnabledAttr(True)
     bulb_prim = stage.GetPrimAtPath(prim_path + "/Bulb")
     PhysxSchema.PhysxRigidBodyAPI.Apply(bulb_prim).CreateDisableGravityAttr(False)
-    attachment = UsdPhysics.FixedJoint.Define(stage, prim_path + "/Joints/bulb_attachment")
-    attachment.CreateBody0Rel().SetTargets([follower.GetPath()])
-    attachment.CreateBody1Rel().SetTargets([Sdf.Path(prim_path + "/Bulb")])
-    attachment.CreateLocalPos0Attr(Gf.Vec3f(0))
-    attachment.CreateLocalPos1Attr(Gf.Vec3f(0))
-    attachment.CreateLocalRot0Attr(Gf.Quatf(1))
-    attachment.CreateLocalRot1Attr(Gf.Quatf(1))
-    attachment.CreateExcludeFromArticulationAttr(True)
-    attachment.CreateJointEnabledAttr(True)
     # The original shell shares the thread's low-friction material. Give the
     # gripping surfaces their own material without changing screw contacts.
     grip_material_path = prim_path + "/Materials/GripContact"
@@ -121,7 +125,12 @@ def spawn_tabletop_threaded_lamp(prim_path, cfg, translation=None, orientation=N
         indices.extend(int(index) + len(points) for index in mesh.GetFaceVertexIndicesAttr().Get())
         counts.extend(mesh.GetFaceVertexCountsAttr().Get())
         points.extend(mesh.GetPointsAttr().Get())
-    surface = UsdGeom.Mesh.Define(prim.GetStage(), prim_path + "/Bulb/TactileSurface")
+    # ``prim_path`` is an Isaac-Lab environment expression during cloning;
+    # passing it to USD's concrete SdfPath parser creates an invalid
+    # ``env_.*/...`` path and emits one warning per clone.  Build the source
+    # mesh under env_0 so cloning can replicate it to each concrete env.
+    surface_path = prim_path.replace("env_.*/", "env_0/")
+    surface = UsdGeom.Mesh.Define(prim.GetStage(), surface_path + "/Bulb/TactileSurface")
     surface.CreatePointsAttr(points)
     surface.CreateFaceVertexCountsAttr(counts)
     surface.CreateFaceVertexIndicesAttr(indices)
@@ -131,13 +140,20 @@ def spawn_tabletop_threaded_lamp(prim_path, cfg, translation=None, orientation=N
 
 
 @configclass
+class ThreadedLampUsdCfg(sim_utils.UsdFileCfg):
+    """Internal spawn flag, resolved from the public setting after CLI overrides."""
+
+    pure_collision: bool = False
+
+
+@configclass
 class DexsuiteRevo3RotateBulbSceneCfg(InteractiveSceneCfg):
     """Spawn the assembly before creating views of the bulb and support bodies."""
 
     robot: ArticulationCfg = MISSING
     lamp = ArticulationCfg(
         prim_path="{ENV_REGEX_NS}/Lamp",
-        spawn=sim_utils.UsdFileCfg(usd_path=_LAMP_USD, func=spawn_tabletop_threaded_lamp),
+        spawn=ThreadedLampUsdCfg(usd_path=_LAMP_USD, func=spawn_tabletop_threaded_lamp),
         init_state=ArticulationCfg.InitialStateCfg(
             pos=(0.45, 0.1, 0.76 + _SUPPORT_BOTTOM_OFFSET), rot=_LAMP_ROT,
             # Start seated: positive rotation about world +Z unscrews upward
@@ -170,6 +186,22 @@ class DexsuiteRevo3RotateBulbSceneCfg(InteractiveSceneCfg):
     sky_light = _COMMON_SCENE.sky_light.copy()
 
 
+def configure_bulb_connection_mode(cfg):
+    """Resolve the public physics switch immediately before scene construction."""
+    if not isinstance(cfg.bulb_pure_collision, bool):
+        raise ValueError("bulb_pure_collision must be true or false")
+    fixture = cfg.scene.lamp
+    fixture.spawn.pure_collision = cfg.bulb_pure_collision
+    if cfg.bulb_pure_collision:
+        # Spawn the assembly without asking Isaac Lab for an articulation view.
+        cfg.scene.lamp = AssetBaseCfg(
+            prim_path=fixture.prim_path, spawn=fixture.spawn,
+            init_state=fixture.init_state,
+        )
+    elif not isinstance(fixture, ArticulationCfg):
+        raise ValueError("Create a fresh config before changing the bulb connection mode")
+
+
 def reset_lamp_on_table(
     env: ManagerBasedRLEnv,
     env_ids: torch.Tensor | None,
@@ -187,6 +219,14 @@ def reset_lamp_on_table(
     table and support remain kinematic and the articulation base stays fixed.
     Reset also reconnects a bulb which detached during the previous attempt.
     """
+    if getattr(env.cfg, "bulb_pure_collision", False):
+        from .collision import reset_collision_lamp
+
+        return reset_collision_lamp(
+            env, env_ids, x_range=x_range, y_range=y_range, table_half_height=table_half_height,
+            support_bottom_offset=support_bottom_offset, support_pose=support_pose,
+            pitch=_SCREW_PITCH, exit_extension=_SCREW_EXIT_EXTENSION,
+        )
     lamp = env.scene["lamp"]
     # Read at reset so Hydra/from_dict overrides after __post_init__ also
     # affect startup and every subsequent (including partial) reset.
@@ -264,10 +304,17 @@ def reset_lamp_on_table(
 
 
 def release_unscrewed_bulb(env: ManagerBasedRLEnv, env_ids=None):
-    """Release at the physical exit once; ordinary rigid-body dynamics take over."""
+    """Observe collision-mode separation, or unlock the guided-mode attachment."""
     turn_metrics = getattr(env, "_bulb_turn_metrics_command", None)
     if turn_metrics is not None:
         turn_metrics.record_turn_metrics()
+    if getattr(getattr(env, "cfg", None), "bulb_pure_collision", False):
+        # This flag is an episode phase only. No constraint, pose, velocity or
+        # force is changed when the freely simulated thread clears the mouth.
+        state = env._bulb_collision_state
+        state.update(env)
+        env._bulb_released |= state.cleared
+        return
     ready = rotate_bulb_screw_complete(env) & ~env._bulb_released
     for index in ready.nonzero(as_tuple=False).flatten().tolist():
         env._bulb_attachment_attrs[index].Set(False)
@@ -348,10 +395,146 @@ class RotateBulbPoseCommand(ObjectUniformPoseCommand):
 
 
 def rotate_bulb_dropped(env: ManagerBasedRLEnv, force_threshold: float = 0.5) -> torch.Tensor:
-    """After release, table contact ends the attempt regardless of bulb orientation."""
+    """Bulb-table contact is a failure even if release detection never latched."""
     forces = env.scene.sensors["bulb_table_contact"].data.force_matrix_w
+    if forces is None:  # Missing filtered measurements are handled by non_finite.
+        return torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
     contact = torch.linalg.vector_norm(forces, dim=-1).flatten(start_dim=1).max(dim=-1).values
-    return env._bulb_released & (contact > force_threshold)
+    return contact > force_threshold
+
+
+def rotate_bulb_non_finite(env: ManagerBasedRLEnv) -> torch.Tensor:
+    """Catch invalid task state and filtered forces before computing rewards."""
+    tensors = []
+    for name, fields in (
+        ("robot", ("joint_pos", "joint_vel", "root_pos_w", "root_quat_w",
+                   "root_lin_vel_w", "root_ang_vel_w", "body_pos_w", "body_quat_w",
+                   "body_lin_vel_w", "body_ang_vel_w")),
+        ("object", ("root_pos_w", "root_quat_w", "root_lin_vel_w", "root_ang_vel_w")),
+    ):
+        tensors.extend(getattr(env.scene[name].data, field) for field in fields)
+    if not getattr(getattr(env, "cfg", None), "bulb_pure_collision", False):
+        tensors.extend((env.scene["lamp"].data.joint_pos, env.scene["lamp"].data.joint_vel))
+    sensor_names = [f"right_{finger}dip_roll_rubber_link_object_s"
+                    for finger in ("thumb", "index", "mid", "ring", "pinky")]
+    sensor_names.append("bulb_table_contact")
+    tensors.extend(env.scene.sensors[name].data.force_matrix_w for name in sensor_names)
+    finite = torch.ones(env.num_envs, dtype=torch.bool, device=env.device)
+    for tensor in tensors:
+        if tensor is None:
+            finite[:] = False
+        else:
+            finite &= torch.isfinite(tensor).reshape(env.num_envs, -1).all(dim=-1)
+    return ~finite
+
+
+def rotate_bulb_goal_dwell(env: ManagerBasedRLEnv) -> torch.Tensor:
+    """Use the success term's live position window without adding a contact gate."""
+    params = env.reward_manager.get_term_cfg("success").params
+    robot = env.scene[params["asset_cfg"].name]
+    bulb = env.scene[params["align_asset_cfg"].name]
+    command = env.command_manager.get_command(params["command_name"])
+    goal, _ = combine_frame_transforms(robot.data.root_pos_w, robot.data.root_quat_w, command[:, :3])
+    close = (bulb.data.root_pos_w - goal).norm(dim=-1) < params["pos_std"]
+    return env._bulb_released & close
+
+
+def rotate_bulb_hand_shell_distance(env: ManagerBasedRLEnv) -> torch.Tensor:
+    """Distance of the best opposing fingertip pair to the moving bulb shell."""
+    robot = env.scene["robot"]
+    if not hasattr(env, "_bulb_tip_body_ids"):
+        names = ("right_thumb_tip_Link", "right_index_tip_Link", "right_middle_tip_Link",
+                 "right_ring_tip_Link", "right_little_tip_Link")
+        env._bulb_tip_body_ids = [robot.body_names.index(name) for name in names]
+    bulb = env.scene["object"]
+    offset = torch.zeros_like(bulb.data.root_pos_w)
+    offset[:, 0] = 0.04
+    shell, _ = combine_frame_transforms(bulb.data.root_pos_w, bulb.data.root_quat_w, offset)
+    tips = robot.data.body_pos_w[:, env._bulb_tip_body_ids]
+    distances = (tips - shell[:, None, :]).norm(dim=-1)
+    return torch.maximum(distances[:, 0], distances[:, 1:].amin(dim=-1))
+
+
+def rotate_bulb_finger_forces(env: ManagerBasedRLEnv) -> torch.Tensor:
+    """Finite magnitudes of contacts with the bulb, in thumb-first order."""
+    forces = []
+    for finger in ("thumb", "index", "mid", "ring", "pinky"):
+        sensor = env.scene.sensors[f"right_{finger}dip_roll_rubber_link_object_s"]
+        if sensor.data.force_matrix_w is None:
+            forces.append(torch.zeros(env.num_envs, device=env.device))
+            continue
+        magnitude = sensor.data.force_matrix_w.reshape(env.num_envs, -1, 3).norm(dim=-1)
+        magnitude = torch.nan_to_num(magnitude, nan=0.0, posinf=0.0, neginf=0.0)
+        forces.append(magnitude.amax(dim=-1))
+    return torch.stack(forces, dim=-1)
+
+
+class RotateBulbGraspLoss(ManagerTermBase):
+    """End sustained abandonment while allowing settling, regrasp and goal dwell."""
+
+    def __init__(self, cfg, env):
+        super().__init__(cfg, env)
+        self.no_contact_time = torch.zeros(env.num_envs, device=env.device)
+        self.far_time = torch.zeros_like(self.no_contact_time)
+        self.last_step = torch.full((env.num_envs,), -1, dtype=torch.long, device=env.device)
+        self.failed = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+
+    def reset(self, env_ids=None):
+        ids = slice(None) if env_ids is None else env_ids
+        self.no_contact_time[ids] = 0.0
+        self.far_time[ids] = 0.0
+        self.failed[ids] = False
+        self.last_step[ids] = self._env.common_step_counter
+
+    def __call__(self, env, initial_grace_s: float = 0.5, contact_threshold: float = 0.1,
+                 no_contact_duration_s: float = 0.75, far_distance: float = 0.2,
+                 far_duration_s: float = 0.25):
+        values = (initial_grace_s, contact_threshold, no_contact_duration_s, far_distance, far_duration_s)
+        if not all(math.isfinite(value) and value > 0.0 for value in values):
+            raise ValueError("grasp-loss thresholds and durations must be finite and positive")
+        fresh = self.last_step != env.common_step_counter
+        active = (env.episode_length_buf * env.step_dt > initial_grace_s + 1e-6)
+        active &= ~rotate_bulb_goal_dwell(env)
+        no_contact = rotate_bulb_finger_forces(env).amax(dim=-1) < contact_threshold
+        far = rotate_bulb_hand_shell_distance(env) > far_distance
+        no_contact_time = torch.where(active & no_contact, self.no_contact_time + env.step_dt, 0.0)
+        far_time = torch.where(active & far, self.far_time + env.step_dt, 0.0)
+        self.no_contact_time = torch.where(fresh, no_contact_time, self.no_contact_time)
+        self.far_time = torch.where(fresh, far_time, self.far_time)
+        failed = (self.no_contact_time + 1e-6 >= no_contact_duration_s)
+        failed |= self.far_time + 1e-6 >= far_duration_s
+        self.failed = torch.where(fresh, failed, self.failed)
+        self.last_step[fresh] = env.common_step_counter
+        return self.failed
+
+
+def rotate_bulb_hand_far(env: ManagerBasedRLEnv, initial_grace_s: float = 0.5,
+                         near_distance: float = 0.08, far_distance: float = 0.2) -> torch.Tensor:
+    """A bounded cost rate for leaving the bulb, with the original success exemption."""
+    if not (math.isfinite(initial_grace_s) and initial_grace_s >= 0.0
+            and 0.0 <= near_distance < far_distance and math.isfinite(far_distance)):
+        raise ValueError("hand-distance thresholds must be finite and ordered")
+    distance = rotate_bulb_hand_shell_distance(env)
+    cost = ((distance - near_distance) / (far_distance - near_distance)).clamp(0.0, 1.0).square()
+    active = (env.episode_length_buf * env.step_dt > initial_grace_s + 1e-6)
+    active &= ~rotate_bulb_goal_dwell(env) & ~env.termination_manager.dones
+    return torch.where(active, torch.nan_to_num(cost, nan=0.0), 0.0)
+
+
+def rotate_bulb_action_group_mean(env: ManagerBasedRLEnv, actions: torch.Tensor) -> torch.Tensor:
+    """Give the seven arm joints and twenty-one hand joints equal total weight."""
+    term = env.action_manager.get_term("action")
+    arm = actions[:, term.arm_action_indices].square().mean(dim=-1)
+    hand = actions[:, term.hand_action_indices].square().mean(dim=-1)
+    return 0.5 * (arm + hand)
+
+
+def rotate_bulb_action_l2_balanced(env: ManagerBasedRLEnv) -> torch.Tensor:
+    return rotate_bulb_action_group_mean(env, env.action_manager.action)
+
+
+def rotate_bulb_action_rate_l2_balanced(env: ManagerBasedRLEnv) -> torch.Tensor:
+    return rotate_bulb_action_group_mean(env, env.action_manager.action - env.action_manager.prev_action)
 
 
 def rotate_bulb_phase_state(env: ManagerBasedRLEnv) -> torch.Tensor:
@@ -383,6 +566,7 @@ def reset_robot_to_grasp(env: ManagerBasedRLEnv, env_ids: torch.Tensor | None):
 
 def configure_rotate_bulb_scene(cfg):
     """Apply the lamp-specific reset and sensor targets after the Revo3 mixin."""
+    cfg.actions.action = BulbJointPositionActionCfg()
     # Use actual saved world poses (metres, wxyz), including the table's yaw.
     # The robot asset config reads the same reference by joint name.
     table = GRASP_REFERENCE["table"]
@@ -447,6 +631,12 @@ def configure_rotate_bulb_scene(cfg):
         "z": (tabletop_z - 0.11, tabletop_z + 0.54),
     }
     cfg.terminations.bulb_dropped = DoneTerm(func=rotate_bulb_dropped)
+    cfg.terminations.non_finite.func = rotate_bulb_non_finite
+    # Register before success: physical failures must win on the same step.
+    cfg.terminations.lost_grasp = DoneTerm(func=RotateBulbGraspLoss, params={
+        "initial_grace_s": 0.5, "contact_threshold": 0.1, "no_contact_duration_s": 0.75,
+        "far_distance": 0.2, "far_duration_s": 0.25,
+    })
     cfg.scene.lamp.init_state.pos = tuple(support["position_m"])
     cfg.scene.lamp.init_state.rot = tuple(support["quaternion_wxyz"])
     for sensor in vars(cfg.scene).values():
@@ -469,7 +659,8 @@ def configure_rotate_bulb_scene(cfg):
     cfg.sim.physx.solver_type = 1
     cfg.sim.physx.min_position_iteration_count = 32
     cfg.sim.physx.min_velocity_iteration_count = 8
-    # Reserve 256 MiB for collision stacks shared by this process's environments.
+    # Small-scene baseline. The task factory raises this after CLI/Hydra
+    # overrides, using the final per-process environment count.
     cfg.sim.physx.gpu_collision_stack_size = 2**28
     # Use the task's episode duration; episode_length_s can also be overridden
     # after construction when evaluating a different screw depth.
@@ -501,30 +692,8 @@ def configure_rotate_bulb_scene(cfg):
 
 def rotate_bulb_hand_contacts(env: ManagerBasedRLEnv, threshold: float) -> torch.Tensor:
     """Thumb plus at least one other fingertip contact for the Revo3 hand."""
-    thumb_contact_sensor: ContactSensor = env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"]
-    index_contact_sensor: ContactSensor = env.scene.sensors["right_indexdip_roll_rubber_link_object_s"]
-    middle_contact_sensor: ContactSensor = env.scene.sensors["right_middip_roll_rubber_link_object_s"]
-    ring_contact_sensor: ContactSensor = env.scene.sensors["right_ringdip_roll_rubber_link_object_s"]
-    little_contact_sensor: ContactSensor = env.scene.sensors["right_pinkydip_roll_rubber_link_object_s"]
-
-    thumb_contact = thumb_contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
-    index_contact = index_contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
-    middle_contact = middle_contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
-    ring_contact = ring_contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
-    little_contact = little_contact_sensor.data.force_matrix_w.view(env.num_envs, 3)
-
-    thumb_contact_mag = torch.norm(thumb_contact, dim=-1)
-    index_contact_mag = torch.norm(index_contact, dim=-1)
-    middle_contact_mag = torch.norm(middle_contact, dim=-1)
-    ring_contact_mag = torch.norm(ring_contact, dim=-1)
-    little_contact_mag = torch.norm(little_contact, dim=-1)
-
-    return (thumb_contact_mag > threshold) & (
-        (index_contact_mag > threshold)
-        | (middle_contact_mag > threshold)
-        | (ring_contact_mag > threshold)
-        | (little_contact_mag > threshold)
-    )
+    forces = rotate_bulb_finger_forces(env)
+    return (forces[:, 0] > threshold) & (forces[:, 1:].amax(dim=-1) > threshold)
 
 
 def rotate_bulb_position_command_error_tanh(
@@ -551,6 +720,12 @@ def rotate_bulb_position_command_error_tanh(
 
 def rotate_bulb_screw_progress(env: ManagerBasedRLEnv) -> torch.Tensor:
     """Unwrapped angular and axial progress from the seated pose, in [0, 1]."""
+    if getattr(getattr(env, "cfg", None), "bulb_pure_collision", False):
+        state = getattr(env, "_bulb_collision_state", None)
+        if state is None:  # Observation/reward construction precedes startup reset.
+            return torch.zeros((env.num_envs, 2), device=env.device)
+        state.update(env)
+        return torch.where(env._bulb_released[:, None], 1.0, state.progress)
     lamp = env.scene["lamp"]
     ids = [lamp.joint_names.index(name) for name in ("screw_turn", "screw_slide")]
     start = getattr(env, "_bulb_start_joints", lamp.data.default_joint_pos)[:, ids]
@@ -561,12 +736,24 @@ def rotate_bulb_screw_progress(env: ManagerBasedRLEnv) -> torch.Tensor:
 
 
 def rotate_bulb_screw_complete(env: ManagerBasedRLEnv) -> torch.Tensor:
-    """Both joints reach the exit, or the bulb has already been released."""
+    """Geometric separation in collision mode, or guided joints at their exit."""
+    if getattr(getattr(env, "cfg", None), "bulb_pure_collision", False):
+        state = getattr(env, "_bulb_collision_state", None)
+        if state is None:
+            return torch.zeros(env.num_envs, device=env.device, dtype=torch.bool)
+        state.update(env)
+        return state.cleared | env._bulb_released
     return (rotate_bulb_screw_progress(env) >= 1.0 - _SCREW_RELEASE_TOLERANCE).all(dim=-1)
 
 
 def rotate_bulb_unscrewed_turns(env: ManagerBasedRLEnv) -> torch.Tensor:
     """Actual turns from this reset, limited by both angular and axial travel."""
+    if getattr(getattr(env, "cfg", None), "bulb_pure_collision", False):
+        state = getattr(env, "_bulb_collision_state", None)
+        if state is None:
+            return torch.zeros(env.num_envs, device=env.device)
+        state.update(env)
+        return state.effective_turns
     lamp = env.scene["lamp"]
     ids = [lamp.joint_names.index(name) for name in ("screw_turn", "screw_slide")]
     start = getattr(env, "_bulb_start_joints", lamp.data.default_joint_pos)[:, ids]
@@ -580,11 +767,7 @@ def rotate_bulb_contact_scores(env: ManagerBasedRLEnv, force_scale: float = 1.0)
     """Saturating [thumb, strongest other fingertip] contact scores in [0, 1]."""
     if not math.isfinite(force_scale) or force_scale <= 0.0:
         raise ValueError("force_scale must be finite and positive")
-    forces = []
-    for finger in ("thumb", "index", "mid", "ring", "pinky"):
-        sensor = env.scene.sensors[f"right_{finger}dip_roll_rubber_link_object_s"]
-        forces.append(sensor.data.force_matrix_w.reshape(env.num_envs, -1, 3).norm(dim=-1).amax(dim=-1))
-    scores = (torch.stack(forces, dim=-1) / force_scale).clamp(0.0, 1.0)
+    scores = (rotate_bulb_finger_forces(env) / force_scale).clamp(0.0, 1.0)
     return torch.stack((scores[:, 0], scores[:, 1:].amax(dim=-1)), dim=-1)
 
 
@@ -593,7 +776,7 @@ def rotate_bulb_grasp_shaping(env: ManagerBasedRLEnv, force_scale: float = 1.0) 
     scores = rotate_bulb_contact_scores(env, force_scale)
     # One side alone earns at most 0.25; most credit requires both sides.
     quality = (scores.sum(dim=-1) + 2 * scores.min(dim=-1).values) / 4
-    return quality * (~rotate_bulb_screw_complete(env)).float()
+    return quality * (~rotate_bulb_screw_complete(env) & ~rotate_bulb_failed(env)).float()
 
 
 def rotate_bulb_any_finger_contact(env: ManagerBasedRLEnv, force_scale: float = 0.5) -> torch.Tensor:
@@ -605,16 +788,9 @@ def rotate_bulb_any_finger_contact(env: ManagerBasedRLEnv, force_scale: float = 
     """
     if not math.isfinite(force_scale) or force_scale <= 0.0:
         raise ValueError("force_scale must be finite and positive")
-    forces = []
-    for finger in ("thumb", "index", "mid", "ring", "pinky"):
-        sensor = env.scene.sensors[f"right_{finger}dip_roll_rubber_link_object_s"]
-        magnitude = sensor.data.force_matrix_w.reshape(env.num_envs, -1, 3).norm(dim=-1)
-        # Sanitize before saturation: an infinite force must not become full credit.
-        magnitude = torch.nan_to_num(magnitude, nan=0.0, posinf=0.0, neginf=0.0)
-        forces.append(magnitude.amax(dim=-1))
     # Saturate before averaging so excess force on one finger cannot earn the
     # shares belonging to the other four fingers.
-    quality = (torch.stack(forces, dim=-1) / force_scale).clamp(0.0, 1.0).mean(dim=-1)
+    quality = (rotate_bulb_finger_forces(env) / force_scale).clamp(0.0, 1.0).mean(dim=-1)
     return quality * (~rotate_bulb_failed(env)).float()
 
 
@@ -656,7 +832,8 @@ class RotateBulbUnscrewProgress(ManagerTermBase):
         self.completion_paid |= completed
         # Isaac Lab multiplies by step_dt. With weight=40 this pays 40 per
         # fully held turn at every initial depth, plus the same 20 at completion.
-        return (delta * self.contact_memory + completion_bonus * completed.float()) / env.step_dt
+        credit = delta * self.contact_memory + completion_bonus * completed.float()
+        return torch.where(rotate_bulb_failed(env), 0.0, credit) / env.step_dt
 
 
 class RotateBulbPhysicalTurnProgress(ManagerTermBase):
@@ -674,7 +851,7 @@ class RotateBulbPhysicalTurnProgress(ManagerTermBase):
         turns = torch.where(env._bulb_released, self.best, rotate_bulb_unscrewed_turns(env))
         delta = (turns - self.best).clamp_min(0.0)
         self.best = torch.maximum(self.best, turns)
-        return delta / env.step_dt
+        return torch.where(rotate_bulb_failed(env), 0.0, delta) / env.step_dt
 
 
 def rotate_bulb_reach_shell(
@@ -703,18 +880,20 @@ class RotateBulbReachProgress(ManagerTermBase):
         self.best[ids] = rotate_bulb_reach_shell(self._env, **self.cfg.params)[ids]
 
     def __call__(self, env, std: float, asset_cfg: SceneEntityCfg):
-        reach = rotate_bulb_reach_shell(env, std, asset_cfg)
+        reach = torch.nan_to_num(rotate_bulb_reach_shell(env, std, asset_cfg), nan=0.0)
         delta = (reach - self.best).clamp_min(0.0)
         self.best = torch.maximum(self.best, reach)
-        return delta / env.step_dt
+        return torch.where(rotate_bulb_failed(env), 0.0, delta) / env.step_dt
 
 
 def rotate_bulb_failed(env: ManagerBasedRLEnv) -> torch.Tensor:
     """Read this step's physical failure flags before the manager resets them."""
-    return env._bulb_released & (
-        env.termination_manager.get_term("bulb_dropped")
-        | env.termination_manager.get_term("object_out_of_bound")
-    )
+    # Reward-term construction can precede manager assignment during startup.
+    manager = getattr(env, "termination_manager", None)
+    if manager is None:
+        return torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+    return (manager.get_term("bulb_dropped") | manager.get_term("object_out_of_bound")
+            | manager.get_term("lost_grasp") | manager.get_term("non_finite"))
 
 
 def rotate_bulb_bounded_credit(env, quality, paid, reward_rate, max_reward):
@@ -753,7 +932,7 @@ def rotate_bulb_released_grasp_quality(env: ManagerBasedRLEnv) -> torch.Tensor:
     settled = torch.exp(-((linear_speed - 0.2).clamp_min(0.0) / 0.2).square()
                         - (angular_speed / 2.0).square())
     quality = rotate_bulb_contact_scores(env).min(dim=-1).values * settled
-    return quality * (env._bulb_released & clear & ~rotate_bulb_failed(env)).float()
+    return torch.where(env._bulb_released & clear & ~rotate_bulb_failed(env), quality, 0.0)
 
 
 class RotateBulbReleasedStability(ManagerTermBase):
@@ -809,7 +988,7 @@ class RotateBulbTransportProgress(ManagerTermBase):
         super().__init__(cfg, env)
 
     def __call__(self, env, std: float, command_name: str, asset_cfg: SceneEntityCfg,
-                 align_asset_cfg: SceneEntityCfg):
+                 align_asset_cfg: SceneEntityCfg, contact_gate_after_release: bool = False):
         if not math.isfinite(std) or std <= 0.0:
             raise ValueError("std must be finite and positive")
         robot = env.scene[asset_cfg.name]
@@ -821,14 +1000,15 @@ class RotateBulbTransportProgress(ManagerTermBase):
         # Keep the physical phase and failure gates, but return the current
         # tracking quality every step instead of only a new-best delta.  The
         # reward manager multiplies this raw [0, 1] value by step_dt.
-        contact = rotate_bulb_contact_scores(env).min(dim=-1).values
-        contact = torch.nan_to_num(contact, nan=0.0, posinf=0.0, neginf=0.0)
+        # contact_gate_after_release is accepted only for old config
+        # compatibility. Contact no longer scales or gates position tracking,
+        # even if an older launch config supplies True.
         released = getattr(
             env, "_bulb_released",
             torch.zeros(env.num_envs, device=env.device, dtype=torch.bool),
         )
         gate = released & ~rotate_bulb_failed(env)
-        return potential * contact * gate.float()
+        return potential * gate.float()
 
 
 class RotateBulbFailurePenalty(ManagerTermBase):
@@ -931,13 +1111,17 @@ class DexsuiteRevo3RotateBulbRewardCfg:
     """Phase budgets with dense carry tracking and a position-only success hold.
 
     Event/progress terms divide by step_dt; reward-rate terms integrate seconds.
-    Each new turn pays 0.5 plus 1.5 times grasp quality (at most 6 for three turns).
+    Each new turn pays 2 times grasp quality (at most 6 for three turns).
     Any-finger contact adds at most 0.1 per second (2 over the default 20 seconds).
     """
 
-    action_l2 = RewTerm(func=mdp.action_l2_clamped, weight=-0.0001)
+    action_l2 = RewTerm(func=rotate_bulb_action_l2_balanced, weight=-0.05)
 
-    action_rate_l2 = RewTerm(func=mdp.action_rate_l2_clamped, weight=-0.0002)
+    action_rate_l2 = RewTerm(func=rotate_bulb_action_rate_l2_balanced, weight=-0.02)
+
+    hand_far = RewTerm(func=rotate_bulb_hand_far, weight=-1.0, params={
+        "initial_grace_s": 0.5, "near_distance": 0.08, "far_distance": 0.2,
+    })
 
     # Keep the descriptor for the shared Revo3 mixin's fingertip selection.
     # Leave the legacy proximity and opposing-contact occupancy terms disabled.
@@ -965,10 +1149,10 @@ class DexsuiteRevo3RotateBulbRewardCfg:
         params={"force_scale": 1.0, "reward_rate": 0.25, "max_reward": 1.0},
     )
 
-    unscrew_turns = RewTerm(func=RotateBulbPhysicalTurnProgress, weight=0.5)
+    unscrew_turns = RewTerm(func=RotateBulbPhysicalTurnProgress, weight=0.0)
 
     unscrew_progress = RewTerm(
-        func=RotateBulbUnscrewProgress, weight=1.5,
+        func=RotateBulbUnscrewProgress, weight=2.0,
         params={"contact_threshold": 1.0, "completion_bonus": 0.0, "regrasp_grace_s": 0.2},
     )
 
@@ -988,6 +1172,7 @@ class DexsuiteRevo3RotateBulbRewardCfg:
             "std": 0.2,
             "command_name": "object_pose",
             "align_asset_cfg": SceneEntityCfg("object"),
+            "contact_gate_after_release": False,  # Legacy compatibility key; no contact gate.
         },
     )
     position_tracking_fine = None
@@ -1021,6 +1206,8 @@ class DexsuiteRevo3RotateBulbEnvCfg(Revo3MixinCfg, dexsuite.DexsuiteLiftEnvCfg):
         replicate_physics=False,
     )
     rewards: DexsuiteRevo3RotateBulbRewardCfg = DexsuiteRevo3RotateBulbRewardCfg()
+    # CLI: env.bulb_pure_collision=false restores the guided screw mechanism.
+    bulb_pure_collision: bool = True
     # Three turns place the bulb tip about 17.69 mm inside the socket mouth.
     initial_screw_turns_range: tuple[float, float] = (3.0, 3.0)
     task_episode_length_s: float = 20.0
@@ -1046,6 +1233,7 @@ class DexsuiteRevo3RotateBulbEnvCfg_PLAY(Revo3MixinCfg, dexsuite.DexsuiteLiftEnv
         replicate_physics=False,
     )
     rewards: DexsuiteRevo3RotateBulbRewardCfg = DexsuiteRevo3RotateBulbRewardCfg()
+    bulb_pure_collision: bool = True
     # Match the training task's initial engagement and available time.
     initial_screw_turns_range: tuple[float, float] = (3.0, 3.0)
     task_episode_length_s: float = 20.0

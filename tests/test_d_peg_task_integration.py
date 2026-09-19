@@ -205,9 +205,11 @@ def test_contract_rejects_bulb_and_changed_task_assets(tmp_path):
     ns[function.name](env)
     first = env.tactile_policy_contract
     assert first["observation_dim"] == 1949
-    assert first["task_schema_version"] == 3
-    with pytest.raises(ValueError, match="task_schema_version"):
-        validate_policy_contract(first, dict(first, task_schema_version=2))
+    assert first["task_schema_version"] == 4
+    validate_policy_contract(first, dict(first))
+    for version in (2, 3):
+        with pytest.raises(ValueError, match="task_schema_version"):
+            validate_policy_contract(first, dict(first, task_schema_version=version))
     previous_d_peg = dict(first, task_schema_version=1)
     previous_d_peg.pop("action_schema")
     with pytest.raises(ValueError, match="task_schema_version|action_schema"):

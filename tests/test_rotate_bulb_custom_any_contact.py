@@ -101,22 +101,20 @@ def test_each_contacting_finger_adds_point_zero_two_per_second(configured, count
 
 
 def test_auxiliary_exceeds_real_penalties_for_28_joint_unit_actions_without_changing_weights(code, configured):
-    path = code.source_path.parents[2] / "mdp/rewards.py"
-    definitions = [n for n in ast.parse(path.read_text()).body if isinstance(n, ast.FunctionDef)
-                   and n.name in {"action_l2_clamped", "action_rate_l2_clamped"}]
-    namespace = dict(torch=torch, ManagerBasedRLEnv=object)
-    exec(compile(ast.Module(body=definitions, type_ignores=[]), str(path), "exec"), namespace)
+    """The unchanged contact auxiliary no longer overwhelms full-scale jitter."""
     env = _task_env()
-    env.action_manager = SimpleNamespace(action=torch.ones(1, 28), prev_action=-torch.ones(1, 28))
-    assert configured.action_l2.weight == -.0001
-    assert configured.action_rate_l2.weight == -.0002
-    penalty = (namespace["action_l2_clamped"](env) * configured.action_l2.weight
-               + namespace["action_rate_l2_clamped"](env) * configured.action_rate_l2.weight) * env.step_dt
-    torch.testing.assert_close(penalty, torch.tensor([-.0252 * env.step_dt]))
+    env.action_manager = SimpleNamespace(action=torch.ones(1, 28), prev_action=-torch.ones(1, 28),
+                                        get_term=lambda _: SimpleNamespace(arm_action_indices=list(range(7)),
+                                                                          hand_action_indices=list(range(7, 28))))
+    assert configured.action_l2.weight == -.05
+    assert configured.action_rate_l2.weight == -.02
+    penalty = (configured.action_l2.func(env) * configured.action_l2.weight
+               + configured.action_rate_l2.func(env) * configured.action_rate_l2.weight) * env.step_dt
+    torch.testing.assert_close(penalty, torch.tensor([-.13 * env.step_dt]))
     term = configured.any_finger_contact
     auxiliary = term.func(env, **term.params) * term.weight * env.step_dt
-    assert (auxiliary + penalty).item() > 0
+    assert (auxiliary + penalty).item() < 0
     clear_contact(env)
     assert (term.func(env, **term.params) * term.weight * env.step_dt + penalty).item() < 0
-    assert configured.unscrew_turns.weight == .5 and configured.unscrew_progress.weight == 1.5
+    assert configured.unscrew_turns.weight == 0 and configured.unscrew_progress.weight == 2
     assert configured.success.weight == 10

@@ -34,7 +34,14 @@ from ...mdp.d_peg_insertion import (
     validate_d_peg_geometry_metadata,
 )
 from ...mdp.d_peg_tactile import DPegPretrainedTactile, initialize_d_peg_tactile_contract
-from ..RotateBulbCustom.robot_setup import Revo3MixinCfg
+from ..RotateBulbCustom.robot_setup import (
+    Revo3MixinCfg,
+    TIANJI_HYDROSHEAR_MARKER_OBJECT_SENSOR_NAMES,
+    TIANJI_HYDROSHEAR_MARKER_SURFACE_SENSOR_NAMES,
+    TIANJI_PRESSURE_SENSOR_NAMES,
+    TIANJI_TACMAP_OBJECT_SENSOR_NAMES,
+    TIANJI_TACMAP_SURFACE_SENSOR_NAMES,
+)
 from ..RotateBulbCustom.robot_contract import GRASP_REFERENCE, ROBOT_ORIENTATION, ROBOT_POSITION
 
 
@@ -287,6 +294,12 @@ def configure_d_peg_insertion(cfg):
     cfg.events.joint_stiffness_and_damping = None
     cfg.events.joint_friction = None
     cfg.events.robot_physics_material = None
+    # All fingers/environments use the same calibrated compliance, with no
+    # material randomization. Share it to keep 8192 environments below PhysX's
+    # 64K material limit without changing any contact parameters.
+    cfg.events.zz_revo3_touch_compliant_materials.params["shared_material_path"] = (
+        "/World/Physics_Materials/DPegTouchCompliant"
+    )
     cfg.events.reset_robot_joints = None
     cfg.events.reset_robot_wrist_joint = None
     cfg.events.reset_table.params["pose_range"] = {}
@@ -307,6 +320,22 @@ def configure_d_peg_insertion(cfg):
         func=DPegPretrainedTactile, params={"component_cfg": component_cfg},
     )
     cfg.events.zz_initialize_tactile_contract = EventTerm(func=initialize_d_peg_tactile_contract, mode="startup")
+
+    # These ray-based TacMap and marker sensors belong to the shared robot
+    # scene, but none of their observation terms is active for D-peg.  Remove
+    # them before scene construction so 8192 environments do not spend every
+    # physics substep on unused raycasts.  The active contact and pressure
+    # observations, including the 285-dimensional pressure map, remain intact.
+    unused_sensor_names = (
+        *TIANJI_TACMAP_SURFACE_SENSOR_NAMES,
+        *TIANJI_TACMAP_OBJECT_SENSOR_NAMES,
+        *TIANJI_HYDROSHEAR_MARKER_SURFACE_SENSOR_NAMES,
+        *TIANJI_HYDROSHEAR_MARKER_OBJECT_SENSOR_NAMES,
+    )
+    for sensor_name in unused_sensor_names:
+        if hasattr(cfg.scene, sensor_name):
+            delattr(cfg.scene, sensor_name)
+
     for sensor in vars(cfg.scene).values():
         if getattr(sensor, "target_mesh_prim_path", None):
             sensor.target_mesh_prim_path = sensor.target_mesh_prim_path.replace("/Object", "/Object/TactileSurface")
@@ -328,6 +357,17 @@ def configure_d_peg_insertion(cfg):
     cfg.sim.physx.min_position_iteration_count = 32
     cfg.sim.physx.min_velocity_iteration_count = 8
     cfg.sim.physx.gpu_collision_stack_size = 2**28
+
+    # WarpSDF pressure is read once at the 30 Hz control boundary.  Its
+    # observation function still force-recomputes the final value there, so
+    # limiting the internal pose sensor cadence removes redundant updates from
+    # the eight intermediate physics substeps without changing the observation
+    # value seen by PPO.
+    pressure_update_period = cfg.sim.dt * cfg.decimation
+    for sensor_name in TIANJI_PRESSURE_SENSOR_NAMES:
+        sensor_cfg = getattr(cfg.scene, sensor_name, None)
+        if sensor_cfg is not None:
+            sensor_cfg.update_period = pressure_update_period
     cfg.episode_length_s = cfg.task_episode_length_s
 
 

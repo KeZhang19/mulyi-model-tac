@@ -30,7 +30,8 @@ def test_custom_task_is_registered_with_resolvable_local_config_entries(monkeypa
     spec.loader.exec_module(package)
     custom = gym.spec(TASK)
     original = gym.spec("BrainCo-Dexsuite-Revo3-Right-Rotate-Bulb-v0")
-    assert custom.entry_point == original.entry_point
+    assert custom.entry_point == f"{name}.config.RotateBulbCustom.environment:make_rotate_bulb_env"
+    assert original.entry_point == "isaaclab.envs:ManagerBasedRLEnv"
     assert custom.kwargs.keys() == original.kwargs.keys()
     for key, entry in custom.kwargs.items():
         module, symbol = entry.split(":")
@@ -118,6 +119,15 @@ def test_agent_defaults_match_but_nested_mutations_are_independent(cpu_agent_loa
     before = original.to_dict()
     original_values, custom_values = original.to_dict(), custom.to_dict()
     assert original_values.pop("experiment_name") != custom_values.pop("experiment_name")
+    if kind == "ppo":
+        assert custom_values["policy"]["class_name"] == "BulbActorCritic"
+        assert custom_values["policy"]["init_noise_std"] == 0.35
+        assert custom_values["algorithm"]["entropy_coef"] == 0.001
+        for field in ("class_name", "init_noise_std", "noise_std_type"):
+            custom_values["policy"].pop(field, None)
+            original_values["policy"].pop(field, None)
+        custom_values["algorithm"].pop("entropy_coef")
+        original_values["algorithm"].pop("entropy_coef")
     assert original_values == custom_values
     for field in network_fields:
         getattr(custom.policy, field).append(16)

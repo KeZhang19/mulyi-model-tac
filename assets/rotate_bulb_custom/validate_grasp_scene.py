@@ -6,7 +6,7 @@ Run from the repository root in the Isaac Lab environment::
     python assets/rotate_bulb_custom/validate_grasp_scene.py --headless --num_envs 2
 
 The default geometry-only mode retains the configured scene, sensors, reset
-events and native screw dynamics, but keeps only joint position/velocity
+events and bulb physics mode, but keeps only joint position/velocity
 observations. Use --full-observations to also initialize the tactile encoder.
 No physics rollout or grasp-stability claim is made by this state check.
 """
@@ -102,6 +102,11 @@ def validate_grasp_scene(args, report):
         fixture = next(item for item in reference["fixtures"] if item["name"] == "lamp_support")
         root_poses = {"robot": reference["robot"]["base"], "table": reference["table"],
                       "support": fixture, "lamp": fixture, "object": reference["object"]}
+        report["bulb_pure_collision"] = cfg.bulb_pure_collision
+        if cfg.bulb_pure_collision:
+            # The assembly Xform is only a spawn container in collision mode;
+            # its support and bulb have independent physical world poses.
+            root_poses.pop("lamp")
         report["joint_names_in_simulator_order"] = list(robot.joint_names)
         report["expected_joint_positions_rad_in_simulator_order"] = joint_values.cpu().tolist()
         report["sensor_names"] = list(env.scene.sensors)
@@ -133,12 +138,17 @@ def validate_grasp_scene(args, report):
             compare(phase + ".robot.joint_velocities_rad_s", robot.data.joint_vel[selected], 0.0, args.joint_tolerance)
             compare(phase + ".robot.joint_position_targets_rad", robot.data.joint_pos_target[selected], joint_values,
                     args.joint_tolerance)
-            source_screw = reference["assembly"]["source_configuration"]
-            for joint_name, expected in (("screw_turn", source_screw["screw_turn_rad"]),
-                                         ("screw_slide", source_screw["screw_slide_m"])):
-                joint_id = env.scene["lamp"].joint_names.index(joint_name)
-                compare(phase + ".lamp." + joint_name, env.scene["lamp"].data.joint_pos[selected, joint_id],
-                        expected, args.joint_tolerance)
+            if cfg.bulb_pure_collision:
+                compare(phase + ".bulb.rotation_progress", env._bulb_collision_state.angle[selected],
+                        0.0, args.joint_tolerance)
+                compare(phase + ".bulb.released", env._bulb_released[selected], 0.0, 0.0)
+            else:
+                source_screw = reference["assembly"]["source_configuration"]
+                for joint_name, expected in (("screw_turn", source_screw["screw_turn_rad"]),
+                                             ("screw_slide", source_screw["screw_slide_m"])):
+                    joint_id = env.scene["lamp"].joint_names.index(joint_name)
+                    compare(phase + ".lamp." + joint_name, env.scene["lamp"].data.joint_pos[selected, joint_id],
+                            expected, args.joint_tolerance)
             links = robot.data.body_link_pose_w
             checked_links, unavailable_links = [], []
             for link in reference["robot"]["links"]:

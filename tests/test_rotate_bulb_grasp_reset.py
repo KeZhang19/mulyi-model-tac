@@ -59,9 +59,10 @@ def reset_code():
     namespace = dict(torch=torch, math=math, ManagerBasedRLEnv=object,
                      combine_frame_transforms=_combine_frames, quat_from_euler_xyz=_euler_quat,
                      GRASP_REFERENCE=REFERENCE, EventTerm=_ResetTerm, DoneTerm=_ResetTerm, ObsTerm=_ResetTerm,
-                     sim_utils=SimpleNamespace(PreviewSurfaceCfg=_ResetTerm))
+                     sim_utils=SimpleNamespace(PreviewSurfaceCfg=_ResetTerm),
+                     BulbJointPositionActionCfg=_ResetTerm)
     for name in ("release_unscrewed_bulb", "RotateBulbPoseCommand", "rotate_bulb_dropped",
-                 "RotateBulbSuccessTermination",
+                 "RotateBulbSuccessTermination", "RotateBulbGraspLoss", "rotate_bulb_non_finite",
                  "rotate_bulb_screw_progress", "rotate_bulb_phase_state", "RotateBulbPretrainedTactile",
                  "initialize_rotate_bulb_tactile_contract"):
         namespace[name] = object()
@@ -284,10 +285,10 @@ def _reset_config(initial_turns):
     return SimpleNamespace(
         initial_screw_turns_range=initial_turns, task_episode_length_s=30.,
         scene=SimpleNamespace(table=asset(), lamp=asset(), plane=asset(), tactile=sensor),
-        viewer=SimpleNamespace(), events=events,
+        viewer=SimpleNamespace(), events=events, actions=SimpleNamespace(),
         sim=SimpleNamespace(physx=SimpleNamespace()),
         commands=SimpleNamespace(object_pose=SimpleNamespace(ranges=SimpleNamespace())),
-        terminations=SimpleNamespace(object_out_of_bound=_ResetTerm(params={})),
+        terminations=SimpleNamespace(object_out_of_bound=_ResetTerm(params={}), non_finite=_ResetTerm()),
         rewards=SimpleNamespace(success=_ResetTerm(params={})),
         observations=SimpleNamespace(policy=SimpleNamespace(), proprio=SimpleNamespace(
             rl_ours_hydroshear=_ResetTerm(params={"component_cfg": {"encoder": "retained"}}))),
