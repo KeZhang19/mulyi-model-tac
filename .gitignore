@@ -44,13 +44,46 @@ build/
 
 # Runtime logs and generated simulation outputs
 logs/
+/recordings/
 **/outputs/
 **/output/
 integrate/output*/
 scripts/force_map/official_replay/output*/
 tacmap/output*/
 *.log
+*.log.*
+events.out.tfevents.*
+nohup.out
 MUJOCO_LOG.TXT
+
+# Local tests, diagnostics, and evaluation scripts.
+# Files already tracked by Git remain tracked.
+/tests/
+/scripts/diagnostics/
+/scripts/rsl_rl/evaluate_bulb_curriculum.py
+/scripts/rsl_rl/evaluate_d_peg.py
+
+# Local benchmark runs, validation reports, and experiment notes.
+/benchmarks/
+/assets/d_peg_insertion/validation/
+/assets/rotate_bulb_custom/grasp_reference/*/optimization_report.json
+/assets/rotate_bulb_custom/grasp_reference/*/runtime_validation.json
+/assets/rotate_bulb_custom/grasp_reference/*/validation_summary.json
+/EXPERIMENTS.md
+
+# Local CAD export archives, intermediate diagnostics, and duplicate source copies.
+# Keep the canonical /1.stp and the build scripts available for version control.
+/1_stl.zip
+/1_stl/**/*.zip
+/1_stl/**/diagnostics/
+/assets/mold_split/diagnostics/
+/assets/mold_split/generated/source/original.stp
+
+# Local restoration result figures.
+/best_restoration*.png
+
+# Local documents
+/docs/
 
 # Isaac/Omniverse scratch assets generated while repairing or exporting USDs.
 *_sanitized.usd
