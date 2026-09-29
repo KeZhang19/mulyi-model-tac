@@ -93,3 +93,41 @@ def test_visuotactile_agent_configs_are_independent_without_changing_the_mlp():
     assert "brainco_repose_cube_visuotactile" in rsl_source
     assert "brainco_repose_cube_visuotactile" in rl_games_source
     assert "brainco_repose_cube_visuotactile" in skrl_source
+
+
+def test_visuotactile_default_task_parameters_match_state_only_repose():
+    def literal_fields(filename):
+        tree = ast.parse((BRAINCO_ROOT / filename).read_text())
+        config = next(node for node in tree.body if isinstance(node, ast.ClassDef))
+        fields = {}
+        for node in config.body:
+            if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
+                try:
+                    fields[node.targets[0].id] = ast.literal_eval(node.value)
+                except (ValueError, TypeError):
+                    pass
+        return fields
+
+    base = literal_fields("brainco_hand_env_cfg.py")
+    tactile = literal_fields("brainco_hand_visuotactile_env_cfg.py")
+    # Observation width and sensor resources differ; the task contract must not.
+    observation_fields = {"observation_space"}
+    for name, value in base.items():
+        if name not in observation_fields and isinstance(value, (int, float, str, bool)):
+            assert tactile[name] == value, name
+    assert tactile["repose_training_revision"] == 1
+
+
+def test_visuotactile_default_ppo_parameters_match_state_only_repose():
+    def agent_parameters(filename):
+        tree = ast.parse((AGENTS_ROOT / filename).read_text())
+        config = next(node for node in tree.body if isinstance(node, ast.ClassDef))
+        return {
+            node.targets[0].id: {
+                keyword.arg: ast.literal_eval(keyword.value) for keyword in node.value.keywords
+            }
+            for node in config.body
+            if isinstance(node, ast.Assign) and isinstance(node.value, ast.Call)
+        }
+
+    assert agent_parameters("visuotactile_rsl_rl_ppo_cfg.py") == agent_parameters("rsl_rl_ppo_cfg.py")

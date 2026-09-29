@@ -55,6 +55,7 @@ def task_code():
     )]
     ns = dict(torch=torch, json=json, math=math, Path=Path, CommandTerm=Command,
               combine_frame_transforms=_combine, subtract_frame_transforms=_subtract,
+              quat_mul=_quat_multiply,
               quat_from_euler_xyz=_yaw_quaternion, d_peg_success=lambda env: torch.zeros(env.num_envs, dtype=torch.bool))
     exec(compile(ast.Module(body=selected, type_ignores=[]), str(CONFIG), "exec"), ns)
     return ns
@@ -197,6 +198,7 @@ def test_contract_rejects_bulb_and_changed_task_assets(tmp_path):
     cfg = SimpleNamespace(peg_usd_path=asset, socket_usd_path=asset, geometry_metadata_path=asset,
                           pregrasp_path=asset, insertion_depth_m=.028, socket_mouth_height_m=.05,
                           socket_xy_randomization_m=.005, socket_yaw_randomization_deg=10.,
+                          socket_roll_randomization_deg=5., socket_pitch_randomization_deg=5.,
                           episode_length_s=30., actions=SimpleNamespace(action=SimpleNamespace(scale=.1)))
     action_schema = dict(schema_version=2, type="pregrasp_target_residual_position", scale=.1)
     env = SimpleNamespace(cfg=cfg, action_manager=SimpleNamespace(
@@ -207,6 +209,11 @@ def test_contract_rejects_bulb_and_changed_task_assets(tmp_path):
     assert first["observation_dim"] == 1949
     assert first["task_schema_version"] == 4
     validate_policy_contract(first, dict(first))
+    for name in ("socket_roll_randomization_deg", "socket_pitch_randomization_deg"):
+        assert first["task_parameters"][name] == 5.
+        changed_parameters = dict(first["task_parameters"], **{name: 0.})
+        with pytest.raises(ValueError, match="task_parameters"):
+            validate_policy_contract(first, dict(first, task_parameters=changed_parameters))
     for version in (2, 3):
         with pytest.raises(ValueError, match="task_schema_version"):
             validate_policy_contract(first, dict(first, task_schema_version=version))

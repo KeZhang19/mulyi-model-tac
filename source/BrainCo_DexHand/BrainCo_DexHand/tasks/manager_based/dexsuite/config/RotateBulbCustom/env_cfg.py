@@ -31,7 +31,7 @@ from ... import mdp
 from ...mdp.commands.pose_commands import ObjectUniformPoseCommand
 from .tactile import RotateBulbPretrainedTactile, initialize_rotate_bulb_tactile_contract
 from .robot_setup import Revo3MixinCfg
-from .robot_contract import GRASP_REFERENCE
+from .robot_contract import GRASP_REFERENCE, ROTATE_GRASP_REFERENCE, ROTATE_INITIAL_JOINT_POS
 from .actions import BulbJointPositionActionCfg
 
 
@@ -470,7 +470,7 @@ def rotate_bulb_finger_forces(env: ManagerBasedRLEnv) -> torch.Tensor:
 
 
 class RotateBulbGraspLoss(ManagerTermBase):
-    """End sustained abandonment while allowing settling, regrasp and goal dwell."""
+    """End released, distant abandonment while allowing regrasp and goal dwell."""
 
     def __init__(self, cfg, env):
         super().__init__(cfg, env)
@@ -493,7 +493,7 @@ class RotateBulbGraspLoss(ManagerTermBase):
         if not all(math.isfinite(value) and value > 0.0 for value in values):
             raise ValueError("grasp-loss thresholds and durations must be finite and positive")
         fresh = self.last_step != env.common_step_counter
-        active = (env.episode_length_buf * env.step_dt > initial_grace_s + 1e-6)
+        active = env._bulb_released & (env.episode_length_buf * env.step_dt > initial_grace_s + 1e-6)
         active &= ~rotate_bulb_goal_dwell(env)
         no_contact = rotate_bulb_finger_forces(env).amax(dim=-1) < contact_threshold
         far = rotate_bulb_hand_shell_distance(env) > far_distance
@@ -502,7 +502,7 @@ class RotateBulbGraspLoss(ManagerTermBase):
         self.no_contact_time = torch.where(fresh, no_contact_time, self.no_contact_time)
         self.far_time = torch.where(fresh, far_time, self.far_time)
         failed = (self.no_contact_time + 1e-6 >= no_contact_duration_s)
-        failed |= self.far_time + 1e-6 >= far_duration_s
+        failed &= self.far_time + 1e-6 >= far_duration_s
         self.failed = torch.where(fresh, failed, self.failed)
         self.last_step[fresh] = env.common_step_counter
         return self.failed
@@ -529,12 +529,34 @@ def rotate_bulb_action_group_mean(env: ManagerBasedRLEnv, actions: torch.Tensor)
     return 0.5 * (arm + hand)
 
 
-def rotate_bulb_action_l2_balanced(env: ManagerBasedRLEnv) -> torch.Tensor:
-    return rotate_bulb_action_group_mean(env, env.action_manager.action)
+def rotate_bulb_action_l2_balanced(
+    env: ManagerBasedRLEnv, arm_before_release_multiplier: float = 1.0,
+) -> torch.Tensor:
+    """Penalize arm increments more before release; default preserves assembly."""
+    if not math.isfinite(arm_before_release_multiplier) or arm_before_release_multiplier < 0.0:
+        raise ValueError("arm_before_release_multiplier must be finite and non-negative")
+    actions = env.action_manager.action
+    cost = rotate_bulb_action_group_mean(env, actions)
+    if arm_before_release_multiplier != 1.0:
+        term = env.action_manager.get_term("action")
+        arm = actions[:, term.arm_action_indices].square().mean(dim=-1)
+        cost = cost + 0.5 * (arm_before_release_multiplier - 1.0) * arm * (~env._bulb_released)
+    return cost
 
 
-def rotate_bulb_action_rate_l2_balanced(env: ManagerBasedRLEnv) -> torch.Tensor:
-    return rotate_bulb_action_group_mean(env, env.action_manager.action - env.action_manager.prev_action)
+def rotate_bulb_action_rate_l2_balanced(
+    env: ManagerBasedRLEnv, hand_after_release_multiplier: float = 1.0,
+) -> torch.Tensor:
+    """Smooth hand increments after release without penalizing a steady grip more."""
+    if not math.isfinite(hand_after_release_multiplier) or hand_after_release_multiplier < 0.0:
+        raise ValueError("hand_after_release_multiplier must be finite and non-negative")
+    changes = env.action_manager.action - env.action_manager.prev_action
+    cost = rotate_bulb_action_group_mean(env, changes)
+    if hand_after_release_multiplier != 1.0:
+        term = env.action_manager.get_term("action")
+        hand = changes[:, term.hand_action_indices].square().mean(dim=-1)
+        cost = cost + 0.5 * (hand_after_release_multiplier - 1.0) * hand * env._bulb_released
+    return cost
 
 
 def rotate_bulb_phase_state(env: ManagerBasedRLEnv) -> torch.Tensor:
@@ -542,6 +564,57 @@ def rotate_bulb_phase_state(env: ManagerBasedRLEnv) -> torch.Tensor:
     released = getattr(env, "_bulb_released", torch.zeros(env.num_envs, device=env.device))
     time_left = (1.0 - env.episode_length_buf / env.max_episode_length).clamp(0.0, 1.0)
     return torch.stack((released.float(), time_left), dim=-1)
+
+
+def rotate_bulb_arm_motion(
+    env: ManagerBasedRLEnv, position_deadband: float = 0.05, position_scale: float = 0.15,
+    velocity_deadband: float = 0.15, velocity_scale: float = 0.6,
+) -> torch.Tensor:
+    """A bounded pre-release cost for actual arm drift and speed, not hand motion.
+
+    Small arm adjustments remain free of this additional cost. Each component
+    has a unit budget; weight=-0.1 caps the combined cost at -0.2 points/second.
+    """
+    if not all(math.isfinite(x) and x > 0 for x in (position_scale, velocity_scale)):
+        raise ValueError("arm motion scales must be finite and positive")
+    if not all(math.isfinite(x) and x >= 0 for x in (position_deadband, velocity_deadband)):
+        raise ValueError("arm motion deadbands must be finite and non-negative")
+    action = env.action_manager.get_term("action")
+    data = env.scene["robot"].data
+    offset = (data.joint_pos[:, action.joint_ids] - data.default_joint_pos[:, action.joint_ids])
+    offset = offset[:, action.arm_action_indices]
+    velocity = data.joint_vel[:, action.joint_ids]
+    arm_velocity = velocity[:, action.arm_action_indices]
+    pose_cost = ((offset.abs() - position_deadband).clamp_min(0) / position_scale).clamp_max(1).square().mean(-1)
+    speed_cost = ((arm_velocity.abs() - velocity_deadband).clamp_min(0) / velocity_scale).clamp_max(1).square().mean(-1)
+    if hasattr(env, "extras"):
+        log = dict(env.extras.get("log", {}))
+        log.update({
+            "Metrics/rotation/arm_joint_offset_rms": offset.square().mean(-1).sqrt().mean(),
+            "Metrics/rotation/arm_joint_speed_rms": arm_velocity.square().mean(-1).sqrt().mean(),
+            "Metrics/rotation/hand_joint_speed_rms": velocity[:, action.hand_action_indices].square().mean(-1).sqrt().mean(),
+        })
+        env.extras["log"] = log
+    active = ~env._bulb_released & ~env.termination_manager.dones
+    return torch.where(active, torch.nan_to_num(pose_cost + speed_cost, nan=0.0), 0.0)
+
+
+def rotate_bulb_rotation_subgoal(env: ManagerBasedRLEnv) -> torch.Tensor:
+    """Expose unwrapped frontier, next quarter-turn goal, distance and contact memory.
+
+    Read-only: observing a target never advances reward state or changes physics.
+    """
+    term = getattr(env, "_bulb_guided_rotation_reward", None)
+    if term is None:
+        return torch.zeros((env.num_envs, 4), device=env.device)
+    segment = term.cfg.params["segment_turns"]
+    total = term.total_turns.clamp_min(1e-6)
+    target = torch.minimum((torch.floor((term.best + 1e-5) / segment) + 1) * segment, total)
+    turns = torch.where(env._bulb_released, term.best, rotate_bulb_unscrewed_turns(env))
+    observation = torch.stack((term.best / total, target / total,
+                               ((target - turns) / segment).clamp(0, 12) / 12,
+                               term.contact_memory), dim=-1)
+    return torch.where(env._bulb_released[:, None], 0.0, observation)
 
 
 def reset_robot_to_grasp(env: ManagerBasedRLEnv, env_ids: torch.Tensor | None):
@@ -567,10 +640,16 @@ def reset_robot_to_grasp(env: ManagerBasedRLEnv, env_ids: torch.Tensor | None):
 def configure_rotate_bulb_scene(cfg):
     """Apply the lamp-specific reset and sensor targets after the Revo3 mixin."""
     cfg.actions.action = BulbJointPositionActionCfg()
+    reference = GRASP_REFERENCE
+    if not getattr(cfg, "bulb_assembly_task", False):
+        reference = ROTATE_GRASP_REFERENCE
+        cfg.scene.robot.init_state.pos = tuple(reference["robot"]["base"]["position_m"])
+        cfg.scene.robot.init_state.rot = tuple(reference["robot"]["base"]["quaternion_wxyz"])
+        # Startup and full/partial reset all consume these named defaults.
+        cfg.scene.robot.init_state.joint_pos = dict(ROTATE_INITIAL_JOINT_POS)
     # Use actual saved world poses (metres, wxyz), including the table's yaw.
-    # The robot asset config reads the same reference by joint name.
-    table = GRASP_REFERENCE["table"]
-    support = next(item for item in GRASP_REFERENCE["fixtures"] if item["name"] == "lamp_support")
+    table = reference["table"]
+    support = next(item for item in reference["fixtures"] if item["name"] == "lamp_support")
     cfg.scene.table.spawn.size = tuple(table["size_m"])
     cfg.scene.table.spawn.visual_material = sim_utils.PreviewSurfaceCfg(
         diffuse_color=(0.45, 0.32, 0.22), metallic=0.0, roughness=0.7,
@@ -624,15 +703,16 @@ def configure_rotate_bulb_scene(cfg):
     cfg.commands.object_pose.ranges.pos_x = (-0.04, 0.04)
     cfg.commands.object_pose.ranges.pos_y = (-0.04, 0.04)
     cfg.commands.object_pose.ranges.pos_z = (0.12, 0.16)
-    bulb_x, bulb_y, _ = GRASP_REFERENCE["object"]["position_m"]
+    bulb_x, bulb_y, _ = reference["object"]["position_m"]
     cfg.terminations.object_out_of_bound.params["in_bound_range"] = {
         "x": (bulb_x - 0.35, bulb_x + 0.30),
         "y": (bulb_y - 0.45, bulb_y + 0.45),
         "z": (tabletop_z - 0.11, tabletop_z + 0.54),
     }
     cfg.terminations.bulb_dropped = DoneTerm(func=rotate_bulb_dropped)
-    cfg.terminations.non_finite.func = rotate_bulb_non_finite
-    # Register before success: physical failures must win on the same step.
+    # Keep the existing non-finite policy; restore only released abandonment.
+    # cfg.terminations.non_finite.func = rotate_bulb_non_finite
+    cfg.terminations.non_finite = None
     cfg.terminations.lost_grasp = DoneTerm(func=RotateBulbGraspLoss, params={
         "initial_grace_s": 0.5, "contact_threshold": 0.1, "no_contact_duration_s": 0.75,
         "far_distance": 0.2, "far_duration_s": 0.25,
@@ -652,9 +732,9 @@ def configure_rotate_bulb_scene(cfg):
             if hasattr(target, "prim_expr"):
                 target.prim_expr = target.prim_expr.replace("/Object", "/Lamp/Bulb/TactileSurface")
     # SDF thread contacts and native screw coupling use the asset's validated
-    # solver settings. Keep the original 60 Hz policy/control rate.
+    # solver settings. Use a 30 Hz policy/control rate for both Custom tasks.
     cfg.sim.dt = 1 / 240
-    cfg.decimation = 4
+    cfg.decimation = 8
     cfg.sim.render_interval = cfg.decimation
     cfg.sim.physx.solver_type = 1
     cfg.sim.physx.min_position_iteration_count = 32
@@ -676,6 +756,8 @@ def configure_rotate_bulb_scene(cfg):
     # Orientation alone cannot distinguish zero from four full revolutions.
     cfg.observations.policy.screw_progress = ObsTerm(func=rotate_bulb_screw_progress)
     cfg.observations.policy.bulb_phase = ObsTerm(func=rotate_bulb_phase_state)
+    if not getattr(cfg, "bulb_assembly_task", False):
+        cfg.observations.policy.rotation_subgoal = ObsTerm(func=rotate_bulb_rotation_subgoal)
     # Keep pressure and state observations; replace the old independent image
     # ResNets and raw 3-D shear vector with jointly encoded RGB/Depth/2-D markers.
     component_cfg = dict(cfg.observations.proprio.rl_ours_hydroshear.params["component_cfg"])
@@ -771,11 +853,31 @@ def rotate_bulb_contact_scores(env: ManagerBasedRLEnv, force_scale: float = 1.0)
     return torch.stack((scores[:, 0], scores[:, 1:].amax(dim=-1)), dim=-1)
 
 
-def rotate_bulb_grasp_shaping(env: ManagerBasedRLEnv, force_scale: float = 1.0) -> torch.Tensor:
-    """Guide initial contact and opposing grasp continuously while unscrewing."""
+def rotate_bulb_grasp_quality(env: ManagerBasedRLEnv, force_scale: float = 1.0) -> torch.Tensor:
+    """Continuous legacy grasp quality, independent of the task phase.
+
+    Weak or single-sided contact still supplies guidance; opposing contact
+    earns the full score. force_scale is a saturation scale, not a threshold.
+    """
     scores = rotate_bulb_contact_scores(env, force_scale)
     # One side alone earns at most 0.25; most credit requires both sides.
-    quality = (scores.sum(dim=-1) + 2 * scores.min(dim=-1).values) / 4
+    return (scores.sum(dim=-1) + 2 * scores.min(dim=-1).values) / 4
+
+
+def rotate_bulb_grasp_memory(env, memory, force_scale: float, regrasp_grace_s: float) -> torch.Tensor:
+    """Brief linear decay bridges regrasp without rewarding prolonged absence."""
+    if not math.isfinite(regrasp_grace_s) or regrasp_grace_s < 0.0:
+        raise ValueError("regrasp_grace_s must be finite and non-negative")
+    quality = rotate_bulb_grasp_quality(env, force_scale)
+    if regrasp_grace_s > 0.0:
+        recent = (memory - env.step_dt / regrasp_grace_s).clamp_min(0.0)
+        quality = torch.maximum(quality, recent)
+    return quality
+
+
+def rotate_bulb_grasp_shaping(env: ManagerBasedRLEnv, force_scale: float = 1.0) -> torch.Tensor:
+    """Guide initial contact and opposing grasp continuously while unscrewing."""
+    quality = rotate_bulb_grasp_quality(env, force_scale)
     return quality * (~rotate_bulb_screw_complete(env) & ~rotate_bulb_failed(env)).float()
 
 
@@ -795,7 +897,7 @@ def rotate_bulb_any_finger_contact(env: ManagerBasedRLEnv, force_scale: float = 
 
 
 class RotateBulbUnscrewProgress(ManagerTermBase):
-    """Pay per new physical turn, with bounded contact memory for regrasping."""
+    """Pay new physical turns with soft grasp quality and brief regrasp memory."""
 
     def __init__(self, cfg, env):
         super().__init__(cfg, env)
@@ -812,46 +914,113 @@ class RotateBulbUnscrewProgress(ManagerTermBase):
 
     def __call__(
         self, env, contact_threshold: float = 1.0, completion_bonus: float = 0.5,
-        regrasp_grace_s: float = 0.2,
+        regrasp_grace_s: float = 0.1,
     ):
-        if not math.isfinite(regrasp_grace_s) or regrasp_grace_s < 0.0:
-            raise ValueError("regrasp_grace_s must be finite and non-negative")
         progress = rotate_bulb_unscrewed_turns(env)
         progress = torch.where(env._bulb_released, self.best, progress)
-        quality = rotate_bulb_contact_scores(env, contact_threshold).min(dim=-1).values
-        if regrasp_grace_s > 0.0:
-            recent = (self.contact_memory - env.step_dt / regrasp_grace_s).clamp_min(0.0)
-            quality = torch.maximum(quality, recent)
+        quality = rotate_bulb_grasp_memory(env, self.contact_memory, contact_threshold, regrasp_grace_s)
         self.contact_memory = torch.where(env._bulb_released, 0.0, quality)
         contact = rotate_bulb_hand_contacts(env, contact_threshold)
         delta = (progress - self.best).clamp_min(0.0)
-        # Always consume new physical progress, even without contact. Regrasp
-        # can earn future turns, never reclaim uncredited travel or backtracking.
+        # Consume even unheld progress: regrasp cannot reclaim it later.
         self.best = torch.maximum(self.best, progress)
         completed = rotate_bulb_screw_complete(env) & contact & ~self.completion_paid
         self.completion_paid |= completed
-        # Isaac Lab multiplies by step_dt. With weight=40 this pays 40 per
-        # fully held turn at every initial depth, plus the same 20 at completion.
+        # The configured completion bonus stays zero; release-grasp has its
+        # own once-only milestone after physical detachment.
         credit = delta * self.contact_memory + completion_bonus * completed.float()
         return torch.where(rotate_bulb_failed(env), 0.0, credit) / env.step_dt
 
 
 class RotateBulbPhysicalTurnProgress(ManagerTermBase):
-    """Pay only for new best effective turns, independently of grasp quality."""
+    """The second turn term uses the same soft gate, with no unheld bypass."""
 
     def __init__(self, cfg, env):
         super().__init__(cfg, env)
         self.best = rotate_bulb_unscrewed_turns(env).clone()
+        self.contact_memory = torch.zeros(env.num_envs, device=env.device)
 
     def reset(self, env_ids=None):
         ids = slice(None) if env_ids is None else env_ids
         self.best[ids] = rotate_bulb_unscrewed_turns(self._env)[ids]
+        self.contact_memory[ids] = 0.0
 
-    def __call__(self, env):
+    def __call__(self, env, force_scale: float = 1.0, regrasp_grace_s: float = 0.1):
         turns = torch.where(env._bulb_released, self.best, rotate_bulb_unscrewed_turns(env))
+        quality = rotate_bulb_grasp_memory(env, self.contact_memory, force_scale, regrasp_grace_s)
+        self.contact_memory = torch.where(env._bulb_released, 0.0, quality)
         delta = (turns - self.best).clamp_min(0.0)
         self.best = torch.maximum(self.best, turns)
-        return torch.where(rotate_bulb_failed(env), 0.0, delta) / env.step_dt
+        return torch.where(rotate_bulb_failed(env), 0.0, delta * self.contact_memory) / env.step_dt
+
+
+class RotateBulbGuidedRotation(ManagerTermBase):
+    """Dense new-angle credit or once-only quarter-turn milestones for guided rotation.
+
+    A single fingertip can drive an attached screw. Opposing force closure is
+    reserved for carrying after release. Unsupported progress is consumed, never
+    banked for later contact; excessive one-step motion cannot earn a windfall.
+    """
+
+    def __init__(self, cfg, env):
+        super().__init__(cfg, env)
+        self.best = rotate_bulb_unscrewed_turns(env).clone()
+        self.contact_memory = torch.zeros_like(self.best)
+        self.total_turns = torch.ones_like(self.best)
+        self._update_total()
+        if cfg.params.get("milestones", False) is False:
+            env._bulb_guided_rotation_reward = self
+
+    def _update_total(self):
+        lamp = self._env.scene["lamp"]
+        start = getattr(self._env, "_bulb_start_joints", lamp.data.default_joint_pos)
+        self.total_turns.copy_(-start[:, lamp.joint_names.index("screw_turn")] / (2 * math.pi))
+
+    def reset(self, env_ids=None):
+        ids = slice(None) if env_ids is None else env_ids
+        self._update_total()
+        self.best[ids] = rotate_bulb_unscrewed_turns(self._env)[ids]
+        self.contact_memory[ids] = 0.0
+
+    def __call__(self, env, milestones: bool = False, segment_turns: float = 0.25,
+                 force_scale: float = 0.5, regrasp_grace_s: float = 0.2,
+                 max_turn_rate: float = 1.0):
+        if getattr(getattr(env, "cfg", None), "bulb_pure_collision", False):
+            raise ValueError("Guided rotation guidance requires bulb_pure_collision=false")
+        if not all(math.isfinite(x) and x > 0 for x in (segment_turns, force_scale, max_turn_rate)):
+            raise ValueError("rotation segment, force scale and rate must be finite and positive")
+        if not math.isfinite(regrasp_grace_s) or regrasp_grace_s < 0:
+            raise ValueError("regrasp_grace_s must be finite and non-negative")
+        turns = rotate_bulb_unscrewed_turns(env)
+        # The command records the last attached pose before disabling the joint.
+        # Reading the free follower after release would reward unrelated motion.
+        metrics = getattr(env, "_bulb_turn_metrics_command", None)
+        final = metrics.turns if metrics is not None else self.best
+        final = torch.where(final >= self.total_turns * (1 - _SCREW_RELEASE_TOLERANCE),
+                            self.total_turns, final)
+        turns = torch.where(env._bulb_released, final, turns)
+        turns = torch.nan_to_num(turns, nan=0.0, posinf=0.0, neginf=0.0)
+        quality = (rotate_bulb_finger_forces(env).amax(-1) / force_scale).clamp(0, 1)
+        if regrasp_grace_s > 0:
+            quality = torch.maximum(quality, (self.contact_memory - env.step_dt / regrasp_grace_s).clamp_min(0))
+        new_best = torch.maximum(self.best, turns)
+        delta = new_best - self.best
+        rate_fraction = (max_turn_rate * env.step_dt / delta.clamp_min(1e-8)).clamp_max(1)
+        if milestones:
+            crossed = (torch.floor((new_best + 1e-5) / segment_turns)
+                       - torch.floor((self.best + 1e-5) / segment_turns)).clamp_min(0)
+            credit = crossed * segment_turns
+        else:
+            credit = delta
+        self.best.copy_(new_best)
+        self.contact_memory.copy_(torch.where(env._bulb_released, 0.0, quality))
+        if not milestones and hasattr(env, "extras"):
+            log = dict(env.extras.get("log", {}))
+            log["Metrics/rotation/contact_quality"] = quality.mean()
+            log["Metrics/rotation/new_turns"] = delta.mean()
+            log["Metrics/rotation/quarter_turns_reached"] = torch.floor((new_best + 1e-5) / segment_turns).mean()
+            env.extras["log"] = log
+        return torch.where(rotate_bulb_failed(env), 0.0, credit * quality * rate_fraction) / env.step_dt
 
 
 def rotate_bulb_reach_shell(
@@ -892,8 +1061,10 @@ def rotate_bulb_failed(env: ManagerBasedRLEnv) -> torch.Tensor:
     manager = getattr(env, "termination_manager", None)
     if manager is None:
         return torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
-    return (manager.get_term("bulb_dropped") | manager.get_term("object_out_of_bound")
-            | manager.get_term("lost_grasp") | manager.get_term("non_finite"))
+    return (
+        manager.get_term("bulb_dropped") | manager.get_term("object_out_of_bound")
+        | manager.get_term("lost_grasp")
+    )
 
 
 def rotate_bulb_bounded_credit(env, quality, paid, reward_rate, max_reward):
@@ -931,7 +1102,7 @@ def rotate_bulb_released_grasp_quality(env: ManagerBasedRLEnv) -> torch.Tensor:
     # Translation up to 20 cm/s is not penalized; rapid spinning/throwing is.
     settled = torch.exp(-((linear_speed - 0.2).clamp_min(0.0) / 0.2).square()
                         - (angular_speed / 2.0).square())
-    quality = rotate_bulb_contact_scores(env).min(dim=-1).values * settled
+    quality = torch.nan_to_num(rotate_bulb_contact_scores(env).min(dim=-1).values * settled, nan=0.0)
     return torch.where(env._bulb_released & clear & ~rotate_bulb_failed(env), quality, 0.0)
 
 
@@ -982,33 +1153,58 @@ class RotateBulbReleaseGrasp(ManagerTermBase):
 
 
 class RotateBulbTransportProgress(ManagerTermBase):
-    """Dense post-release position tracking, following the v2-test reward."""
+    """Bounded new-best approach from release to the goal, softly grasp-gated."""
 
     def __init__(self, cfg, env):
         super().__init__(cfg, env)
+        self.baseline = torch.zeros(env.num_envs, device=env.device)
+        self.best = torch.zeros_like(self.baseline)
+        self.contact_memory = torch.zeros_like(self.baseline)
+        self.initialized = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+
+    def reset(self, env_ids=None):
+        ids = slice(None) if env_ids is None else env_ids
+        self.baseline[ids] = 0.0
+        self.best[ids] = 0.0
+        self.contact_memory[ids] = 0.0
+        self.initialized[ids] = False
 
     def __call__(self, env, std: float, command_name: str, asset_cfg: SceneEntityCfg,
-                 align_asset_cfg: SceneEntityCfg, contact_gate_after_release: bool = False):
+                 align_asset_cfg: SceneEntityCfg, contact_gate_after_release: bool = True,
+                 force_scale: float = 1.0, regrasp_grace_s: float = 0.1,
+                 goal_tolerance: float = 0.03):
         if not math.isfinite(std) or std <= 0.0:
             raise ValueError("std must be finite and positive")
+        if not math.isfinite(goal_tolerance) or goal_tolerance < 0.0:
+            raise ValueError("goal_tolerance must be finite and non-negative")
         robot = env.scene[asset_cfg.name]
         bulb = env.scene[align_asset_cfg.name]
         command = env.command_manager.get_command(command_name)
         goal, _ = combine_frame_transforms(robot.data.root_pos_w, robot.data.root_quat_w, command[:, :3])
         potential = 1.0 - torch.tanh((bulb.data.root_pos_w - goal).norm(dim=-1) / std)
         potential = torch.nan_to_num(potential, nan=0.0)
-        # Keep the physical phase and failure gates, but return the current
-        # tracking quality every step instead of only a new-best delta.  The
-        # reward manager multiplies this raw [0, 1] value by step_dt.
-        # contact_gate_after_release is accepted only for old config
-        # compatibility. Contact no longer scales or gates position tracking,
-        # even if an older launch config supplies True.
+        # Accept the legacy flag for old launch configurations, but always use
+        # soft quality. Neither True nor False introduces a hard contact gate
+        # or an ungated route to credit.
         released = getattr(
             env, "_bulb_released",
             torch.zeros(env.num_envs, device=env.device, dtype=torch.bool),
         )
-        gate = released & ~rotate_bulb_failed(env)
-        return potential * gate.float()
+        self.baseline = torch.where(released & ~self.initialized, potential, self.baseline)
+        span = (1.0 - math.tanh(goal_tolerance / std)) - self.baseline
+        # A release already inside the goal earns no free transport budget.
+        progress = torch.where(
+            span > 1e-6, ((potential - self.baseline) / span.clamp_min(1e-6)).clamp(0.0, 1.0), 0.0,
+        )
+        delta = (progress - self.best).clamp_min(0.0)
+        # Consume progress even with zero contact, so later regrasp or
+        # backtracking cannot reclaim unsupported motion.
+        self.best = torch.where(released, torch.maximum(self.best, progress), self.best)
+        self.initialized |= released
+        quality = rotate_bulb_grasp_memory(env, self.contact_memory, force_scale, regrasp_grace_s)
+        self.contact_memory = torch.where(released, quality, 0.0)
+        credit = delta * self.contact_memory
+        return torch.where(released & ~rotate_bulb_failed(env), credit, 0.0) / env.step_dt
 
 
 class RotateBulbFailurePenalty(ManagerTermBase):
@@ -1108,18 +1304,31 @@ def rotate_bulb_orientation_command_error_tanh(
 
 @configclass
 class DexsuiteRevo3RotateBulbRewardCfg:
-    """Phase budgets with dense carry tracking and a position-only success hold.
+    """Finger-driven guided turns, bounded release rewards and position-only success.
 
     Event/progress terms divide by step_dt; reward-rate terms integrate seconds.
-    Each new turn pays 2 times grasp quality (at most 6 for three turns).
+    New turns pay 1.5/turn continuously and 0.125 per quarter-turn milestone.
+    Three turns still pay at most 6; stationary contact cannot repeat milestones.
     Any-finger contact adds at most 0.1 per second (2 over the default 20 seconds).
     """
 
-    action_l2 = RewTerm(func=rotate_bulb_action_l2_balanced, weight=-0.05)
+    action_l2 = RewTerm(
+        func=rotate_bulb_action_l2_balanced, weight=-0.05,
+        params={"arm_before_release_multiplier": 40.0},
+    )
 
-    action_rate_l2 = RewTerm(func=rotate_bulb_action_rate_l2_balanced, weight=-0.02)
+    action_rate_l2 = RewTerm(
+        func=rotate_bulb_action_rate_l2_balanced, weight=-0.02,
+        params={"hand_after_release_multiplier": 2.0},
+    )
 
-    hand_far = RewTerm(func=rotate_bulb_hand_far, weight=-1.0, params={
+    arm_motion = RewTerm(func=rotate_bulb_arm_motion, weight=-0.1, params={
+        "position_deadband": 0.05, "position_scale": 0.15,
+        "velocity_deadband": 0.15, "velocity_scale": 0.6,
+    })
+
+    # Cost rate in both phases; RewardManager integrates it over step_dt.
+    hand_far = RewTerm(func=rotate_bulb_hand_far, weight=-0.3, params={
         "initial_grace_s": 0.5, "near_distance": 0.08, "far_distance": 0.2,
     })
 
@@ -1144,16 +1353,21 @@ class DexsuiteRevo3RotateBulbRewardCfg:
         func=rotate_bulb_any_finger_contact, weight=0.1, params={"force_scale": 0.5},
     )
 
-    grasp_shaping = RewTerm(
-        func=RotateBulbGraspBudget, weight=1.0,
-        params={"force_scale": 1.0, "reward_rate": 0.25, "max_reward": 1.0},
+    # grasp_shaping = RewTerm(
+    #     func=RotateBulbGraspBudget, weight=1.0,
+    #     params={"force_scale": 1.0, "reward_rate": 0.25, "max_reward": 1.0},
+    # )
+
+    unscrew_turns = RewTerm(
+        func=RotateBulbGuidedRotation, weight=1.5,
+        params={"milestones": False, "segment_turns": 0.25, "force_scale": 0.5,
+                "regrasp_grace_s": 0.2, "max_turn_rate": 1.0},
     )
 
-    unscrew_turns = RewTerm(func=RotateBulbPhysicalTurnProgress, weight=0.0)
-
     unscrew_progress = RewTerm(
-        func=RotateBulbUnscrewProgress, weight=2.0,
-        params={"contact_threshold": 1.0, "completion_bonus": 0.0, "regrasp_grace_s": 0.2},
+        func=RotateBulbGuidedRotation, weight=0.5,
+        params={"milestones": True, "segment_turns": 0.25, "force_scale": 0.5,
+                "regrasp_grace_s": 0.2, "max_turn_rate": 1.0},
     )
 
     released_stability = RewTerm(
@@ -1163,16 +1377,17 @@ class DexsuiteRevo3RotateBulbRewardCfg:
 
     position_tracking = RewTerm(
         func=RotateBulbTransportProgress,
-        # Dense v2-test-style tracking. Weight 0.5 caps the integrated
-        # carry shaping near ten points over a 20 s episode while retaining
-        # a nonzero distance gradient every step.
-        weight=0.5,
+        # At most four points from the release baseline to the goal window.
+        weight=4.0,
         params={
             "asset_cfg": SceneEntityCfg("robot"),
             "std": 0.2,
             "command_name": "object_pose",
             "align_asset_cfg": SceneEntityCfg("object"),
-            "contact_gate_after_release": False,  # Legacy compatibility key; no contact gate.
+            "contact_gate_after_release": True,  # Soft quality, never a force threshold.
+            "force_scale": 1.0,
+            "regrasp_grace_s": 0.1,
+            "goal_tolerance": 0.03,
         },
     )
     position_tracking_fine = None
@@ -1206,11 +1421,14 @@ class DexsuiteRevo3RotateBulbEnvCfg(Revo3MixinCfg, dexsuite.DexsuiteLiftEnvCfg):
         replicate_physics=False,
     )
     rewards: DexsuiteRevo3RotateBulbRewardCfg = DexsuiteRevo3RotateBulbRewardCfg()
-    # CLI: env.bulb_pure_collision=false restores the guided screw mechanism.
-    bulb_pure_collision: bool = True
+    # Guided screw by default; CLI env.bulb_pure_collision=true opts into free contact.
+    bulb_pure_collision: bool = False
     # Three turns place the bulb tip about 17.69 mm inside the socket mouth.
     initial_screw_turns_range: tuple[float, float] = (3.0, 3.0)
     task_episode_length_s: float = 20.0
+    # Legacy remains available for exact checkpoint diagnostics. Candidate
+    # providers are benchmarked before changing the production default.
+    pressure_pose_mode: str = "legacy"
     # Read by the observation term after Hydra overrides, before loading any model.
     tactile_policy_enabled: bool = False
     tactile_policy_checkpoint: str = _PRETRAINED_TACTILE_CHECKPOINT
@@ -1233,10 +1451,11 @@ class DexsuiteRevo3RotateBulbEnvCfg_PLAY(Revo3MixinCfg, dexsuite.DexsuiteLiftEnv
         replicate_physics=False,
     )
     rewards: DexsuiteRevo3RotateBulbRewardCfg = DexsuiteRevo3RotateBulbRewardCfg()
-    bulb_pure_collision: bool = True
+    bulb_pure_collision: bool = False
     # Match the training task's initial engagement and available time.
     initial_screw_turns_range: tuple[float, float] = (3.0, 3.0)
     task_episode_length_s: float = 20.0
+    pressure_pose_mode: str = "legacy"
     # Must match the setting used to train the policy being evaluated.
     tactile_policy_enabled: bool = False
     tactile_policy_checkpoint: str = _PRETRAINED_TACTILE_CHECKPOINT

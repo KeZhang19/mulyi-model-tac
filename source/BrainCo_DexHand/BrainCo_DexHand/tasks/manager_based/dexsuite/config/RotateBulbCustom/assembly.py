@@ -189,9 +189,13 @@ class AssemblyState:
 def reset_bulb_assembly_on_table(
     env, env_ids, *, x_range=(0.0, 0.0), y_range=(0.0, 0.0),
     table_half_height=0.0, support_bottom_offset=0.044732484966516495,
-    support_pose=None, desktop_offset_y=DESKTOP_OFFSET_Y_M,
+    support_pose=None, desktop_offset_y=DESKTOP_OFFSET_Y_M, yaw_range=(0.0, 0.0),
 ):
-    """Reset a free bulb upright on the table, outside the socket mouth."""
+    """Reset the free bulb with world XY offsets (m) and world Z yaw (rad).
+
+    Sample around the nominal desktop pose each episode, keeping the socket
+    fixed and preserving the bulb's height and tilt before physical settling.
+    """
     ids = _ensure_ids(env, env_ids)
     if ids.numel() == 0:
         return
@@ -216,8 +220,17 @@ def reset_bulb_assembly_on_table(
         support_root[:, :3], support_root[:, 3:7], offset,
         support_root[:, 3:7].new_tensor([1.0, 0.0, 0.0, 0.0]).expand(len(ids), -1),
     )
+    bulb_pos[:, 0] += torch.empty_like(bulb_pos[:, 0]).uniform_(*x_range)
+    bulb_pos[:, 1] += torch.empty_like(bulb_pos[:, 1]).uniform_(*y_range)
     bulb_pos[:, 2] = table_top - THREAD_MIN_X_M + DESKTOP_CLEARANCE_M
-    bulb.write_root_pose_to_sim(torch.cat((bulb_pos, support_root[:, 3:7]), dim=-1), env_ids=ids)
+    yaw = torch.empty_like(bulb_pos[:, 0]).uniform_(*yaw_range)
+    yaw_quat = torch.zeros_like(bulb_quat)
+    yaw_quat[:, 0] = torch.cos(yaw / 2)
+    yaw_quat[:, 3] = torch.sin(yaw / 2)
+    # Left multiplication rotates about the tabletop normal (world Z), not
+    # the asset's local Z axis, which is tilted in the reference pose.
+    bulb_quat = quat_mul(yaw_quat, bulb_quat)
+    bulb.write_root_pose_to_sim(torch.cat((bulb_pos, bulb_quat), dim=-1), env_ids=ids)
     bulb.write_root_velocity_to_sim(torch.zeros_like(support_root[:, 7:]), env_ids=ids)
 
     state = getattr(env, "_bulb_assembly_state", None)

@@ -174,6 +174,8 @@ def initialize_d_peg_tactile_contract(env, env_ids=None):
         "socket_mouth_height_m": env.cfg.socket_mouth_height_m,
         "insertion_depth_m": env.cfg.insertion_depth_m,
         "socket_xy_randomization_m": env.cfg.socket_xy_randomization_m,
+        "socket_roll_randomization_deg": getattr(env.cfg, "socket_roll_randomization_deg", 0.0),
+        "socket_pitch_randomization_deg": getattr(env.cfg, "socket_pitch_randomization_deg", 0.0),
         "socket_yaw_randomization_deg": env.cfg.socket_yaw_randomization_deg,
         "episode_length_s": env.cfg.episode_length_s,
         "action_scale": env.cfg.actions.action.scale,

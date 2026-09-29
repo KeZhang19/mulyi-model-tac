@@ -2,9 +2,64 @@
 
 任务 ID：`BrainCo-Dexsuite-Revo3-Right-Rotate-Bulb-Custom-v0`。
 
-## 2026-09-18：新版控制与失败规则
+## 2026-09-20：Dexonomy 优化模板作为默认初态
 
-当前 RSL-RL PPO 使用独立 `BulbActorCritic`：执行 tanh 高斯动作，潜变量均值平滑限制到
+旋出任务及 PLAY 使用项目内
+`assets/rotate_bulb_custom/grasp_reference/dexonomy_20260920/simulation_state.json`。
+启动和完整/局部 reset 恢复新手指姿态，机械臂、灯泡、灯座位姿及默认 3 圈保持不变。
+入口是 `robot_contract.py:ROTATE_GRASP_REFERENCE_PATH`；装配和 D-Peg 保留原参考。
+来源、设置与复查命令见
+[`模板说明`](../../../../../../../../assets/rotate_bulb_custom/grasp_reference/dexonomy_20260920/README.md)。
+下文旧 `grasp_reference/runtime_validation.json` 为旧模板历史验证，本次报告单独存放在新目录。
+
+另有独立桌面装配任务 `BrainCo-Dexsuite-Revo3-Right-Bulb-Assembly-Custom-v0`，
+新增抓持软门控的入口上方位置跟踪、下降旋入和全局螺纹朝下奖励。
+参数、阶段切换与验证见
+[`bulb_assembly_guidance_2026-09-19.md`](../../../../../../../../docs/tactile_representation/bulb_assembly_guidance_2026-09-19.md)。
+
+## 当前默认与奖励（2026-09-20）
+
+Rotate-Bulb Custom 的训练和 PLAY 现在均默认 `bulb_pure_collision=false`：
+使用旋转/滑移耦合的螺旋约束，默认旋出 3 圈，沿轴向上升约 18 mm 后释放。
+手与灯泡等碰撞仍保留；用户当前只使用三圈引导版，新旋转奖励要求 `bulb_pure_collision=false`。
+独立 Bulb-Assembly 任务仍显式使用纯碰撞模式。
+
+当前启用13个非零奖励项：连续新增角度1.5分/圈，首次跨过每个90°目标0.125分，三圈总预算仍6分。
+旋出允许单指驱动，接触以0.5N饱和、换指记忆0.2秒；增加实际臂漂移/速度代价，最高−0.2分/秒。
+新增4维小目标观测使旋出输入669→673，必须新建训练；动作仍v3、28维，装配仍669维。
+搬运奖励改为软质量门控的新增最佳进度，最高 4 分；恢复释放后抓稳 +2、稳定接触封顶 +2。
+远离代价在释放前后均生效：8–20 cm 平滑增加至最高 −0.3 分/秒，保留初始 0.5 秒和目标保持豁免。
+释放前机械臂幅度倍率从 10 调至 40，释放后恢复基础代价；释放后手指动作变化倍率仍为 2。
+释放后持续无接触且手已远离才触发失握失败，与碰桌/越界共享一次 −6。
+成功保持原位置判据和 +10。公式、弱接触示例、完整条件及同步核对见
+[`三圈分段引导说明`](../../../../../../../../docs/rotate_bulb_segmented_guidance_2026-09-20.md)。
+9 月 19 日的无门控配置保留为历史记录；下文旧版本条目不能替代当前说明。
+已有训练进程不会热加载默认值；下文旧版奖励/控制细节仅作历史记录。
+
+## 2026-09-19：恢复旋转引导系数
+
+按用户要求恢复关闭前的奖励分配：`unscrew_turns.weight=0.5`、
+`unscrew_progress.weight=1.5`，每个新增有效圈数合计 2 分，三圈最多 6 分。
+9 月 18 日修订曾将这两项改成 0/2，变更收录于提交 `4707074`。
+这次系数恢复保留当前进度奖励不乘接触质量的实现；随后默认物理模式按上节调整。
+已经运行的训练不会热加载修改，重新创建环境后生效。
+
+## 2026-09-20：取消小增量缩放和探索噪声上限
+
+旋出和装配两个 Custom 灯泡任务共用此修改。原机械臂/手指的 0.025/0.05 缩放已注释，
+两组现在均为 1.0：`q_target = clamp(q_measured + clamp(action, -1, 1), joint_limits)`。
+因此完整动作对应 ±1 rad 的目标偏移，仍在一个控制步内计算一次，四个物理子步保持目标。
+关节限位、tanh 输出以及潜变量均值的 ±2 平滑限制保留。
+
+`BulbActorCritic` 的噪声改为 `std = 0.05 + softplus(parameter)`，没有上限；
+初始值仍为 0.35，熵系数仍为 0.001。Repose 和 D-Peg 的策略与动作不变。
+动作/策略契约升为 v3，`latent_std_bounds` 中的 `null` 表示无上限。
+v2 checkpoint 的动作尺度和噪声参数含义不同，不能直接续训或按 v3 回放；保留旧权重，
+新控制需启动新训练，复现 v2 则需使用原版控制/策略。已启动进程不会热加载本修改。
+
+## 2026-09-18：历史控制与失败规则
+
+当时 RSL-RL PPO 使用独立 `BulbActorCritic`：执行 tanh 高斯动作，潜变量均值平滑限制到
 ±2，标准差限制在 0.05–0.7，初始为 0.35，熵系数 0.001。动作输出在 ±1 内；
 每个控制步，机械臂/手的目标增量上限分别为 0.025/0.05 rad，以当前关节角为起点，
 夹到关节限位，四个物理子步保持同一个目标。动作和动作变化使用臂/手等权均方，
@@ -35,12 +90,13 @@ spawn 保持不变。初始 0.5 秒后，全手接触低于 0.1 N 连续 0.75 �
 
 这是 Rotate-Bulb 的独立配置副本，使用 **Flexiv Rizon4 + Revo3 右手**。场景和初始关节姿态现在对齐抓取编辑器导出的 `20260912_102202_ed803448`；控制频率、回合长度及网络隐藏层参数沿用原配置。Custom 的触觉观测开关、旋出奖励和圈数日志按下文独立配置。
 
-2026-09-16 新增 `bulb_pure_collision`，训练和 PLAY **默认均为 `True`**。
+2026-09-16 新增 `bulb_pure_collision`，当时训练和 PLAY 默认均为 `True`；
+2026-09-19 已将 Rotate-Bulb 训练和 PLAY 默认改为 `False`。
 在现有训练或 PLAY 命令后追加以下 Hydra 参数即可选择物理模式：
 
 ```bash
-env.bulb_pure_collision=true   # 默认：灯泡与灯座仅通过碰撞、摩擦接触
-env.bulb_pure_collision=false  # 旧模式：螺旋关节导向，到出口后程序解除固定连接
+env.bulb_pure_collision=false  # 当前默认：螺旋关节导向，到出口后解除固定连接
+env.bulb_pure_collision=true   # 可选：灯泡与灯座仅通过碰撞、摩擦接触
 ```
 
 纯碰撞模式不创建活动的 `screw_turn`、`screw_slide`、mimic 或

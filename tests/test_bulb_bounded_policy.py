@@ -41,8 +41,8 @@ def agent_config(**policy):
 
 
 def env_stub():
-    action = {"version": 2, "joint_names": [f"joint{i}" for i in range(28)],
-              "delta_limits_rad": [0.025] * 7 + [0.05] * 21,
+    action = {"version": 3, "joint_names": [f"joint{i}" for i in range(28)],
+              "delta_limits_rad": [1.0] * 28,
               "control_dt": 1 / 60, "decimation": 4}
     raw = SimpleNamespace(action_manager=SimpleNamespace(
         get_term=lambda name: SimpleNamespace(action_contract=lambda: dict(action))),
@@ -67,6 +67,7 @@ def test_policy_identity_bounds_and_transformed_probabilities():
     obs = observations(128).double()
     policy = make_policy(obs).double()
     actions = policy.act(obs)
+    torch.testing.assert_close(policy.action_std, torch.full_like(policy.action_std, 0.35))
     assert "_bulb_policy_version" in policy.state_dict()
     assert "_repose_policy_version" not in policy.state_dict()
     reference = TransformedDistribution(Normal(policy.action_mean, policy.action_std), [TanhTransform()])
@@ -75,14 +76,52 @@ def test_policy_identity_bounds_and_transformed_probabilities():
     policy.act(obs)
     torch.testing.assert_close((policy.get_actions_log_prob(actions) - log_prob).exp(), torch.ones(128).double())
     with torch.no_grad():
-        policy.noise_logit.fill_(1e6)
+        policy.noise_unconstrained.fill_(1e6)
         policy.actor[-1].bias.fill_(1e6)
     actions = policy.act(obs)
     assert actions.abs().max() <= 1.0
-    assert policy.action_std.max() <= 0.7
+    assert policy.action_std.min() > 1e5
     assert policy.act_inference(obs).abs().max() < 0.965
     assert torch.isfinite(policy.entropy).all()
     assert torch.isfinite(policy.get_actions_log_prob(actions)).all()
+
+
+@pytest.mark.parametrize("initial_std", [0.35, 1.5, 10.0])
+def test_noise_above_old_ceiling_is_initializable_and_trainable(initial_std):
+    obs = observations()
+    policy = BulbActorCritic(obs, {"policy": ["policy"], "critic": ["policy"]}, 28,
+                            actor_hidden_dims=[16], critic_hidden_dims=[16], init_noise_std=initial_std)
+    policy.act(obs)
+    torch.testing.assert_close(policy.action_std, torch.full_like(policy.action_std, initial_std))
+    policy.action_std.mean().backward()
+    assert (policy.noise_unconstrained.grad > 0).all()
+    with torch.no_grad():
+        policy.noise_unconstrained.fill_(-1e6)
+    policy.act(obs)
+    torch.testing.assert_close(policy.action_std, torch.full_like(policy.action_std, 0.05))
+
+
+@pytest.mark.parametrize("task", [
+    "BrainCo-Dexsuite-Revo3-Right-Rotate-Bulb-Custom-v0",
+    "BrainCo-Dexsuite-Revo3-Right-Bulb-Assembly-Custom-v0",
+])
+def test_both_bulb_contracts_record_unit_actions_and_uncapped_noise(tmp_path, task):
+    raw, _ = env_stub()
+    raw.spec = SimpleNamespace(id=task)
+    contract = prepare_bulb_policy_run(raw, tmp_path)
+    assert contract["task"] == task and contract["version"] == 3
+    assert contract["policy_transform"] == "bounded_latent_mean_then_tanh"
+    assert contract["latent_std_bounds"] == [0.05, None]
+    assert contract["action"]["delta_limits_rad"] == [1.0] * 28
+
+
+def test_v2_checkpoint_cannot_silently_change_noise_or_action_semantics(tmp_path):
+    state = make_policy(observations()).state_dict()
+    state["_bulb_policy_version"] = torch.tensor(2)
+    checkpoint = tmp_path / "model.pt"
+    torch.save({"model_state_dict": state}, checkpoint)
+    with pytest.raises(ValueError, match="v2 checkpoint uses small action scales and capped noise"):
+        configure_bulb_checkpoint(agent_config(), str(checkpoint), training=True)
 
 
 def test_real_ppo_update_is_finite_and_uses_bounded_actions():
@@ -182,6 +221,25 @@ def test_unknown_or_repose_checkpoint_and_incorrect_observation_are_rejected(tmp
     raw.observation_manager.group_obs_dim["policy"] = (42,)
     with pytest.raises(ValueError, match="669-dimensional"):
         prepare_bulb_policy_run(raw, tmp_path / "bad")
+
+
+def test_rotation_subgoal_contract_rejects_old_checkpoint_and_parameter_mismatch(tmp_path):
+    raw, _ = env_stub()
+    prepare_bulb_policy_run(raw, tmp_path / "old")
+    raw.observation_manager.active_terms = {"policy": ["rotation_subgoal"]}
+    dims = raw.observation_manager.group_obs_dim
+    dims["policy"] = (dims["policy"][0] + 4,)
+    params = {"segment_turns": .25, "force_scale": .5, "regrasp_grace_s": .2, "max_turn_rate": 1.}
+    raw.reward_manager = SimpleNamespace(get_term_cfg=lambda _: SimpleNamespace(params=params))
+    contract = prepare_bulb_policy_run(raw, tmp_path / "new")
+    assert contract["observation_dim"] == 673
+    assert contract["rotation_guidance"]["version"] == 1
+    with pytest.raises(ValueError, match="does not match"):
+        prepare_bulb_policy_run(raw, tmp_path / "bad_old", resume_path=tmp_path / "old/model.pt")
+    prepare_bulb_policy_run(raw, tmp_path / "replay", resume_path=tmp_path / "new/model.pt")
+    params["segment_turns"] = .5
+    with pytest.raises(ValueError, match="does not match"):
+        prepare_bulb_policy_run(raw, tmp_path / "bad_params", resume_path=tmp_path / "new/model.pt")
 
 
 @pytest.mark.parametrize("training", [False, True])

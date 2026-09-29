@@ -1,0 +1,144 @@
+{
+  "source": "/home/xinyu/training_runs/20260927_1530_collision_fast_gpu6/workspace/assets/bulb/hiveboard_lamp/hiveboard_lamp_threaded.usd",
+  "source_sha256": "b5c9079721c907437326dd390586585ab525db73d1e99f12e541a50001b9cd74",
+  "root": "/HiveboardLampThreaded",
+  "cluster_cell_m": 0.001,
+  "variants": {
+    "baseline": {
+      "path": "baseline.usdc",
+      "sha256": "4499c5f9286bfd023bbbd85590147c1acfa82d78e56258977a6c2c0aa01ce7f8",
+      "colliders": [
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellA",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "sdf",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellB",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "sdf",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ExternalThreadCollider",
+          "faces_before": 21814,
+          "faces_after": 21814,
+          "approximation": "sdf",
+          "sdf_resolution": 512
+        },
+        {
+          "path": "/HiveboardLampThreaded/Support/InternalThreadCollider",
+          "faces_before": 5199,
+          "faces_after": 5199,
+          "approximation": "none",
+          "sdf_resolution": null
+        }
+      ]
+    },
+    "threads_low": {
+      "path": "threads_low.usdc",
+      "sha256": "0c07b4a62faacc474e1cbb4fd2c733bab6932294b5b850f3d60ca24438f0a3c9",
+      "colliders": [
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellA",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "sdf",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellB",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "sdf",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ExternalThreadCollider",
+          "faces_before": 21814,
+          "faces_after": 6037,
+          "approximation": "sdf",
+          "sdf_resolution": 128
+        },
+        {
+          "path": "/HiveboardLampThreaded/Support/InternalThreadCollider",
+          "faces_before": 5199,
+          "faces_after": 4613,
+          "approximation": "none",
+          "sdf_resolution": null
+        }
+      ]
+    },
+    "shell_hulls": {
+      "path": "shell_hulls.usdc",
+      "sha256": "f6c72861c3e11f1b925f84d3de31bcb6580caee37b33d247df23e7e6129730e1",
+      "colliders": [
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellA",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "convexHull",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellB",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "convexHull",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ExternalThreadCollider",
+          "faces_before": 21814,
+          "faces_after": 21814,
+          "approximation": "sdf",
+          "sdf_resolution": 512
+        },
+        {
+          "path": "/HiveboardLampThreaded/Support/InternalThreadCollider",
+          "faces_before": 5199,
+          "faces_after": 5199,
+          "approximation": "none",
+          "sdf_resolution": null
+        }
+      ]
+    },
+    "combined": {
+      "path": "combined.usdc",
+      "sha256": "bd0579773e0a5610b6e1317ff452679acad0cffd29095257d8fcd315420995d9",
+      "colliders": [
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellA",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "convexHull",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ShellB",
+          "faces_before": 3199,
+          "faces_after": 3199,
+          "approximation": "convexHull",
+          "sdf_resolution": 256
+        },
+        {
+          "path": "/HiveboardLampThreaded/Bulb/ExternalThreadCollider",
+          "faces_before": 21814,
+          "faces_after": 6037,
+          "approximation": "sdf",
+          "sdf_resolution": 128
+        },
+        {
+          "path": "/HiveboardLampThreaded/Support/InternalThreadCollider",
+          "faces_before": 5199,
+          "faces_after": 4613,
+          "approximation": "none",
+          "sdf_resolution": null
+        }
+      ]
+    }
+  }
+}

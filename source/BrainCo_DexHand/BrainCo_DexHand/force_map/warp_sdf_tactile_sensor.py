@@ -356,7 +356,7 @@ class WarpSdfTactileSensor(SensorBase):
                 track_contact_points=False,
                 filter_prim_paths_expr=[],
             )
-            self._pose_sensors.append(ContactSensor(pose_cfg))
+            self._pose_sensors.append(self._create_pose_sensor(pose_cfg))
 
         self._num_sensors = len(self._pose_sensors)
 
@@ -389,6 +389,11 @@ class WarpSdfTactileSensor(SensorBase):
     def data(self) -> WarpSdfTactileSensorData:
         self._update_outdated_buffers()
         return self._data
+
+    @staticmethod
+    def _create_pose_sensor(pose_cfg):
+        """Default pose provider; task-specific subclasses may specialize reads."""
+        return ContactSensor(pose_cfg)
 
     @property
     def pressure_taxel_maps(self) -> tuple[PressureTaxelMap, ...]:

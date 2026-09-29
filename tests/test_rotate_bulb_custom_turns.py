@@ -46,16 +46,18 @@ def test_configured_turn_split_has_fixed_budget_with_and_without_grasp(code, con
     env = _task_env(count=3, hz=hz)
     thumb = env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"].data.force_matrix_w
     thumb[:, 0, 0, 2] = torch.tensor([0., .25, 1.])
+    env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w[0] = 0.
     terms = [configured.unscrew_turns, configured.unscrew_progress]
     funcs = [term.func(term, env) for term in terms]
     sums = torch.zeros(2, 3)
-    for step in range(1, hz + 1):
-        _set_turns(env, [3 * step / hz] * 3)
+    for step in range(1, 3 * hz + 1):
+        _set_turns(env, [step / hz] * 3)
         for i, (term, func) in enumerate(zip(terms, funcs)):
             sums[i] += func(env, **term.params) * term.weight * env.step_dt
-    torch.testing.assert_close(sums[0], torch.zeros(3))
-    torch.testing.assert_close(sums[1], torch.tensor([0., 1.5, 6.]))
-    torch.testing.assert_close(sums.sum(0), torch.tensor([0., 1.5, 6.]))
+    quality = torch.tensor([0., 1., 1.])  # A strong non-thumb contact can drive the guided screw.
+    torch.testing.assert_close(sums[0], 4.5 * quality, atol=3e-5, rtol=0)
+    torch.testing.assert_close(sums[1], 1.5 * quality, atol=3e-5, rtol=0)
+    torch.testing.assert_close(sums.sum(0), 6. * quality, atol=4e-5, rtol=0)
     for term, func in zip(terms, funcs):
         assert not func(env, **term.params).any()  # Holding at three turns pays nothing.
 

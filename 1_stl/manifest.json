@@ -1,0 +1,254 @@
+{
+  "source": "../1.stp",
+  "source_sha256": "ca100ee804fe35ccc022bc51b41307f2521a5d2d29a4e3e158a6726372998059",
+  "solid_count": 5,
+  "parts": [
+    {
+      "file": "solid_01.stl",
+      "solid_index_1based": 1,
+      "unit": "mm",
+      "coordinates": "original STEP coordinates; no translation, rotation, or scaling",
+      "cad_valid": true,
+      "cad_faces": 219,
+      "cad_volume_mm3": 1414056.747038317,
+      "cad_bounds_mm": [
+        [
+          -70.0000001,
+          -40.0000001,
+          -8.37836728801269
+        ],
+        [
+          160.0000001,
+          230.0000001,
+          34.8000001
+        ]
+      ],
+      "cad_size_mm": [
+        230.0000002,
+        270.0000002,
+        43.17836738801269
+      ],
+      "linear_deflection_mm": 0.005,
+      "angular_deflection_rad": 0.05,
+      "triangles": 92106,
+      "vertices": 46055,
+      "mesh_watertight": true,
+      "mesh_winding_consistent": true,
+      "mesh_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "mesh_volume_mm3": 1414104.5755097829,
+      "mesh_size_mm": [
+        230.0,
+        270.0,
+        43.17836666107178
+      ],
+      "sha256": "b7b17527419ddb5e5b3f96e95b6c70bfd38b966185b80fb27c906bb712e5d9ac",
+      "bytes": 4605384
+    },
+    {
+      "file": "solid_02.stl",
+      "solid_index_1based": 2,
+      "unit": "mm",
+      "coordinates": "original STEP coordinates; no translation, rotation, or scaling",
+      "cad_valid": true,
+      "cad_faces": 5,
+      "cad_volume_mm3": 18.39445255660222,
+      "cad_bounds_mm": [
+        [
+          74.00665108406001,
+          21.980626410604653,
+          -5.257155341147002
+        ],
+        [
+          77.24143604921,
+          24.77022203636,
+          6.717400660528407
+        ]
+      ],
+      "cad_size_mm": [
+        3.2347849651499843,
+        2.7895956257553465,
+        11.97455600167541
+      ],
+      "linear_deflection_mm": 0.0001,
+      "angular_deflection_rad": 0.05,
+      "triangles": 3004,
+      "vertices": 1504,
+      "mesh_watertight": true,
+      "mesh_winding_consistent": true,
+      "mesh_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "mesh_volume_mm3": 18.344026151874306,
+      "mesh_size_mm": [
+        3.2347793579101562,
+        2.789579391479492,
+        11.974555969238281
+      ],
+      "sha256": "269223df22a16e716f93db34887453bfe1826aba5654f1a8d26765bc8e9cfc2e",
+      "bytes": 150284
+    },
+    {
+      "file": "solid_03.stl",
+      "solid_index_1based": 3,
+      "unit": "mm",
+      "coordinates": "original STEP coordinates; no translation, rotation, or scaling",
+      "cad_valid": true,
+      "cad_faces": 327,
+      "cad_volume_mm3": 1212349.4549691963,
+      "cad_bounds_mm": [
+        [
+          -70.0000001,
+          -40.0000001,
+          -40.0000001
+        ],
+        [
+          160.0000001,
+          230.0000001,
+          5.744252742973809
+        ]
+      ],
+      "cad_size_mm": [
+        230.0000002,
+        270.0000002,
+        45.74425284297381
+      ],
+      "linear_deflection_mm": 0.005,
+      "angular_deflection_rad": 0.05,
+      "triangles": 121311,
+      "vertices": 60657,
+      "mesh_watertight": false,
+      "mesh_winding_consistent": true,
+      "mesh_components": 2,
+      "boundary_edges": 13,
+      "nonmanifold_edges": 2,
+      "mesh_volume_mm3": 1212423.4917981795,
+      "mesh_size_mm": [
+        230.0,
+        270.0,
+        45.7442512512207
+      ],
+      "sha256": "6f55823177ae8f5722d2d47588261bc6446f9bba58302ead1ee2fb6788b7b197",
+      "bytes": 6065634
+    },
+    {
+      "file": "solid_04.stl",
+      "solid_index_1based": 4,
+      "unit": "mm",
+      "coordinates": "original STEP coordinates; no translation, rotation, or scaling",
+      "cad_valid": true,
+      "cad_faces": 4,
+      "cad_volume_mm3": 0.00312454765987488,
+      "cad_bounds_mm": [
+        [
+          77.06428286163,
+          24.182162362929997,
+          -5.5004894020210005
+        ],
+        [
+          77.30585961157999,
+          24.59888220592077,
+          -5.253792817683999
+        ]
+      ],
+      "cad_size_mm": [
+        0.24157674994998501,
+        0.4167198429907728,
+        0.24669658433700103
+      ],
+      "linear_deflection_mm": 0.0001,
+      "angular_deflection_rad": 0.05,
+      "triangles": 72,
+      "vertices": 38,
+      "mesh_watertight": true,
+      "mesh_winding_consistent": true,
+      "mesh_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "mesh_volume_mm3": 0.003132020368333895,
+      "mesh_size_mm": [
+        0.2415771484375,
+        0.4167194366455078,
+        0.24669647216796875
+      ],
+      "sha256": "92bd8364fe7b5ed7ff7b4c978fa06b706a3ca02a5269df476b601c56e6742379",
+      "bytes": 3684
+    },
+    {
+      "file": "solid_05.stl",
+      "solid_index_1based": 5,
+      "unit": "mm",
+      "coordinates": "original STEP coordinates; no translation, rotation, or scaling",
+      "cad_valid": true,
+      "cad_faces": 4,
+      "cad_volume_mm3": 0.06484291674115888,
+      "cad_bounds_mm": [
+        [
+          76.70105082511,
+          40.99218692301999,
+          -5.838924182854
+        ],
+        [
+          77.33387016684999,
+          42.136738014260025,
+          -5.163088908236395
+        ]
+      ],
+      "cad_size_mm": [
+        0.6328193417399888,
+        1.1445510912400323,
+        0.6758352746176053
+      ],
+      "linear_deflection_mm": 0.0001,
+      "angular_deflection_rad": 0.05,
+      "triangles": 190,
+      "vertices": 97,
+      "mesh_watertight": true,
+      "mesh_winding_consistent": true,
+      "mesh_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "mesh_volume_mm3": 0.06474935180016435,
+      "mesh_size_mm": [
+        0.6328201293945312,
+        1.1445503234863281,
+        0.675835132598877
+      ],
+      "sha256": "3066f15baea0c727b6b348dcf0c16fa34c09cd0723be1a0d1c879732c483fdf3",
+      "bytes": 9584
+    }
+  ],
+  "notes": [
+    "Only the five solid bodies are exported; standalone open surface shells are not solids.",
+    "STL has no unit metadata; interpret all vertex coordinates in millimeters.",
+    "Meshes preserve source positions and geometry without fusing bodies or filling holes.",
+    "solid_03 is a direct tessellation of a valid CAD solid, but the exported mesh has 13 boundary edges and 2 nonmanifold edges. Higher mesh resolution did not eliminate the issue. No hole filling or geometry repair was applied; this export is for visual inspection."
+  ],
+  "solid_03_additional_meshing_checks": [
+    {
+      "linear_mm": 0.001,
+      "angular_rad": 0.03,
+      "triangles": 330579,
+      "watertight": false,
+      "boundary_edges": 23,
+      "nonmanifold_edges": 14
+    },
+    {
+      "linear_mm": 0.0002,
+      "angular_rad": 0.025,
+      "triangles": 531060,
+      "watertight": false,
+      "boundary_edges": 30,
+      "nonmanifold_edges": 2
+    },
+    {
+      "linear_mm": 0.02,
+      "angular_rad": 0.08,
+      "triangles": 44985,
+      "watertight": false,
+      "boundary_edges": 7,
+      "nonmanifold_edges": 0
+    }
+  ]
+}

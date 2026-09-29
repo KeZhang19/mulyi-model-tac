@@ -61,7 +61,9 @@ def validate_repose_training() -> None:
         cfg.seed = args.seed
         cfg.tactile_policy_checkpoint = args.encoder
         cfg.log_dir = str(output)
-        assert cfg.repose_training_revision == 2, "Expected the Repose v2 production configuration"
+        # This validator targets the retained v2 implementation, not the task default.
+        cfg.repose_training_revision = 2
+        cfg.episode_length_s = 15.0
         env = gym.make(args.task, cfg=cfg)
         raw = env.unwrapped
         report["max_episode_length"] = raw.max_episode_length

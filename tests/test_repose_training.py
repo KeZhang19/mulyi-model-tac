@@ -130,15 +130,23 @@ def test_checkpoint_family_selection_and_strict_reload(tmp_path, legacy):
     original = _policy(obs, ActorCritic if legacy else ReposeActorCritic)
     checkpoint = tmp_path / "model.pt"
     torch.save({"model_state_dict": original.state_dict()}, checkpoint)
-    cfg = SimpleNamespace(policy=SimpleNamespace(class_name="ReposeActorCritic", noise_std_type="log"))
+    cfg = SimpleNamespace(policy=SimpleNamespace(
+        class_name="ActorCritic", noise_std_type="scalar", init_noise_std=1.0,
+    ))
     revision = configure_repose_checkpoint(cfg, str(checkpoint))
     assert revision == (1 if legacy else 2)
     import rsl_rl.runners.on_policy_runner as runner_module
 
-    restored = _policy(obs, getattr(runner_module, cfg.policy.class_name))
+    restored = getattr(runner_module, cfg.policy.class_name)(
+        obs, {"policy": ["policy"], "critic": ["policy"]}, 4,
+        actor_hidden_dims=[16, 16], critic_hidden_dims=[16, 16],
+        init_noise_std=cfg.policy.init_noise_std, noise_std_type=cfg.policy.noise_std_type,
+    )
     restored.load_state_dict(original.state_dict())
     torch.testing.assert_close(original.act_inference(obs), restored.act_inference(obs))
-    assert configure_repose_checkpoint(cfg) == 2
+    assert configure_repose_checkpoint(cfg) == 1
+    assert cfg.policy.class_name == "ActorCritic"
+    assert cfg.policy.noise_std_type == "scalar"
 
 
 def test_native_jit_and_onnx_exports_include_action_transform(tmp_path):

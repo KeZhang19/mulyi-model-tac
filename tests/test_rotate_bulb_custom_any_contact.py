@@ -108,13 +108,14 @@ def test_auxiliary_exceeds_real_penalties_for_28_joint_unit_actions_without_chan
                                                                           hand_action_indices=list(range(7, 28))))
     assert configured.action_l2.weight == -.05
     assert configured.action_rate_l2.weight == -.02
-    penalty = (configured.action_l2.func(env) * configured.action_l2.weight
-               + configured.action_rate_l2.func(env) * configured.action_rate_l2.weight) * env.step_dt
-    torch.testing.assert_close(penalty, torch.tensor([-.13 * env.step_dt]))
+    penalty = (configured.action_l2.func(env, **configured.action_l2.params) * configured.action_l2.weight
+               + configured.action_rate_l2.func(env, **configured.action_rate_l2.params)
+               * configured.action_rate_l2.weight) * env.step_dt
+    torch.testing.assert_close(penalty, torch.tensor([-1.105 * env.step_dt]))
     term = configured.any_finger_contact
     auxiliary = term.func(env, **term.params) * term.weight * env.step_dt
     assert (auxiliary + penalty).item() < 0
     clear_contact(env)
     assert (term.func(env, **term.params) * term.weight * env.step_dt + penalty).item() < 0
-    assert configured.unscrew_turns.weight == 0 and configured.unscrew_progress.weight == 2
+    assert configured.unscrew_turns.weight == 1.5 and configured.unscrew_progress.weight == .5
     assert configured.success.weight == 10

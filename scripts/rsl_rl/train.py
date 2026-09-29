@@ -31,6 +31,8 @@ parser.add_argument(
     "--distributed", action="store_true", default=False, help="Run training with multiple GPUs or nodes."
 )
 parser.add_argument("--log_dir", type=str, default=None, help="Explicit shared output directory for this run.")
+parser.add_argument("--curriculum_checkpoint", type=str, default=None,
+                    help="Exact predecessor checkpoint for the opt-in assembly curriculum (--resume required).")
 parser.add_argument(
     "--expected_world_size", type=int, default=None,
     help="Require this many distributed workers and verify PPO gradient synchronization.",
@@ -180,7 +182,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # Resolve saved Repose action semantics before constructing the simulator.
     resume_path = None
-    if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
+    if args_cli.curriculum_checkpoint is not None:
+        if not agent_cfg.resume or getattr(env_cfg, "bulb_curriculum", None) is None:
+            raise ValueError("--curriculum_checkpoint requires --resume and the assembly curriculum task")
+        resume_path = os.path.abspath(args_cli.curriculum_checkpoint)
+        if not os.path.isfile(resume_path):
+            raise FileNotFoundError(resume_path)
+    elif agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
         resume_path = get_checkpoint_path(log_root_path, agent_cfg.load_run, agent_cfg.load_checkpoint)
     if hasattr(env_cfg, "repose_training_revision"):
         from repose_training import configure_repose_checkpoint
@@ -193,6 +201,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         from bulb_training import configure_bulb_checkpoint
 
         configure_bulb_checkpoint(agent_cfg, resume_path, training=True)
+    if getattr(env_cfg, "bulb_curriculum", None) is not None:
+        if args_cli.distributed:
+            raise ValueError("Assembly curriculum currently requires one process (banks/scheduler are rank-local)")
+        env_cfg.bulb_curriculum.checkpoint = resume_path or ""
 
     # create isaac environment
     env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
@@ -252,6 +264,10 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         initialize_d_peg_policy(runner)
     # write git state to logs
     runner.add_git_repo_to_log(__file__)
+    if getattr(env.unwrapped, "_bulb_curriculum", None) is not None:
+        from bulb_curriculum_training import install_curriculum_runner
+
+        install_curriculum_runner(runner, env.unwrapped)
     # load the checkpoint
     if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation":
         print(f"[INFO]: Loading model checkpoint from: {resume_path}")

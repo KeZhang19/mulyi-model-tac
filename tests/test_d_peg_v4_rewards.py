@@ -55,61 +55,6 @@ def test_contained_insertion_ignores_old_grip_precision_and_speed_gates(code, ch
         assert s.episode_sums["time"].item() == pytest.approx(-.05)
 
 
-@pytest.mark.parametrize("interruption", [dict(depths=(.0269,)), dict(depths=(.027,), xy=((.001, 0.),))])
-def test_depth_or_containment_loss_restarts_the_entire_hold(code, interruption):
-    s = state(code)
-    current = snapshot(code, (.027,))
-    for step in range(1, 15):
-        s.update(current, 1 / 30, step)
-    s.update(snapshot(code, **interruption), 1 / 30, 15)
-    assert s.hold_time.item() == 0
-    assert not s.success.item()
-    assert s.entry_provenance.item()  # Both interruptions remain in the aperture.
-    for step in range(16, 30):
-        s.update(current, 1 / 30, step)
-        assert not s.success.item()
-    s.update(current, 1 / 30, 30)
-    assert s.success.item()
-    assert s.episode_sums["success"].item() == 80
-
-
-@pytest.mark.parametrize("initial, current", [
-    (dict(depths=(.027,)), dict(depths=(.027,))),  # Initially inserted.
-    (dict(depths=(.005,), xy=((.03, 0.),)), dict(depths=(.027,))),  # Side entry.
-    (dict(depths=(-.02,)), dict(depths=(.027,), xy=((.03, 0.),))),  # Outside hole.
-    (dict(depths=(-.02,)), dict(depths=(.027,), xy=((.001, 0.),))),  # Through wall.
-    (dict(depths=(-.02,)), dict(depths=(.031,))),  # Through floor.
-])
-def test_depth_alone_cannot_bypass_entry_and_physical_containment(code, initial, current):
-    s = code.DPegRewardState(1, "cpu")
-    s.reset(snapshot(code, **initial), step_id=0)
-    for step in range(1, 21):
-        s.update(snapshot(code, **current), 1 / 30, step)
-        assert not s.success.item()
-        assert s.hold_time.item() == 0
-        assert s.components["success"].item() == 0
-
-
-@pytest.mark.parametrize("failure", ["dropped", "outbound", "finite"])
-def test_failure_on_completion_step_prevents_final_success_reward(code, failure):
-    s = state(code)
-    current = snapshot(code, (.027,))
-    for step in range(1, 15):
-        s.update(current, 1 / 30, step)
-    terminal = snapshot(code, (.027,))
-    terminal[failure] = torch.tensor([failure != "finite"])
-    s.update(terminal, 1 / 30, 15)
-    assert s.failed.item()
-    assert not s.success.item()
-    assert s.hold_time.item() == 0
-    assert s.components["success"].item() == 0
-    assert s.components["failure"].item() == -20
-    assert s.reward_rate.item() / 30 == pytest.approx(-20)
-    s.update(current, 1 / 30, 16)
-    assert not s.success.item()
-    assert s.reward_rate.item() == 0
-
-
 def test_released_success_is_shared_by_termination_reward_and_episode_metrics(code):
     env = fake_env()
     env.step_dt = 1 / 30

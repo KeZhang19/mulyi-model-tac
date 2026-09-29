@@ -7,6 +7,7 @@ import copy
 import json
 import math
 from pathlib import Path
+import runpy
 from types import SimpleNamespace
 
 import numpy as np
@@ -19,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / ("source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/"
                  "dexsuite/config/RotateBulbCustom/env_cfg.py")
 REFERENCE = json.loads((ROOT / "assets/rotate_bulb_custom/grasp_reference/simulation_state.json").read_text())
+CONTRACT = runpy.run_path(str(CONFIG.with_name("robot_contract.py")))
 SUPPORT = next(item for item in REFERENCE["fixtures"] if item["name"] == "lamp_support")
 
 
@@ -59,11 +61,13 @@ def reset_code():
     namespace = dict(torch=torch, math=math, ManagerBasedRLEnv=object,
                      combine_frame_transforms=_combine_frames, quat_from_euler_xyz=_euler_quat,
                      GRASP_REFERENCE=REFERENCE, EventTerm=_ResetTerm, DoneTerm=_ResetTerm, ObsTerm=_ResetTerm,
+                     ROTATE_GRASP_REFERENCE=CONTRACT["ROTATE_GRASP_REFERENCE"],
+                     ROTATE_INITIAL_JOINT_POS=CONTRACT["ROTATE_INITIAL_JOINT_POS"],
                      sim_utils=SimpleNamespace(PreviewSurfaceCfg=_ResetTerm),
                      BulbJointPositionActionCfg=_ResetTerm)
     for name in ("release_unscrewed_bulb", "RotateBulbPoseCommand", "rotate_bulb_dropped",
                  "RotateBulbSuccessTermination", "RotateBulbGraspLoss", "rotate_bulb_non_finite",
-                 "rotate_bulb_screw_progress", "rotate_bulb_phase_state", "RotateBulbPretrainedTactile",
+                 "rotate_bulb_screw_progress", "rotate_bulb_phase_state", "rotate_bulb_rotation_subgoal", "RotateBulbPretrainedTactile",
                  "initialize_rotate_bulb_tactile_contract"):
         namespace[name] = object()
     # Only simulator integration types/imports are replaced. Execute the real
@@ -284,7 +288,7 @@ def _reset_config(initial_turns):
     events.zz_revo3_pressure_pad_collision_properties = _ResetTerm(mode="startup")
     return SimpleNamespace(
         initial_screw_turns_range=initial_turns, task_episode_length_s=30.,
-        scene=SimpleNamespace(table=asset(), lamp=asset(), plane=asset(), tactile=sensor),
+        scene=SimpleNamespace(table=asset(), lamp=asset(), plane=asset(), tactile=sensor, robot=asset()),
         viewer=SimpleNamespace(), events=events, actions=SimpleNamespace(),
         sim=SimpleNamespace(physx=SimpleNamespace()),
         commands=SimpleNamespace(object_pose=SimpleNamespace(ranges=SimpleNamespace())),
@@ -303,6 +307,9 @@ def test_grasp_reset_configuration_restores_reference_at_startup_and_reset(reset
                    and node.target.id == "initial_screw_turns_range")
     cfg = _reset_config(ast.literal_eval(default))
     reset_code.configure_rotate_bulb_scene(cfg)
+    assert cfg.terminations.lost_grasp.func is reset_code.RotateBulbGraspLoss
+    assert cfg.terminations.lost_grasp.params["no_contact_duration_s"] == .75
+    assert cfg.terminations.non_finite is None
     assert cfg.initial_screw_turns_range == (3., 3.)
     assert cfg.scene.table.spawn.size == tuple(REFERENCE["table"]["size_m"])
     assert cfg.scene.table.init_state.pos == tuple(REFERENCE["table"]["position_m"])
@@ -337,3 +344,63 @@ def test_grasp_reset_configuration_restores_reference_at_startup_and_reset(reset
     assert cfg.scene.tactile.target_mesh_prim_path == "{ENV_REGEX_NS}/Lamp/Bulb/TactileSurface"
     assert cfg.scene.tactile.mesh_prim_paths[0].prim_expr == "{ENV_REGEX_NS}/Lamp/Bulb/TactileSurface"
     assert cfg.observations.proprio.pretrained_tactile.params["component_cfg"] == {"encoder": "retained"}
+
+
+def test_dexonomy_reference_changes_only_hand_pose_and_keeps_source_hash():
+    import hashlib
+
+    path = CONTRACT["ROTATE_GRASP_REFERENCE_PATH"]
+    provenance = json.loads(path.with_name("provenance.json").read_text())
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == provenance["source_sha256"]
+    legacy_path = CONTRACT["GRASP_REFERENCE_PATH"]
+    assert hashlib.sha256(legacy_path.read_bytes()).hexdigest() == provenance["legacy_reference_sha256"]
+    refined = CONTRACT["ROTATE_GRASP_REFERENCE"]
+    for name in ("table", "object", "fixtures"):
+        assert refined[name] == REFERENCE[name]
+    assert refined["assembly"]["source_configuration"] == REFERENCE["assembly"]["source_configuration"]
+    for name in ("base", "wrist"):
+        assert refined["robot"][name] == REFERENCE["robot"][name]
+    old, new = CONTRACT["INITIAL_JOINT_POS"], CONTRACT["ROTATE_INITIAL_JOINT_POS"]
+    assert set(new) == set(CONTRACT["JOINT_NAMES"])
+    changed = {name for name in old if old[name] != new[name]}
+    assert changed and all(name.startswith("right_") for name in changed)
+
+
+def test_dexonomy_config_preserves_assembly_pose_and_isolates_instances(reset_code):
+    legacy = CONTRACT["INITIAL_JOINT_POS"]
+    assembly = _reset_config((3., 3.))
+    assembly.bulb_assembly_task = True
+    assembly.scene.robot.init_state.joint_pos = dict(legacy)
+    reset_code.configure_rotate_bulb_scene(assembly)
+    assert assembly.scene.robot.init_state.joint_pos == legacy
+    first, second = _reset_config((3., 3.)), _reset_config((3., 3.))
+    for cfg in (first, second):
+        reset_code.configure_rotate_bulb_scene(cfg)
+        assert cfg.scene.robot.init_state.joint_pos == CONTRACT["ROTATE_INITIAL_JOINT_POS"]
+    first.scene.robot.init_state.joint_pos["right_thumb_CMP_joint"] = -99.
+    assert second.scene.robot.init_state.joint_pos == CONTRACT["ROTATE_INITIAL_JOINT_POS"]
+    assert assembly.scene.robot.init_state.joint_pos == legacy
+
+
+@pytest.mark.parametrize("selected", [None, [3, 1]])
+def test_dexonomy_configured_pose_survives_reset_in_simulator_joint_order(reset_code, selected):
+    cfg = _reset_config((3., 3.))
+    reset_code.configure_rotate_bulb_scene(cfg)
+    env = _grasp_reset_env()
+    robot = env.scene["robot"]
+    # Emulate Articulation's name lookup, deliberately reversing export order.
+    values = [cfg.scene.robot.init_state.joint_pos[name] for name in robot.joint_names]
+    robot.data.default_joint_pos[:] = torch.tensor(values, dtype=torch.float64)
+    previous = copy.deepcopy(robot)
+    cfg.events.reset_robot_joints.func(env, selected)
+    ids = list(range(env.num_envs)) if selected is None else selected
+    untouched = [i for i in range(env.num_envs) if i not in ids]
+    expected = torch.tensor(values, dtype=torch.float64).repeat(len(ids), 1)
+    torch.testing.assert_close(robot.data.joint_pos[ids], expected, rtol=0, atol=0)
+    torch.testing.assert_close(robot.position_target[ids], expected, rtol=0, atol=0)
+    assert not robot.data.joint_vel[ids].any()
+    assert not robot.velocity_target[ids].any()
+    assert not robot.effort_target[ids].any()
+    _assert_saved_pose(robot, CONTRACT["ROTATE_GRASP_REFERENCE"]["robot"]["base"], env.scene.env_origins, ids)
+    torch.testing.assert_close(robot.data.joint_pos[untouched], previous.data.joint_pos[untouched])
+    torch.testing.assert_close(robot.position_target[untouched], previous.position_target[untouched])

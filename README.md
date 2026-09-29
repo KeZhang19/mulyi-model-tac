@@ -1,4 +1,12 @@
+## 项目协作与实验文档
+
+新会话先读 [协作规则](AGENTS.md) 和 [当前状态](docs/STATUS.md)，再按需查阅
+[项目地图](docs/PROJECT_MAP.md)、[运行手册](docs/RUNBOOK.md) 与 [实验索引](EXPERIMENTS.md)。
+根 `AGENTS.md` 当前被 Git 忽略；跨检出时需确认该本地入口存在。
+
 ## 触觉可视化观测
+
+训练后在服务器运行 play、选择相机、截图和录制 MP4，见 [Play 视频录制说明](docs/play_video.md)。
 
 Repose-Cube 的多模态恢复与 CLIP latent 策略接入、权重导出及真机张量接口见 [接入说明](docs/tactile_representation/repose_policy_integration.md)。
 

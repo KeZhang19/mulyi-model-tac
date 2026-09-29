@@ -1,0 +1,58 @@
+{
+  "source": "assets/rotate_bulb_custom/robot/usd/rizon4_training.usda",
+  "source_layers_sha256": {
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/rizon4_training.usda": "9c3dd3f041f4b59dbd2c300d01da857d481fae305dcdd5f680480bf0903ff036",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/rizon4.usd": "27f499adb96c0ab06d5f45c992dfb3cf1f63e6c9ca76df993f1471ee26846b2d",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_physics.usd": "4da395c6715fbd2d35b27dc85cf1efa879e65936682b84c24ca0d68804157307",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_sensor.usd": "0d4255f660ec7fd53da9af84e7a492cc88bf35e8fd2b5612c504ce8e33f57d90",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_base.usd": "4cbc449613f72fc38047f9563e0d33509b06f2ffc6a7f78827af5b5d0a94ad8b",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_robot.usd": "64e3d07952c412cb2237623fb55d1afb088eeacaad7a7279a86208c9ae6185ab",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_collision_filters.usda": "7c7ee43906d0793c945ca00ef20fab8508fbf0f25c4b29ac6cda810a15e399c6"
+  },
+  "proxy": "/flexiv_rizon4/right_base_link/CollisionFastPalm",
+  "disabled_colliders": [
+    "/flexiv_rizon4/right_base_link/collisions/part_000/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_001/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_002/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_003/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_004/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_005/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_006/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_007/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_008/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_009/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_010/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_011/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_012/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_013/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_014/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_015/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_016/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_017/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_018/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_019/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_020/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_021/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_022/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_023/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_024/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_025/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_026/World",
+    "/flexiv_rizon4/right_base_link/collisions/part_027/World"
+  ],
+  "proxy_vertices": 67,
+  "proxy_triangles": 130,
+  "bounds_m": [
+    [
+      -0.027611739933490753,
+      -0.05288771912455559,
+      -0.000607490015681833
+    ],
+    [
+      0.025166289880871773,
+      0.05289969965815544,
+      0.11101672053337097
+    ]
+  ],
+  "sha256": "eee0f2db4b6454096de1bcee70920ec95483257508f3b32d938ff534c76a1ec4"
+}

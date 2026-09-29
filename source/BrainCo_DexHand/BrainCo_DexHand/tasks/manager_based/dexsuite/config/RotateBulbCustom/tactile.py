@@ -153,6 +153,14 @@ def initialize_rotate_bulb_tactile_contract(env, env_ids=None):
             )] for group in groups
         },
     )
+    if (getattr(env.cfg, "pressure_pose_mode", "legacy") != "legacy"
+            and not getattr(env.cfg, "bulb_assembly_task", False) and not env.cfg.bulb_pure_collision):
+        # Same dimensions do not mean old stale-pose checkpoints are compatible.
+        contract["pressure_pose_version"] = 2
+        contract["pressure_update_periods_s"] = {
+            name: float(sensor.cfg.update_period) for name, sensor in env.scene.sensors.items()
+            if "warpsdf" in name
+        }
     if term.encoder is None:
         env.tactile_policy_contract = contract
         return

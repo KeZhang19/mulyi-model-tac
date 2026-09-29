@@ -125,9 +125,17 @@ def test_phase_event_only_observes_separation_without_any_physics_writes(monkeyp
 
 
 def test_train_and_play_default_to_pure_collision():
+    """Check the pure-collision default flag for rotation and its assembly subclass."""
     tree = ast.parse(CUSTOM_CONFIG.read_text())
     for name in ("DexsuiteRevo3RotateBulbEnvCfg", "DexsuiteRevo3RotateBulbEnvCfg_PLAY"):
         cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == name)
         field = next(node for node in cls.body if isinstance(node, ast.AnnAssign)
                      and node.target.id == "bulb_pure_collision")
-        assert ast.literal_eval(field.value) is True
+        assert ast.literal_eval(field.value) is False
+    # A parent-default change must not constrain the independent tabletop task.
+    assembly_tree = ast.parse((CUSTOM_CONFIG.parent / "assembly_env_cfg.py").read_text())
+    cls = next(node for node in assembly_tree.body if isinstance(node, ast.ClassDef)
+               and node.name == "DexsuiteRevo3BulbAssemblyEnvCfg")
+    field = next(node for node in cls.body if isinstance(node, ast.AnnAssign)
+                 and node.target.id == "bulb_pure_collision")
+    assert ast.literal_eval(field.value) is True

@@ -44,40 +44,61 @@ class VisuotactileInHandManipulationEnv(InHandManipulationEnv):
     def __init__(self, cfg: BrainCoVisuotactileHandEnvCfg, render_mode: str | None = None, **kwargs):
         self._repose_training = None
         # Resolve dimensions before DirectRLEnv creates Gym spaces and buffers.
-        encoder = FrozenTactilePolicyEncoder(
-            cfg.tactile_policy_checkpoint, domain="sim", chunk_size=cfg.tactile_encoder_chunk_size,
-        )
-        norm = encoder.normalization
-        if (norm.image_height, norm.image_width, norm.marker_count) != (240, 320, 100):
-            raise ValueError("Direct calibrated tactile observations require H=240, W=320, K=100")
-        if cfg.tactile_encoder_id and cfg.tactile_encoder_id != encoder.bundle_sha256:
-            raise ValueError("Configured tactile encoder ID differs from the loaded bundle")
-        cfg.tactile_encoder_id = encoder.bundle_sha256
-        cfg.tactile_projection_dim = encoder.projection_dim
-        cfg.visuotactile_observation_terms = (
-            "state", "aligned_tactile_z" if encoder.feature_mode == "aligned" else "pretrained_tactile_h",
-        )
-        cfg.single_frame_observation_dim = cfg.state_observation_dim + cfg.tactile_finger_count * encoder.projection_dim
-        cfg.observation_space = cfg.single_frame_observation_dim * cfg.observation_history_length
-        self.tactile_policy_contract = encoder.observation_contract(
-            state_dim=cfg.state_observation_dim, history_length=cfg.observation_history_length,
-        )
-        self.tactile_policy_contract["simulation_encoder_sha256"] = encoder.bundle_sha256
-        self.tactile_policy_contract["simulation_sensor_assets"] = {
-            "marker_layout": file_sha256(cfg.tactile_marker_layout_path),
-            "mounting_urdf": file_sha256(cfg.tactile_calibration_urdf),
-            "camera_rectangles": file_sha256(
-                Path(cfg.tactile_marker_layout_path).with_name("camera_ray_rectangles_320x240.json")
-            ),
-            "rgb_background": file_sha256(cfg.tactile_rgb_background_path),
-        }
-        _ensure_torch_scatter_compatibility()
+        encoder = None
+        if cfg.tactile_policy_enabled:
+            encoder = FrozenTactilePolicyEncoder(
+                cfg.tactile_policy_checkpoint, domain="sim", chunk_size=cfg.tactile_encoder_chunk_size,
+            )
+            norm = encoder.normalization
+            if (norm.image_height, norm.image_width, norm.marker_count) != (240, 320, 100):
+                raise ValueError("Direct calibrated tactile observations require H=240, W=320, K=100")
+            if cfg.tactile_encoder_id and cfg.tactile_encoder_id != encoder.bundle_sha256:
+                raise ValueError("Configured tactile encoder ID differs from the loaded bundle")
+            cfg.tactile_encoder_id = encoder.bundle_sha256
+            cfg.tactile_projection_dim = encoder.projection_dim
+            cfg.visuotactile_observation_terms = (
+                "state", "aligned_tactile_z" if encoder.feature_mode == "aligned" else "pretrained_tactile_h",
+            )
+            cfg.single_frame_observation_dim = cfg.state_observation_dim + cfg.tactile_finger_count * encoder.projection_dim
+            cfg.observation_space = cfg.single_frame_observation_dim * cfg.observation_history_length
+            self.tactile_policy_contract = encoder.observation_contract(
+                state_dim=cfg.state_observation_dim, history_length=cfg.observation_history_length,
+            )
+            self.tactile_policy_contract["simulation_encoder_sha256"] = encoder.bundle_sha256
+            self.tactile_policy_contract["simulation_sensor_assets"] = {
+                "marker_layout": file_sha256(cfg.tactile_marker_layout_path),
+                "mounting_urdf": file_sha256(cfg.tactile_calibration_urdf),
+                "camera_rectangles": file_sha256(
+                    Path(cfg.tactile_marker_layout_path).with_name("camera_ray_rectangles_320x240.json")
+                ),
+                "rgb_background": file_sha256(cfg.tactile_rgb_background_path),
+            }
+            _ensure_torch_scatter_compatibility()
+        else:
+            if cfg.observation_history_length != 1:
+                raise ValueError("State-only Repose observations require observation_history_length=1")
+            cfg.tactile_projection_dim = 0
+            cfg.tactile_encoder_id = ""
+            cfg.visuotactile_observation_terms = ("state",)
+            cfg.single_frame_observation_dim = cfg.state_observation_dim
+            cfg.observation_space = cfg.state_observation_dim
+            self.tactile_policy_contract = {
+                "schema_version": 1,
+                "task": "BrainCo-Direct-Revo3-Repose-Cube-Visuotactile-v0",
+                "tactile_policy_enabled": False,
+                "feature": "state_only",
+                "state_dim": cfg.state_observation_dim,
+                "history_length": 1,
+                "frame_order": ["state"],
+                "observation_dim": cfg.observation_space,
+            }
         super().__init__(cfg, render_mode, **kwargs)
-        self._policy_encoder = encoder.to(self.device)
-        self._history = TactileObservationHistory(
-            self.num_envs, cfg.state_observation_dim, encoder.projection_dim,
-            cfg.observation_history_length, self.device,
-        )
+        if encoder is not None:
+            self._policy_encoder = encoder.to(self.device)
+            self._history = TactileObservationHistory(
+                self.num_envs, cfg.state_observation_dim, encoder.projection_dim,
+                cfg.observation_history_length, self.device,
+            )
         self._observation_cache_key = None
         self.latest_tactile_reconstruction = None
         if cfg.repose_training_revision == 2:
@@ -116,9 +137,12 @@ class VisuotactileInHandManipulationEnv(InHandManipulationEnv):
 
     def _setup_scene(self):
         super()._setup_scene()
-        self._tactile_runtime = DirectVisuotactileRuntime(self)
+        if self.cfg.tactile_policy_enabled:
+            self._tactile_runtime = DirectVisuotactileRuntime(self)
 
     def _get_observations(self) -> dict[str, torch.Tensor]:
+        if not self.cfg.tactile_policy_enabled:
+            return super()._get_observations()
         key = (self.common_step_counter, getattr(self, "_rl_ours_tactile_reset_epoch", 0))
         if key == self._observation_cache_key:
             return {"policy": self._history.frames.flatten(1)}

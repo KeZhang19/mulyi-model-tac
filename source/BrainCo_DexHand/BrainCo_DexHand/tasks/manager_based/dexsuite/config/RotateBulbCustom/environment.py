@@ -31,6 +31,10 @@ def make_rotate_bulb_env(cfg, **kwargs):
     """Resolve physics mode and buffer capacity after all CLI/Hydra overrides."""
     from isaaclab.envs import ManagerBasedRLEnv
 
+    if getattr(cfg, "bulb_assembly_task", False):
+        from .assembly_reward_adapter import configure_assembly_rewards
+
+        configure_assembly_rewards(cfg)
     if hasattr(cfg, "bulb_pure_collision"):
         from .env_cfg import configure_bulb_connection_mode
         from .self_collision import spawn_bulb_robot_with_self_collision
@@ -38,6 +42,9 @@ def make_rotate_bulb_env(cfg, **kwargs):
         if cfg.scene.robot.spawn.articulation_props.enabled_self_collisions is not True:
             raise ValueError("Revised Rotate-Bulb-Custom requires robot self collisions to remain enabled")
         configure_bulb_connection_mode(cfg)
+        from .pressure_pose import install_rotate_bulb_pressure_pose
+
+        install_rotate_bulb_pressure_pose(cfg)
         cfg.scene.robot.spawn = cfg.scene.robot.spawn.replace(func=spawn_bulb_robot_with_self_collision)
         print(f"[INFO][RotateBulbCustom] bulb_pure_collision={cfg.bulb_pure_collision}", flush=True)
     previous = cfg.sim.physx.gpu_collision_stack_size

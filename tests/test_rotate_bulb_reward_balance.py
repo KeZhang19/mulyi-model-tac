@@ -151,29 +151,19 @@ def test_transport_tracks_current_distance_after_release(reward_code):
     env._bulb_released[:] = True
     far = transport(env, **params).item()
     custom = reward_code.source_path.name == "env_cfg.py"
-    assert (far > 0) if custom else (far == 0)  # Standard establishes a released baseline.
-    # The absolute tracking term remains active on stationary steps and rises
-    # smoothly as the bulb approaches the commanded point.
+    assert far == 0  # Release establishes a baseline, never free proximity credit.
     env.scene["object"].data.root_pos_w[:, 2] = .2
     mid = transport(env, **params).item()
     env.scene["object"].data.root_pos_w[:, 2] = .3
     near = transport(env, **params).item()
-    if custom:
-        assert 0 < far < mid < near <= 1
-    else:
-        assert 0 < mid < near
-        assert not transport(env, **params).any()  # Standard pays only new progress.
+    assert 0 < mid < near
+    assert not transport(env, **params).any()  # Both tasks pay only new progress.
     thumb = env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"].data.force_matrix_w
     thumb.zero_()
     if custom:
-        # Losing opposing contact must not erase the geometric guidance.
-        assert transport(env, **params).item() == pytest.approx(near)
         for legacy_flag in (False, True):
-            assert transport(env, **params, contact_gate_after_release=legacy_flag).item() == pytest.approx(near)
-        env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w.zero_()
-        assert transport(env, **params).item() == pytest.approx(near)
-    else:
-        assert not transport(env, **params).any()
+            assert not transport(env, **params, contact_gate_after_release=legacy_flag).any()
+    assert not transport(env, **params).any()
     # A failed or unreleased bulb cannot receive transport shaping.
     env.failure_terms["bulb_dropped"][:] = True
     assert not transport(env, **params).any()
@@ -185,16 +175,14 @@ def test_transport_is_independent_between_environments(reward_code):
     env.command[:, 2] = .3
     params = dict(_params(), std=.1)
     transport = _term(reward_code, "RotateBulbTransportProgress", env, **params)
-    custom = reward_code.source_path.name == "env_cfg.py"
-    if not custom:
-        assert not transport(env, **params).any()
-        env.scene["object"].data.root_pos_w[:, 2] = .2
+    assert not transport(env, **params).any()
+    env.scene["object"].data.root_pos_w[:, 2] = .2
     original = transport(env, **params)
     assert (original > 0).all()
     env._bulb_released[0] = False
     current = transport(env, **params)
     torch.testing.assert_close(current[0], torch.tensor(0.))
-    torch.testing.assert_close(current[1], original[1] if custom else torch.tensor(0.))
+    torch.testing.assert_close(current[1], torch.tensor(0.))
 
 
 @pytest.mark.parametrize("hz", [30, 60, 120])
@@ -258,7 +246,7 @@ def _run_three_turn_attempt(code, hz, drop):
         assert not success(env, once=True, pos_std=.03, **_params()).any()
         return total
     baseline_credit = transport(env, **params)
-    assert (baseline_credit > 0).all() if code.source_path.name == "env_cfg.py" else not baseline_credit.any()
+    assert not baseline_credit.any()
     # Hold after release, carry 12 cm at 0.12 m/s, then settle at the target.
     for phase, steps in (("hold", round(.4 * hz)), ("carry", hz), ("settle", round(.4 * hz))):
         for step in range(1, steps + 1):
@@ -278,15 +266,13 @@ def _run_three_turn_attempt(code, hz, drop):
 def test_complete_task_dominates_spin_then_drop_at_all_control_frequencies(reward_code):
     complete = [_run_three_turn_attempt(reward_code, hz, drop=False) for hz in (30, 60, 120)]
     dropped = [_run_three_turn_attempt(reward_code, hz, drop=True) for hz in (30, 60, 120)]
-    # Dense tracking is paid throughout the released carry phase, so the
-    # completed trajectory now includes several points of transport shaping.
-    lower, upper = (23, 28) if reward_code.source_path.name == "env_cfg.py" else (22, 23)
+    # Custom normalizes transport progress to its four-point release-to-goal budget.
+    lower, upper = (23, 24) if reward_code.source_path.name == "env_cfg.py" else (22, 23)
     assert all(lower < value < upper for value in complete)
     assert all(-.01 < value < .3 for value in dropped)
     # Grasp closes on the final attached step, so its quadrature differs by at most one control step.
-    # Dense Custom tracking has an ordinary one-step quadrature difference;
-    # standard new-best tracking is frequency-independent apart from grasp.
-    tolerance = 4 / 30 + .25 / 30 if reward_code.source_path.name == "env_cfg.py" else .01
+    # Transport progress is frequency-independent; only the rate terms have quadrature error.
+    tolerance = .01
     assert max(complete) - min(complete) < tolerance
     assert max(dropped) - min(dropped) < .01
     assert min(complete) > max(dropped) + 20
@@ -317,12 +303,15 @@ def test_actual_configured_pipeline_keeps_task_completion_above_early_phase_and_
     assert cfg.success.params["once"] is True
     assert cfg.success.params["pos_std"] == 0.03
     assert cfg.success.params.get("hold_duration", .3) == (1. if custom else .3)
-    assert cfg.unscrew_progress.params["completion_bonus"] == 0
+    if custom:
+        assert cfg.unscrew_progress.params["milestones"] is True
+    else:
+        assert cfg.unscrew_progress.params["completion_bonus"] == 0
     assert cfg.position_tracking.func is reward_code.RotateBulbTransportProgress
-    assert cfg.position_tracking.weight == (0.5 if custom else 4.)
+    assert cfg.position_tracking.weight == 4.
     assert cfg.position_tracking.params["std"] == (0.2 if custom else 0.1)
     if custom:
-        assert cfg.position_tracking.params["contact_gate_after_release"] is False
+        assert cfg.position_tracking.params["contact_gate_after_release"] is True
     assert cfg.position_tracking_fine is None
     assert cfg.fingers_to_object.weight == cfg.good_finger_contact.weight == 0
     assert cfg.action_l2.weight == (-.05 if custom else -.001)
@@ -331,7 +320,11 @@ def test_actual_configured_pipeline_keeps_task_completion_above_early_phase_and_
     env = _task_env(count=3)
     env.action_manager = SimpleNamespace(action=torch.zeros(3, 28), prev_action=torch.zeros(3, 28),
                                         get_term=lambda _: SimpleNamespace(arm_action_indices=list(range(7)),
-                                                                          hand_action_indices=list(range(7, 28))))
+                                                                          hand_action_indices=list(range(7, 28)),
+                                                                          joint_ids=list(range(28))))
+    env.scene["robot"].data.joint_pos = torch.zeros(3, 28)
+    env.scene["robot"].data.default_joint_pos = torch.zeros(3, 28)
+    env.scene["robot"].data.joint_vel = torch.zeros(3, 28)
     configured = {name: term for name, term in vars(type(cfg)).items()
                   if isinstance(term, SimpleNamespace) and hasattr(term, "weight") and term.weight != 0}
     functions = {name: term.func(term, env) if isinstance(term.func, type) else term.func
@@ -343,8 +336,8 @@ def test_actual_configured_pipeline_keeps_task_completion_above_early_phase_and_
             sums[name] += functions[name](env, **term.params) * term.weight * env.step_dt
 
     # Environments 0/1 turn three times; environment 2 waits without rotating.
-    for step in range(1, 61):
-        env.scene["lamp"].data.joint_pos[:2] = env._bulb_start_joints[:2] * (1 - step / 60)
+    for step in range(1, 181):
+        env.scene["lamp"].data.joint_pos[:2] = env._bulb_start_joints[:2] * (1 - step / 180)
         step_configured_rewards()
     env._bulb_released[:2] = True
     env.scene["object"].data.root_pos_w[:2, 2] = .03
@@ -364,18 +357,23 @@ def test_actual_configured_pipeline_keeps_task_completion_above_early_phase_and_
     spin_sum = sums["unscrew_progress"] + sums.get("unscrew_turns", 0.)
     torch.testing.assert_close(spin_sum, torch.tensor([6., 6., 0.]))
     torch.testing.assert_close(sums["success"], torch.tensor([10., 0., 0.]))
+    if custom:
+        assert "grasp_shaping" not in configured
+        # This synthetic pipeline remains inside the initial distance-cost grace.
+        assert "hand_far" in configured
+        torch.testing.assert_close(sums["hand_far"], torch.zeros(3))
     torch.testing.assert_close(sums["release_grasp"], torch.tensor([2., 0., 0.]))
-    torch.testing.assert_close(sums["failure"], torch.tensor([0., -6., 0.]))
     torch.testing.assert_close(sums["released_stability"], torch.tensor([2., 0., 0.]))
+    torch.testing.assert_close(sums["failure"], torch.tensor([0., -6., 0.]))
     assert sums["position_tracking"][0] > 0
     assert sums["position_tracking"][1:].tolist() == [0., 0.]
     total = sum(sums.values())
-    assert total[0] > 20
+    assert total[0] > (16 if custom else 20)
     assert 0 <= total[1] < 1
     auxiliary_contact = sums.get("any_finger_contact", torch.zeros(3))
     assert total[2] - auxiliary_contact[2] <= 1.00001  # The initial grasp budget stays bounded.
     assert 0 <= auxiliary_contact[2] <= 2.0  # Custom adds a small continuous contact rate.
-    early = sums["fingers_to_object_delta"][0] + sums["grasp_shaping"][0] + spin_sum[0]
+    early = sums["fingers_to_object_delta"][0] + sums.get("grasp_shaping", torch.zeros(3))[0] + spin_sum[0]
     assert total[0] - early > 2 * early
 
 
@@ -385,16 +383,15 @@ def test_transport_nan_contact_is_zero_credit_even_when_phase_or_failure_masks_a
     env.scene["object"].data.root_pos_w[:, 2] = .1
     env._bulb_released[1:] = True
     params = dict(_params(), std=.1)
+    if reward_code.source_path.name == "env_cfg.py":
+        params["regrasp_grace_s"] = 0.
     transport = _term(reward_code, "RotateBulbTransportProgress", env, **params)
     baseline = transport(env, **params)
-    if reward_code.source_path.name == "env_cfg.py":
-        assert baseline[0] == 0 and (baseline[1:] > 0).all()
-    else:
-        assert not baseline.any()
+    assert not baseline.any()
     env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"].data.force_matrix_w[:3] = float("nan")
+    env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w[:3] = float("nan")
     if reward_code.source_path.name == "env_cfg.py":
-        # TerminationManager flags invalid sensor data before RewardManager
-        # runs; transport uses that physical-failure flag, not contact scores.
+        # non_finite remains disabled, but invalid contacts cannot earn credit.
         env.failure_terms["non_finite"][1] = True
     env.failure_terms["bulb_dropped"][2] = True
     env.scene["object"].data.root_pos_w[:, 2] = .2

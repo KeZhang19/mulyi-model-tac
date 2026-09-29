@@ -79,15 +79,6 @@ def test_grasp_loss_cost_is_time_scaled_and_never_rewards_stationary_grasp(code)
     assert totals == pytest.approx([-.2, -.2], abs=1e-6)
 
 
-def test_transient_contact_never_relaxes_success_tolerances(code):
-    s = state(code)
-    s.update(snapshot(code, (.003,)), .1, 1)
-    for step in range(2, 12):
-        s.update(snapshot(code, (.028,), xy=((.001, 0.),)), .1, step)
-        assert not s.success.item()
-        assert s.hold_time.item() == 0
-
-
 def test_stability_reward_is_gated_to_deep_held_entry(code):
     s = state(code)
     s.update(snapshot(code, (.003,)), 1 / 30, 1)

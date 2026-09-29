@@ -122,6 +122,8 @@ def validate(args, report):
     cfg.seed = args.seed
     cfg.tactile_policy_enabled = False
     cfg.socket_xy_randomization_m = 0.0
+    cfg.socket_roll_randomization_deg = 0.0
+    cfg.socket_pitch_randomization_deg = 0.0
     cfg.socket_yaw_randomization_deg = 0.0
     if args.geometry_only:
         for group_name, group in list(vars(cfg.observations).items()):

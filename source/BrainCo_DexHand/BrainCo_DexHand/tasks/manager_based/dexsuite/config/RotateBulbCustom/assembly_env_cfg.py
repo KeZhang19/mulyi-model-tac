@@ -16,6 +16,8 @@ from isaaclab.sensors import ContactSensorCfg
 from isaaclab.utils import configclass
 
 from . import assembly
+from .assembly_guidance import AssemblyGuidanceCfg, AssemblyGuidanceReward, assembly_thread_downward
+from .assembly_lift import AssemblyLiftCfg, AssemblyLiftReward
 from .env_cfg import (
     DexsuiteRevo3RotateBulbEnvCfg,
     DexsuiteRevo3RotateBulbEnvCfg_PLAY,
@@ -222,6 +224,12 @@ class DexsuiteRevo3BulbAssemblyRewardCfg:
     good_finger_contact = RewTerm(
         func=assembly_good_finger_contact, weight=2.0, params={"threshold": 1.0},
     )
+    # Finite episode bonuses, already divided by step_dt by the term.
+    lift_best_progress = RewTerm(func=AssemblyLiftReward, weight=1.0, params={"component": "progress"})
+    lift_stable_once = RewTerm(func=AssemblyLiftReward, weight=1.0, params={"component": "stable"})
+    position_tracking = RewTerm(func=AssemblyGuidanceReward, weight=5.0, params={"component": "position"})
+    insertion_tracking = RewTerm(func=AssemblyGuidanceReward, weight=5.0, params={"component": "insertion"})
+    thread_downward = RewTerm(func=assembly_thread_downward, weight=1.0)
     phase = RewTerm(func=assembly.assembly_phase_reward, weight=0.5)
     success = RewTerm(func=AssemblyCompletionReward, weight=20.0)
 
@@ -234,16 +242,33 @@ class DexsuiteRevo3BulbAssemblyEnvCfg(DexsuiteRevo3RotateBulbEnvCfg):
         num_envs=32, env_spacing=3, replicate_physics=False,
     )
     bulb_assembly_task: bool = True
+    # Reward-only ablation switch, resolved by the task factory after Hydra.
+    OLD_REWARD: bool = False
+    # Assembly starts with a free bulb on the table, independent of Rotate-Bulb's default.
+    bulb_pure_collision: bool = True
+    assembly_guidance: AssemblyGuidanceCfg = AssemblyGuidanceCfg()
+    assembly_lift: AssemblyLiftCfg = AssemblyLiftCfg()
     # Training-only reset curriculum knob.  The acceptance/default path keeps
     # the measured tabletop separation; staged training may start nearer the
     # reference grasp and increase the offset before formal evaluation.
     bulb_training_reset_offset_y: float = assembly.DESKTOP_OFFSET_Y_M
+    # Independent world XY offsets around the nominal desktop bulb position.
+    # Shared by training and PLAY; yaw is about world Z, in radians.
+    bulb_reset_x_range: tuple[float, float] = (-0.05, 0.05)
+    bulb_reset_y_range: tuple[float, float] = (-0.05, 0.05)
+    bulb_reset_yaw_range: tuple[float, float] = (-math.pi / 2, math.pi / 2)
 
     def __post_init__(self):
         # Keep the complete legacy reward object while the parent resolves the
         # Revo3 robot, scene, sensors, and reset arguments.  The parent reads
         # fields such as rewards.success.params["rot_std"] during setup.
         super().__post_init__()
+        # Start tabletop assembly with an open hand. Named defaults also feed
+        # startup and full/partial reset; keep the seven arm joints unchanged.
+        self.scene.robot.init_state.joint_pos = {
+            name: 0.0 if name.startswith("right_") else position
+            for name, position in self.scene.robot.init_state.joint_pos.items()
+        }
         # Replace the reward graph only after parent setup.  None of these
         # terms reads the legacy release, unscrew, or command state.
         self.rewards = DexsuiteRevo3BulbAssemblyRewardCfg()
@@ -256,6 +281,9 @@ class DexsuiteRevo3BulbAssemblyEnvCfg(DexsuiteRevo3RotateBulbEnvCfg):
             params={
                 **self.events.reset_object.params,
                 "desktop_offset_y": self.bulb_training_reset_offset_y,
+                "x_range": self.bulb_reset_x_range,
+                "y_range": self.bulb_reset_y_range,
+                "yaw_range": self.bulb_reset_yaw_range,
             },
         )
         self.events.initialize_lamp = self.events.reset_object.replace(mode="startup")
@@ -266,7 +294,7 @@ class DexsuiteRevo3BulbAssemblyEnvCfg(DexsuiteRevo3RotateBulbEnvCfg):
 
         self.terminations.bulb_dropped = DoneTerm(func=assembly.assembly_bulb_dropped)
         self.terminations.lost_grasp = DoneTerm(func=assembly.assembly_lost_grasp)
-        self.terminations.non_finite.func = rotate_bulb_non_finite
+        self.terminations.non_finite = DoneTerm(func=rotate_bulb_non_finite)
         self.terminations.success = DoneTerm(func=assembly.assembly_success, params={"hold_duration": assembly.HOLD_DURATION_S})
         # Remove the legacy command manager state and its success metrics.  The
         # target pose observation below is computed from the support and reset

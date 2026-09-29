@@ -1,0 +1,18 @@
+{
+  "source": "assets/rotate_bulb_custom/robot/usd/rizon4_training.usda",
+  "changed_articulation_roots": [
+    "/flexiv_rizon4/root_joint"
+  ],
+  "self_collisions": false,
+  "geometry_unchanged": true,
+  "source_layers_sha256": {
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/rizon4_training.usda": "9c3dd3f041f4b59dbd2c300d01da857d481fae305dcdd5f680480bf0903ff036",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/rizon4.usd": "27f499adb96c0ab06d5f45c992dfb3cf1f63e6c9ca76df993f1471ee26846b2d",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_physics.usd": "4da395c6715fbd2d35b27dc85cf1efa879e65936682b84c24ca0d68804157307",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_sensor.usd": "0d4255f660ec7fd53da9af84e7a492cc88bf35e8fd2b5612c504ce8e33f57d90",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_robot.usd": "64e3d07952c412cb2237623fb55d1afb088eeacaad7a7279a86208c9ae6185ab",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_base.usd": "4cbc449613f72fc38047f9563e0d33509b06f2ffc6a7f78827af5b5d0a94ad8b",
+    "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/configuration/rizon4_collision_filters.usda": "7c7ee43906d0793c945ca00ef20fab8508fbf0f25c4b29ac6cda810a15e399c6"
+  },
+  "sha256": "85ae4a20974a963977a90dce31d4da30316d61f9f00356c980a7ce365c017937"
+}

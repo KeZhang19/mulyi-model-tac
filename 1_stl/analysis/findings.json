@@ -1,0 +1,53 @@
+{
+  "source_sha256": "ca100ee804fe35ccc022bc51b41307f2521a5d2d29a4e3e158a6726372998059",
+  "source_entities": {
+    "products": 1,
+    "next_assembly_usage_occurrences": 0,
+    "solid_brep_ids": [
+      25771,
+      26166,
+      62249,
+      62358,
+      62498
+    ],
+    "extra_shells": 15,
+    "hidden_layer_id": 101090,
+    "invisibility_id": 101091
+  },
+  "small_solid_distances_mm": [
+    {
+      "solid": 2,
+      "to_upper_01": 2.9149829998750607,
+      "to_lower_03": 3.7859373761221664
+    },
+    {
+      "solid": 4,
+      "to_upper_01": 4.696636863921619,
+      "to_lower_03": 4.470939240832443
+    },
+    {
+      "solid": 5,
+      "to_upper_01": 4.283644162398844,
+      "to_lower_03": 4.251630867591917
+    }
+  ],
+  "interpretation": {
+    "confirmed": "Solids 1 and 3 are the mold halves; 2, 4, 5 are tiny separate bodies at the thumb proximal region. Extra shells 7, 8, 9 have identical rounded-eight-decimal tessellation hashes and depict a fingertip-like shell with connection ears.",
+    "inferred": "Geometry is associated with a hand mold; the tiny solids plausibly result from splitting/Boolean construction, including possible isolated cores or residual slivers.",
+    "unknown": "No native feature history establishes the original Boolean operands or the intended ownership/function of the tiny solids. No complete hand is present as one of the five explicit solid bodies."
+  },
+  "documentation_impact": {
+    "EXPERIMENTS.md": {
+      "risk": "LOW",
+      "direct": [
+        "README.md"
+      ],
+      "affected_processes": []
+    },
+    "docs/STATUS.md": {
+      "risk": "UNKNOWN",
+      "reason": "Target not found in index",
+      "supplemental_reference_check": "README.md, docs/PROJECT_MAP.md, docs/RUNBOOK.md link to STATUS.md; edits only add findings without changing paths or runtime code."
+    }
+  }
+}

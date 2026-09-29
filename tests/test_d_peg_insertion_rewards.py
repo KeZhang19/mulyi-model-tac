@@ -116,7 +116,10 @@ def test_initial_or_side_inserted_pose_is_not_a_valid_entry(code):
     assert s.components["entry"].item() == 0
     for step in range(2, 10):
         s.update(snapshot(code, (.028,)), .1, step)
-    assert not s.success.any()
+    assert s.success.all()  # Completion is independent of process-reward entry history.
+    assert not s.entered.any()
+    assert s.episode_sums["depth"].item() == 0
+    assert s.episode_sums["entry"].item() == 0
 
 
 def test_unheld_entry_consumes_milestone_and_progress_without_paying(code):
@@ -168,19 +171,6 @@ def test_repeated_reads_in_same_step_do_not_advance_hold_or_progress(code):
     s.update(current, .1, 6)
     assert s.reward_rate.item() == 0
     assert s.components["success"].item() == 0
-
-
-@pytest.mark.parametrize("change", [dict(xy=((.001, 0.),)), dict(yaw=math.radians(10)),
-                                   dict(depths=(.026,)), dict(depths=(.032,))])
-def test_success_requires_continuous_strict_stability(code, change):
-    s = state(code)
-    for step in range(1, 4):
-        s.update(snapshot(code, (.028,)), .1, step)
-    args = dict(depths=(.028,))
-    args.update(change)
-    s.update(snapshot(code, **args), .1, 4)
-    assert not s.success.any()
-    assert not s.hold_time.any()
 
 
 def test_partial_reset_preserves_every_other_environment_history(code):

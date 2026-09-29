@@ -14,9 +14,13 @@ from isaaclab.utils import configclass
 from .robot_contract import JOINT_NAMES
 
 
-BULB_ACTION_VERSION = 2
-ARM_DELTA_LIMIT = 0.025
-HAND_DELTA_LIMIT = 0.05
+BULB_ACTION_VERSION = 3
+# Previous small-increment scales, disabled for both Custom bulb tasks:
+# ARM_DELTA_LIMIT = 0.025
+# HAND_DELTA_LIMIT = 0.05
+# Unit scaling leaves only the normalized action bound of [-1, 1].
+ARM_DELTA_LIMIT = 1.0
+HAND_DELTA_LIMIT = 1.0
 
 
 class BulbJointPositionAction(JointAction):

@@ -208,8 +208,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--task", default=DEFAULT_TASK)
     parser.add_argument("--num_envs", "--num-envs", type=int, default=2)
-    parser.add_argument("--reference", type=Path, default=ASSETS / "grasp_reference/simulation_state.json")
-    parser.add_argument("--report", type=Path, default=ASSETS / "grasp_reference/runtime_validation.json")
+    parser.add_argument("--reference", type=Path,
+                        default=ASSETS / "grasp_reference/dexonomy_20260920/simulation_state.json")
+    parser.add_argument("--report", type=Path,
+                        default=ASSETS / "grasp_reference/dexonomy_20260920/runtime_validation.json")
     parser.add_argument("--full-observations", action="store_true")
     parser.add_argument("--position-tolerance", type=float, default=2e-4)
     parser.add_argument("--rotation-tolerance", type=float, default=2e-3)

@@ -1,0 +1,264 @@
+{
+  "cad_parts": {
+    "upper_01": {
+      "step_valid": true,
+      "step_solids": 1,
+      "step_reimport_volume_mm3": 1115399.0758056059
+    },
+    "lower_03": {
+      "step_valid": true,
+      "step_solids": 1,
+      "step_reimport_volume_mm3": 960393.3925199416
+    }
+  },
+  "fit": {
+    "opening_sweep_discrete": [
+      {
+        "displacement_along_normal_mm": 0,
+        "intersection_volume_mm3": 0.0
+      },
+      {
+        "displacement_along_normal_mm": 0.5,
+        "intersection_volume_mm3": 0.0
+      },
+      {
+        "displacement_along_normal_mm": 2,
+        "intersection_volume_mm3": 0.0
+      },
+      {
+        "displacement_along_normal_mm": 5,
+        "intersection_volume_mm3": 0.0
+      },
+      {
+        "displacement_along_normal_mm": 6.2,
+        "intersection_volume_mm3": 0.0
+      },
+      {
+        "displacement_along_normal_mm": 10,
+        "intersection_volume_mm3": 0.0
+      }
+    ]
+  },
+  "holes": [
+    {
+      "id": "M1",
+      "void_and_bearing_land_probes": 48,
+      "hardware_intersection_mm3": 0
+    },
+    {
+      "id": "M2",
+      "void_and_bearing_land_probes": 48,
+      "hardware_intersection_mm3": 0
+    },
+    {
+      "id": "M3",
+      "void_and_bearing_land_probes": 48,
+      "hardware_intersection_mm3": 0
+    },
+    {
+      "id": "M4",
+      "void_and_bearing_land_probes": 48,
+      "hardware_intersection_mm3": 0
+    }
+  ],
+  "root_opening": {
+    "width_mm": 52.4,
+    "height_mm": 40.4,
+    "empty_channel_probes": 343
+  },
+  "assembly_step_valid_solids": 2,
+  "breadboard": {
+    "relative_holes_share_25mm_grid": true,
+    "example_edge_offset_mm": 25,
+    "example_minimum_mm": [
+      250,
+      275
+    ],
+    "actual_size_verified": false
+  },
+  "face_preservation": {
+    "upper_01": {
+      "old_faces": 206,
+      "new_faces": 218,
+      "unchanged_faces": 205,
+      "max_signature_error": 3.979039320256561e-13,
+      "changed_original_faces": [
+        {
+          "index": 3,
+          "type": "PLANE",
+          "area": 13700.84232274755,
+          "normal": [
+            0.019212307270460777,
+            0.005271929917449214,
+            -0.9998015273064405
+          ],
+          "signature": [
+            13700.84232274755,
+            43.966921372836374,
+            96.02155441735034,
+            -5.516547827529554,
+            -60.00000010000001,
+            -19.000000100000037,
+            -8.120894832537854,
+            160.0000001,
+            230.00000010000022,
+            -3.5485689841053114
+          ]
+        }
+      ]
+    },
+    "lower_03": {
+      "old_faces": 308,
+      "new_faces": 328,
+      "unchanged_faces": 306,
+      "max_signature_error": 3.979039320256561e-13,
+      "changed_original_faces": [
+        {
+          "index": 8,
+          "type": "PLANE",
+          "area": 13406.28439723454,
+          "normal": [
+            -0.019212307270460777,
+            -0.005271929917449214,
+            0.9998015273064405
+          ],
+          "signature": [
+            13406.28439723454,
+            44.661899723921984,
+            93.48989827333466,
+            -5.516542402591807,
+            -60.00000010000001,
+            -19.000000100000037,
+            -8.120894832537854,
+            160.0000001,
+            230.00000010000022,
+            -3.548568984105312
+          ]
+        },
+        {
+          "index": 124,
+          "type": "PLANE",
+          "area": 37783.539816339755,
+          "normal": [
+            -0.0,
+            -0.0,
+            -1.0
+          ],
+          "signature": [
+            37783.539816339755,
+            22.31124135594112,
+            88.81011359917142,
+            -40.0,
+            -60.0,
+            -19.0,
+            -40.0,
+            160.0,
+            230.0,
+            -40.0
+          ]
+        }
+      ]
+    }
+  },
+  "mesh_validation": [
+    {
+      "name": "upper_01",
+      "triangles": 38078,
+      "vertices": 19041,
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "volume_mm3": 1115495.1072234919,
+      "cad_mesh_relative_volume_difference": 8.425025157670089e-05,
+      "print_bounds_mm": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          220.0,
+          249.0,
+          42.920894732537846
+        ]
+      ],
+      "print_size_mm": [
+        220.0,
+        249.0,
+        42.920894732537846
+      ],
+      "recovered_source_patches": []
+    },
+    {
+      "name": "lower_03",
+      "triangles": 49614,
+      "vertices": 24801,
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "volume_mm3": 960507.9377256694,
+      "cad_mesh_relative_volume_difference": 0.0001168620602510872,
+      "print_bounds_mm": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          220.0,
+          249.0,
+          41.24607817320686
+        ]
+      ],
+      "print_size_mm": [
+        220.0,
+        249.0,
+        41.24607817320686
+      ],
+      "recovered_source_patches": [
+        {
+          "vertices": 4,
+          "triangles": 2,
+          "sample_count": 306,
+          "max_sampled_surface_deviation_mm": 0.00014060711946331427,
+          "strict_uv_classifier_outside": 296,
+          "max_sampled_trimmed_face_distance_mm": 0.0020798218274299296,
+          "exploratory_bounded_face_0p002mm_passed": false,
+          "acceptance_sampled_bounded_face_tolerance_mm": 0.02,
+          "source_face": "trimmed_256/lower_03_cad.brep face 101",
+          "validation_note": "Keep both failed strict UV classification and the exploratory 0.002 mm gate. Accept local bounded-face samples against the explicitly configured 0.02 mm CAD mesh deflection. This is sampled local evidence, not a global mesh error certificate."
+        },
+        {
+          "vertices": 3,
+          "triangles": 1,
+          "sample_count": 153,
+          "max_sampled_surface_deviation_mm": 0.0014547054772123247,
+          "strict_uv_classifier_outside": 15,
+          "max_sampled_trimmed_face_distance_mm": 0.0025381049883058926,
+          "exploratory_bounded_face_0p002mm_passed": false,
+          "acceptance_sampled_bounded_face_tolerance_mm": 0.02,
+          "source_face": "trimmed_256/lower_03_cad.brep face 101",
+          "validation_note": "Keep both failed strict UV classification and the exploratory 0.002 mm gate. Accept local bounded-face samples against the explicitly configured 0.02 mm CAD mesh deflection. This is sampled local evidence, not a global mesh error certificate."
+        }
+      ]
+    }
+  ],
+  "parent_files_hash_unchanged": [
+    "upper_01_cad.step",
+    "assembly_root_open.step",
+    "README.md",
+    "lower_03_print.stl",
+    "preview.png",
+    "validation.json",
+    "upper_01_cad.brep",
+    "lower_03_cad.brep",
+    "manifest.json",
+    "lower_03_cad.step",
+    "upper_01_print.stl"
+  ],
+  "validation_limits": "No physical printing, mating fit test, torque/load test, or actual breadboard size and blind thread depth measurement. Opening sweep uses discrete positions."
+}

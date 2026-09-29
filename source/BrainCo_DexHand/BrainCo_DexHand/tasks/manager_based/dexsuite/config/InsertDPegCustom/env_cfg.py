@@ -153,10 +153,14 @@ def reset_d_peg_pregrasp(env, env_ids=None):
     socket_pose[:, :2] += torch.empty((len(ids), 2), device=env.device).uniform_(-radius, radius)
     angle = math.radians(float(env.cfg.socket_yaw_randomization_deg))
     yaw = torch.empty(len(ids), device=env.device).uniform_(-angle, angle)
-    yaw_quat = quat_from_euler_xyz(torch.zeros_like(yaw), torch.zeros_like(yaw), yaw)
-    # Compose a world-frame yaw perturbation with the calibrated socket pose;
+    roll_angle = math.radians(float(getattr(env.cfg, "socket_roll_randomization_deg", 0.0)))
+    pitch_angle = math.radians(float(getattr(env.cfg, "socket_pitch_randomization_deg", 0.0)))
+    roll = torch.empty_like(yaw).uniform_(-roll_angle, roll_angle)
+    pitch = torch.empty_like(yaw).uniform_(-pitch_angle, pitch_angle)
+    perturbation = quat_from_euler_xyz(roll, pitch, yaw)
+    # Compose a world-frame XYZ perturbation with the calibrated socket pose;
     # replacing the quaternion would silently discard non-identity calibration.
-    socket_pose[:, 3:] = quat_mul(yaw_quat, socket_pose[:, 3:])
+    socket_pose[:, 3:] = quat_mul(perturbation, socket_pose[:, 3:])
     socket.write_root_pose_to_sim(socket_pose, env_ids=ids)
     socket.write_root_velocity_to_sim(torch.zeros((len(ids), 6), device=env.device), env_ids=ids)
 
@@ -283,7 +287,8 @@ def configure_d_peg_insertion(cfg):
     )
     cfg.actions.action = DPegPregraspResidualActionCfg(
         asset_name="robot", joint_names=[".*"],
-        scale={"joint[1-7]": 0.1, "right_.*": 0.02},
+        # Unit residuals in radians for both arm and hand, without task clipping.
+        scale=1.0, clip=None,
     )
     cfg.scene.sky_light.spawn.texture_file = None
     cfg.events.randomize_object_scale = None
@@ -380,8 +385,10 @@ class DexsuiteFlexivInsertDPegEnvCfg(Revo3MixinCfg, dexsuite.DexsuiteReorientEnv
     task_id: str = "BrainCo-Dexsuite-Flexiv-Right-Insert-D-Peg-Custom-v0"
     curriculum = None
     task_episode_length_s: float = 15.0
-    socket_xy_randomization_m: float = 0.005
-    socket_yaw_randomization_deg: float = 10.0
+    socket_xy_randomization_m: float = 0.1
+    socket_roll_randomization_deg: float = 0.0
+    socket_pitch_randomization_deg: float = 0.0
+    socket_yaw_randomization_deg: float = 90.0
     socket_mouth_height_m: float = 0.05
     insertion_depth_m: float = 0.028
     peg_usd_path: str = str(_ASSETS / "peg.usd")

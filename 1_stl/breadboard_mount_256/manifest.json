@@ -1,0 +1,354 @@
+{
+  "source_directory": "1_stl/root_open_256",
+  "unit": "mm",
+  "breadboard_pitch_mm": [
+    25,
+    25
+  ],
+  "breadboard_edge_offset_mm": [
+    25,
+    25
+  ],
+  "breadboard_actual_size_mm": null,
+  "example_minimum_board_mm": [
+    250,
+    275
+  ],
+  "lower_print_origin_on_example_board_mm": [
+    7,
+    15
+  ],
+  "mount_holes": [
+    {
+      "id": "M1",
+      "cad_xy_mm": [
+        -42.0,
+        216.0
+      ],
+      "lower_print_xy_mm": [
+        18.0,
+        235.0
+      ],
+      "example_board_xy_mm": [
+        25.0,
+        250.0
+      ],
+      "surface_height_above_base_mm": 33.46414491601944,
+      "counterbore_depth_at_axis_mm": 9.46414491601944,
+      "head_top_clearance_at_axis_mm": 3.464144916019441
+    },
+    {
+      "id": "M2",
+      "cad_xy_mm": [
+        33.0,
+        216.0
+      ],
+      "lower_print_xy_mm": [
+        93.0,
+        235.0
+      ],
+      "example_board_xy_mm": [
+        100.0,
+        250.0
+      ],
+      "surface_height_above_base_mm": 34.90535400195327,
+      "counterbore_depth_at_axis_mm": 10.905354001953267,
+      "head_top_clearance_at_axis_mm": 4.905354001953268
+    },
+    {
+      "id": "M3",
+      "cad_xy_mm": [
+        83.0,
+        -9.0
+      ],
+      "lower_print_xy_mm": [
+        143.0,
+        10.0
+      ],
+      "example_board_xy_mm": [
+        150.0,
+        25.0
+      ],
+      "surface_height_above_base_mm": 34.6797403559022,
+      "counterbore_depth_at_axis_mm": 10.679740355902197,
+      "head_top_clearance_at_axis_mm": 4.679740355902198
+    },
+    {
+      "id": "M4",
+      "cad_xy_mm": [
+        133.0,
+        -9.0
+      ],
+      "lower_print_xy_mm": [
+        193.0,
+        10.0
+      ],
+      "example_board_xy_mm": [
+        200.0,
+        25.0
+      ],
+      "surface_height_above_base_mm": 35.640546413191416,
+      "counterbore_depth_at_axis_mm": 11.640546413191416,
+      "head_top_clearance_at_axis_mm": 5.640546413191415
+    }
+  ],
+  "locators": [
+    {
+      "id": "P1",
+      "cad_origin_mm": [
+        -43.0,
+        -11.5,
+        -7.754673349614855
+      ],
+      "lower_print_xy_mm": [
+        17.0,
+        7.5
+      ],
+      "upper_socket": "round"
+    },
+    {
+      "id": "P2",
+      "cad_origin_mm": [
+        46.0,
+        221.0,
+        -4.818471540855085
+      ],
+      "lower_print_xy_mm": [
+        106.0,
+        240.0
+      ],
+      "upper_socket": "elongated_along_post_baseline"
+    }
+  ],
+  "axis_normal_cad": [
+    -0.019212307270460777,
+    -0.005271929917449214,
+    0.9998015273064405
+  ],
+  "slot_axis_cad": [
+    0.3574733346522912,
+    0.9338488798500865,
+    0.011793414065049931
+  ],
+  "parts": [
+    {
+      "name": "upper_01",
+      "cad_valid": true,
+      "cad_solids": 1,
+      "cad_volume_mm3": 1115401.13439731,
+      "cad_faces": 218,
+      "cad_bounds_mm": [
+        [
+          -60.00000010000001,
+          -19.000000100000037,
+          -8.120894832537854
+        ],
+        [
+          160.0000001,
+          230.00000010000022,
+          34.800000100000005
+        ]
+      ],
+      "print_rotation_x_deg": 180,
+      "print_translation_mm": [
+        60,
+        230,
+        34.8
+      ],
+      "triangles": 38078,
+      "vertices": 19041,
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "volume_mm3": 1115495.1072234919,
+      "cad_mesh_relative_volume_difference": 8.425025157670089e-05,
+      "print_bounds_mm": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          220.0,
+          249.0,
+          42.920894732537846
+        ]
+      ],
+      "print_size_mm": [
+        220.0,
+        249.0,
+        42.920894732537846
+      ],
+      "recovered_source_patches": []
+    },
+    {
+      "name": "lower_03",
+      "cad_valid": true,
+      "cad_solids": 1,
+      "cad_volume_mm3": 960395.7039050547,
+      "cad_faces": 328,
+      "cad_bounds_mm": [
+        [
+          -60.00000010000001,
+          -19.000000100000037,
+          -40.0000001
+        ],
+        [
+          160.0000001,
+          230.00000010000022,
+          1.24608187211055
+        ]
+      ],
+      "print_rotation_x_deg": 0,
+      "print_translation_mm": [
+        60,
+        19,
+        40
+      ],
+      "triangles": 49614,
+      "vertices": 24801,
+      "watertight": true,
+      "winding_consistent": true,
+      "connected_components": 1,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "volume_mm3": 960507.9377256694,
+      "cad_mesh_relative_volume_difference": 0.0001168620602510872,
+      "print_bounds_mm": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          220.0,
+          249.0,
+          41.24607817320686
+        ]
+      ],
+      "print_size_mm": [
+        220.0,
+        249.0,
+        41.24607817320686
+      ],
+      "recovered_source_patches": [
+        {
+          "vertices": 4,
+          "triangles": 2,
+          "sample_count": 306,
+          "max_sampled_surface_deviation_mm": 0.00014060711946331427,
+          "strict_uv_classifier_outside": 296,
+          "max_sampled_trimmed_face_distance_mm": 0.0020798218274299296,
+          "exploratory_bounded_face_0p002mm_passed": false,
+          "acceptance_sampled_bounded_face_tolerance_mm": 0.02,
+          "source_face": "trimmed_256/lower_03_cad.brep face 101",
+          "validation_note": "Keep both failed strict UV classification and the exploratory 0.002 mm gate. Accept local bounded-face samples against the explicitly configured 0.02 mm CAD mesh deflection. This is sampled local evidence, not a global mesh error certificate."
+        },
+        {
+          "vertices": 3,
+          "triangles": 1,
+          "sample_count": 153,
+          "max_sampled_surface_deviation_mm": 0.0014547054772123247,
+          "strict_uv_classifier_outside": 15,
+          "max_sampled_trimmed_face_distance_mm": 0.0025381049883058926,
+          "exploratory_bounded_face_0p002mm_passed": false,
+          "acceptance_sampled_bounded_face_tolerance_mm": 0.02,
+          "source_face": "trimmed_256/lower_03_cad.brep face 101",
+          "validation_note": "Keep both failed strict UV classification and the exploratory 0.002 mm gate. Accept local bounded-face samples against the explicitly configured 0.02 mm CAD mesh deflection. This is sampled local evidence, not a global mesh error certificate."
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "upper_01_cad.step": "ac4b9e3e6b49cc9435308a062702f3663c7dc6cf44ff7005d786f80c5a3e67d4",
+    "assembly_root_open.step": "ef74cdaf6d4026b0e7a04dcde003b31e4dd666fb139ec3b4e2bb5796846ea652",
+    "README.md": "38983ab1324b70ee3526621853fd824def9b5ed3cf3b52a71c62b0fe6f11561a",
+    "lower_03_print.stl": "59e39d54676c90433315a5d029ac5b5f757b5ff72f8b79c2d0b211b5a2c5fdd6",
+    "preview.png": "ea2f5d56650adf1b29d4c0b75106df8d53cac094b52a23f6299560216ade2b71",
+    "validation.json": "289351d5be16b3d3b89b590dba1d527d6a931078d90280d66e3817c63b9f7505",
+    "upper_01_cad.brep": "a621bb15bea743891fcd0d29219f41556ec45e36e92788207fd3c46962fdaa94",
+    "lower_03_cad.brep": "82ab0eb050a55762a5e252de1ba4f9be0c6dc1f2f5117d83d0207badfcad01b9",
+    "manifest.json": "56a6aa71a3ce4d9bebc4483c764e96e6a864bfa103c38b4702e8c0738b83ceec",
+    "lower_03_cad.step": "9499dea8591a201919d34d134ed56fa7be6a1d84961c242b7429430f182e6458",
+    "upper_01_print.stl": "f339378332568f7f096daf62b4f81de2ecafa74e000c2706c36dbca985ca7a00"
+  },
+  "standard_reference": {
+    "url": "https://www.pgb-europe.com/en-gb/20652/socket-cap-screw-8-8-ft-iso4762-m-6x10",
+    "head_diameter_mm": 10,
+    "head_height_mm": 6,
+    "hex_key_mm": 5
+  },
+  "design_choices": {
+    "through_diameter_mm": 6.8,
+    "counterbore_diameter_mm": 12,
+    "counterbore_floor_above_bottom_mm": 24,
+    "assumed_washer_thickness_mm": 0,
+    "M6x30_projection_below_base_mm": 6,
+    "actual_board_thread_depth_verified": false,
+    "pin_diameter_mm": 8,
+    "pin_height_mm": 6,
+    "socket_diameter_mm": 8.6,
+    "socket_depth_mm": 7.2,
+    "elongated_socket_length_mm": 10.6,
+    "pin_root_max_diameter_mm": 9.6,
+    "physical_fit_tested": false
+  },
+  "generation": {
+    "absolute_linear_deflection_mm": 0.02,
+    "angular_deflection_rad": 0.08,
+    "stl_format": "ASCII float64",
+    "rebuild_command": "python 1_stl/breadboard_mount_256/build.py /tmp/new_mold_mount",
+    "rebuild_cad_and_stl_hash_identical": true
+  },
+  "documentation_impact": {
+    "build.py": {
+      "risk": "UNKNOWN",
+      "reason": "New standalone asset script; absent from index; supplemental text reference search found no existing callers"
+    },
+    "docs/STATUS.md": {
+      "risk": "UNKNOWN",
+      "reason": "Not indexed; references verified in README, PROJECT_MAP and RUNBOOK; append-only documentation"
+    },
+    "EXPERIMENTS.md": {
+      "risk": "LOW",
+      "direct_dependents": [
+        "README.md"
+      ],
+      "affected_processes": 0
+    },
+    "docs/RUNBOOK.md": {
+      "risk": "UNKNOWN",
+      "reason": "Not indexed; document references verified in README, STATUS, RUNBOOK and PROJECT_MAP; only append a CAD workflow/link."
+    },
+    "docs/PROJECT_MAP.md": {
+      "risk": "UNKNOWN",
+      "reason": "Not indexed; document references verified in README, STATUS, RUNBOOK and PROJECT_MAP; only append a CAD workflow/link."
+    }
+  },
+  "physical_print_and_mount_tested": false,
+  "artifact_sha256": {
+    "README.md": "167f50fa902cade73d2ce4d7b50b85c0a333eb38b4ed0c012d387ecdf2de4c91",
+    "assembly_mount.step": "13f08e10333f97b7a65af2f50ebba74fa9bdf22ca745991cf5f6509e6bd6bc3e",
+    "build.py": "cb47779d36e0b4f2b6c70cc5aaf222bd482d32b5dde9c69f7d161d76fc62327f",
+    "diagnostics/face_preservation.json": "59980e3cccaae1930357dbf349961b73e50e5c29528324a27ce3f97ab155ed31",
+    "diagnostics/lower_03_meshed.brep": "d45df001c55087efeacbbd48f6e4cb5667e26a0a22d016fd9eeae9cdf2f7cce3",
+    "diagnostics/lower_03_raw_cad_mesh.npz": "583191e22a0f02e192ec32c9c80b333e30d96d983621d43fe7e06b56f8dd6725",
+    "diagnostics/mesh_validation.json": "312a75916587b259a0497f13cced0f1e40f318e4b9898b3c0487d8b2b5e5c25f",
+    "diagnostics/recovery_attempts.json": "86bdf3b6a8ea6e555f1eaf5a2927d38d7e1b59d81081f1de22bfde72be0f9d5f",
+    "diagnostics/reproducibility.json": "86048aac3f7e0ea255d6073fb8117d8efcdddd38106b78be3ea6b459116c1626",
+    "diagnostics/upper_01_meshed.brep": "e6c1b053358620f3686d1783eb3138e997bc6ac901ebb14185368c4980e19622",
+    "diagnostics/upper_01_raw_cad_mesh.npz": "aa8bfb8b2b3668cfb25005b5ab0834abae1b252083cbfb97d7af64784780c63d",
+    "lower_03_cad.brep": "7d5b5bf414f9666cefd2517e0206d55d4721575607e7060115eff80b512e927a",
+    "lower_03_cad.step": "b646fb92341f984bda36f2db0038d74f030cca965e0e7a9364b7b5efc6cbf1ae",
+    "lower_03_print.stl": "0afb3d603a4bec6470573805524e3fbc41182d19c341fba1110523e767dbfffd",
+    "mounting_layout.png": "c2d4a4d6ca17cb6054e01e94480c59d46197a824dc529ac0d937d990b2dcf9e6",
+    "preview.png": "06cac20b1c9936f7eaa975b36df21c8e0cb2e5d6d923b46847bed67940fae0f9",
+    "reference_m6x30_envelopes.step": "72ca202bcee1e9c0a39254eb9503c9a621c894c52b7bfae800ca9c41e6a78b98",
+    "upper_01_cad.brep": "0b3877f04d4ff6087e5721e2c76e1616114732dbf992ce83311ab07a79b18652",
+    "upper_01_cad.step": "5fe7f68e8afff68461d5c1f7822b27d99536d1d1cc6a99d0697f620e761552c1",
+    "upper_01_print.stl": "06ae936e99a7d92f7f50987f767c6381dbb44be1f8ed74c4dc06423c5676b85b",
+    "validation.json": "ee7f968ed9d121eeca3e791d2c9aea618fe53ed05234c105a5508b48798d0eb0"
+  }
+}

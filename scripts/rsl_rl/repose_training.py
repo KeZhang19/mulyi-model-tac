@@ -103,15 +103,16 @@ def register_repose_policy() -> None:
 def configure_repose_checkpoint(agent_cfg, checkpoint_path: str | None = None) -> int:
     """Select the saved policy family before constructing a Repose environment.
 
-    Return the task revision (1 for legacy checkpoints, 2 for new training).
+    New training uses the base task and ActorCritic (revision 1). Saved policies
+    retain their task revision: 1 for absolute actions, 2 for bounded increments.
     Callers must apply this revision to the Repose env config before gym.make.
     Checkpoint tensors are loaded onto CPU, never onto a running training GPU.
     """
     register_repose_policy()
     if checkpoint_path is None:
-        agent_cfg.policy.class_name = "ReposeActorCritic"
-        agent_cfg.policy.noise_std_type = "log"
-        return 2
+        agent_cfg.policy.class_name = "ActorCritic"
+        agent_cfg.policy.noise_std_type = "scalar"
+        return 1
     checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
     state = checkpoint["model_state_dict"]
     if "_repose_policy_version" in state:
@@ -120,6 +121,8 @@ def configure_repose_checkpoint(agent_cfg, checkpoint_path: str | None = None) -
             raise ValueError(f"Unsupported Repose policy revision: {revision}")
         agent_cfg.policy.class_name = "ReposeActorCritic"
         agent_cfg.policy.noise_std_type = "log"
+        # Construct the bounded policy with a legal std before loading saved weights.
+        agent_cfg.policy.init_noise_std = 0.35
         return revision
     agent_cfg.policy.class_name = "ActorCritic"
     agent_cfg.policy.noise_std_type = "log" if "log_std" in state else "scalar"

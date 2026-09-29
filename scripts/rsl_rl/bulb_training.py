@@ -4,20 +4,25 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 from pathlib import Path
 from types import SimpleNamespace
 
 import torch
 import yaml
 from torch import nn
+from torch.distributions import Normal
+from rsl_rl.modules import ActorCritic
 
-from repose_training import ReposeActorCritic
+from repose_training import ReposeActorCritic, _BoundLatentMean
 
 
-BULB_POLICY_VERSION = 2
+BULB_POLICY_VERSION = 3
 BULB_TASK = "BrainCo-Dexsuite-Revo3-Right-Rotate-Bulb-Custom-v0"
 BULB_ASSEMBLY_TASK = "BrainCo-Dexsuite-Revo3-Right-Bulb-Assembly-Custom-v0"
-BULB_TASKS = frozenset((BULB_TASK, BULB_ASSEMBLY_TASK))
+BULB_CURRICULUM_TASK = "BrainCo-Dexsuite-Revo3-Right-Bulb-Assembly-Curriculum-v0"
+BULB_RANDOMIZED_TASK = "BrainCo-Dexsuite-Revo3-Right-Rotate-Bulb-Randomized-v0"
+BULB_TASKS = frozenset((BULB_TASK, BULB_ASSEMBLY_TASK, BULB_RANDOMIZED_TASK, BULB_CURRICULUM_TASK))
 CONTRACT_FILENAME = "bulb_action_contract.json"
 
 
@@ -34,18 +39,47 @@ def _task_id(env) -> str:
         task = getattr(spec, "id", None)
         if task in BULB_TASKS:
             return task
+    if getattr(getattr(raw, "cfg", None), "bulb_curriculum", None) is not None:
+        return BULB_CURRICULUM_TASK
+    if getattr(getattr(raw, "cfg", None), "bulb_randomized_task", False):
+        return BULB_RANDOMIZED_TASK
     if getattr(getattr(raw, "cfg", None), "bulb_assembly_task", False):
         return BULB_ASSEMBLY_TASK
     return BULB_TASK
 
 
 class BulbActorCritic(ReposeActorCritic):
-    """Reuse the tested tanh Gaussian mathematics with a distinct Bulb identity."""
+    """Tanh Gaussian with the existing noise floor and no noise ceiling.
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        del self._repose_policy_version
+    Reuse Repose's mean transform, tanh density and entropy, but initialize the
+    Gaussian directly so the saved Repose v2 policy retains its capped noise.
+    """
+
+    maximum_std = None
+
+    def __init__(self, *args, init_noise_std: float = 0.35,
+                 noise_std_type: str = "log", state_dependent_std: bool = False, **kwargs):
+        if state_dependent_std:
+            raise ValueError("BulbActorCritic requires a state-independent standard deviation")
+        if not math.isfinite(init_noise_std) or init_noise_std <= self.minimum_std:
+            raise ValueError("Initial Bulb noise must be finite and greater than 0.05")
+        ActorCritic.__init__(self, *args, init_noise_std=init_noise_std, noise_std_type="log",
+                             state_dependent_std=False, **kwargs)
+        # Inverse softplus: std = 0.05 + softplus(parameter), with no upper bound.
+        delta = init_noise_std - self.minimum_std
+        initial_parameter = delta + math.log(-math.expm1(-delta))
+        self.noise_unconstrained = nn.Parameter(torch.full_like(self.log_std, initial_parameter))
+        del self.log_std
+        self.latent_mean_bound = _BoundLatentMean()
         self.register_buffer("_bulb_policy_version", torch.tensor(BULB_POLICY_VERSION, dtype=torch.int64))
+        output_layer = [layer for layer in self.actor.modules() if isinstance(layer, nn.Linear)][-1]
+        nn.init.orthogonal_(output_layer.weight, gain=0.01)
+        nn.init.zeros_(output_layer.bias)
+
+    def _update_distribution(self, obs: torch.Tensor) -> None:
+        mean = self.latent_mean_bound(self.actor(obs))
+        std = self.minimum_std + nn.functional.softplus(self.noise_unconstrained)
+        self.distribution = Normal(mean, std.expand_as(mean))
 
 
 def register_bulb_policy() -> None:
@@ -59,7 +93,8 @@ def _load_contract(checkpoint_path: str | Path) -> dict:
     if not path.is_file():
         raise ValueError(f"Bounded Bulb checkpoint is missing its action contract: {path}")
     contract = json.loads(path.read_text())
-    if contract.get("schema") != "rotate_bulb_custom_action_contract" or contract.get("version") != 2:
+    if (contract.get("schema") != "rotate_bulb_custom_action_contract"
+            or contract.get("version") != BULB_POLICY_VERSION):
         raise ValueError("Unsupported Bulb action contract schema or version")
     if contract.get("legacy_diagnostic"):
         raise ValueError("Legacy diagnostic artifacts cannot be used as a bounded Bulb checkpoint")
@@ -117,6 +152,9 @@ def configure_bulb_checkpoint(agent_cfg, checkpoint_path: str | None = None, *,
             print("[Bulb] LEGACY DIAGNOSTIC: original weights/normalizer, clipped actions, corrected task; "
                   "this is not an evaluation under the original training dynamics.", flush=True)
             return True
+        if marker.numel() == 1 and int(marker.item()) == 2:
+            raise ValueError("Bulb v2 checkpoint uses small action scales and capped noise; "
+                             "the v3 action/noise contract requires a new training run")
         if marker.numel() != 1 or int(marker.item()) != BULB_POLICY_VERSION:
             raise ValueError(f"Unsupported Bulb policy version: {marker}")
         if legacy_diagnostic:
@@ -139,17 +177,35 @@ def prepare_bulb_policy_run(env, log_dir: str | Path, *, resume_path: str | None
         raise ValueError("Custom bulb bounded policies require BulbJointPositionAction")
     dimensions = raw.observation_manager.group_obs_dim
     observation_dim = sum(int(dimensions[name][0]) for name in ("policy", "proprio", "perception"))
-    if observation_dim != 669:
-        raise ValueError(f"Custom bulb requires the unchanged 669-dimensional observation, got {observation_dim}")
+    guidance = "rotation_subgoal" in getattr(raw.observation_manager, "active_terms", {}).get("policy", [])
+    expected_dim = 673 if guidance else 669
+    randomized = getattr(getattr(raw, "cfg", None), "bulb_randomized_task", False)
+    if randomized:
+        if not guidance or legacy_diagnostic:
+            raise ValueError("Randomized bulb requires guided rotation and its own policy contract")
+        expected_dim += 14
+    if observation_dim != expected_dim:
+        raise ValueError(f"Custom bulb requires a {expected_dim}-dimensional observation, got {observation_dim}")
     contract = {
         "schema": "rotate_bulb_custom_action_contract", "version": BULB_POLICY_VERSION,
         "task": _task_id(env), "observation_dim": observation_dim,
         "legacy_diagnostic": bool(legacy_diagnostic),
         "policy_transform": "clip_normalized_action" if legacy_diagnostic else "bounded_latent_mean_then_tanh",
-        "latent_std_bounds": None if legacy_diagnostic else [0.05, 0.7],
+        "latent_std_bounds": None if legacy_diagnostic else [BulbActorCritic.minimum_std, None],
         "action": action.action_contract(),
     }
+    if guidance:
+        if legacy_diagnostic or "Bulb-Assembly" in contract["task"]:
+            raise ValueError("Rotation subgoals require a new guided-rotation policy, not an assembly or legacy policy")
+        contract["rotation_guidance"] = {
+            "version": 1,
+            "observation": ["frontier_fraction", "next_target_fraction", "segment_distance_div_12", "contact_memory"],
+            "turn_reward_params": dict(raw.reward_manager.get_term_cfg("unscrew_turns").params),
+        }
     directory = Path(log_dir)
+    if randomized:
+        from BrainCo_DexHand.tasks.manager_based.dexsuite.config.RotateBulbRandomized.mdp import randomized_contract
+        contract["randomized_task"] = randomized_contract(raw)
     if legacy_diagnostic and resume_path is not None:
         source = Path(resume_path).resolve().parent
         if directory.resolve() == source or source in directory.resolve().parents:

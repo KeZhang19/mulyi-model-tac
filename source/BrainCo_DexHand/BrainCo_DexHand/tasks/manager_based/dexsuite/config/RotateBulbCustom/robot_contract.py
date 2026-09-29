@@ -34,6 +34,23 @@ INITIAL_JOINT_POS = dict(zip(
 ))
 if set(INITIAL_JOINT_POS) != set(JOINT_NAMES):
     raise ValueError("Grasp reference must contain exactly the 28 Flexiv/Revo3 joints")
+
+# The legacy reference above is also used by assembly and D-Peg. Only the
+# unscrewing task opts into this Dexonomy-refined pose in its scene setup.
+ROTATE_GRASP_REFERENCE_PATH = ASSET_ROOT / "grasp_reference/dexonomy_20260920/simulation_state.json"
+ROTATE_GRASP_REFERENCE = json.loads(ROTATE_GRASP_REFERENCE_PATH.read_text(encoding="utf-8"))
+if (ROTATE_GRASP_REFERENCE.get("schema") != "revo3_simulation_state"
+        or ROTATE_GRASP_REFERENCE.get("schema_version") != 1):
+    raise ValueError(f"Unsupported grasp reference: {ROTATE_GRASP_REFERENCE_PATH}")
+ROTATE_INITIAL_JOINT_POS = dict(zip(
+    ROTATE_GRASP_REFERENCE["robot"]["joint_names"],
+    ROTATE_GRASP_REFERENCE["robot"]["joint_positions_rad"],
+    strict=True,
+))
+if (len(ROTATE_GRASP_REFERENCE["robot"]["joint_names"]) != len(JOINT_NAMES)
+        or set(ROTATE_INITIAL_JOINT_POS) != set(JOINT_NAMES)):
+    raise ValueError("Rotate grasp reference must contain exactly the 28 Flexiv/Revo3 joints")
+
 HAND_POINT_NAMES = (
     "palm", "right_index_tip_Link", "right_little_tip_Link",
     "right_middle_tip_Link", "right_ring_tip_Link", "right_thumb_tip_Link",

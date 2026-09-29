@@ -33,7 +33,9 @@ def _step(env, loss):
 
 @pytest.mark.parametrize("hz", [30, 60, 120])
 def test_initial_grace_and_no_contact_timeout_use_seconds_once_per_step(code, hz):
-    env = _loss_env(hz=hz)
+    env = _loss_env(hz=hz, distance=.21)
+    env._bulb_released[:] = True
+    env.command[:, 2] = .2  # Outside the unchanged goal-dwell exemption.
     term = _term(code, "RotateBulbGraspLoss", env)
     for _ in range(round(.5 * hz)):
         assert not _step(env, term).any()
@@ -53,7 +55,9 @@ def test_initial_grace_and_no_contact_timeout_use_seconds_once_per_step(code, hz
 
 @pytest.mark.parametrize("hz", [30, 60, 120])
 def test_brief_regrasp_and_partial_reset_do_not_end_other_environment(code, hz):
-    env = _loss_env(hz=hz)
+    env = _loss_env(hz=hz, distance=.21)
+    env._bulb_released[:] = True
+    env.command[:, 2] = .2
     term = _term(code, "RotateBulbGraspLoss", env)
     for _ in range(round(.7 * hz)):
         assert not _step(env, term).any()
@@ -77,6 +81,8 @@ def test_brief_regrasp_and_partial_reset_do_not_end_other_environment(code, hz):
 @pytest.mark.parametrize("hz", [30, 60, 120])
 def test_far_termination_and_cost_boundaries(code, hz):
     env = _loss_env(count=3, hz=hz)
+    env._bulb_released[:] = True
+    env.command[:, 2] = .2
     # Keep real bulb contact to isolate the independent far timer.
     env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w[..., 2] = 1.
     env.scene["robot"].data.body_pos_w[:, :, 1] = torch.tensor([.08, .14, .21])[:, None]
@@ -89,7 +95,11 @@ def test_far_termination_and_cost_boundaries(code, hz):
     import math
     for _ in range(math.ceil(.25 * hz - 1e-6) - 1):
         _step(env, term)
-    assert term.failed.tolist() == [False, False, True]
+    assert not term.failed.any()  # Distance alone is never abandonment.
+    env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w.zero_()
+    for _ in range(math.ceil(.75 * hz - 1e-6)):
+        _step(env, term)
+    assert term.failed.tolist() == [False, False, True]  # Both absence and distance are required.
     assert code.rotate_bulb_hand_far(env)[2] == 0  # No extra far cost on the terminal step.
 
 
@@ -104,6 +114,36 @@ def test_distance_uses_named_best_opposing_pair_and_rotates_with_bulb(code):
     env.scene["object"].data.root_quat_w[:] = torch.tensor([0., 0., 0., 1.])
     robot.data.body_pos_w[:, :2] = torch.tensor([-.04, .03, 0.])
     assert code.rotate_bulb_hand_shell_distance(env).item() == pytest.approx(.03)
+
+
+@pytest.mark.parametrize("hz", [30, 60, 120])
+def test_configured_far_cost_applies_before_release_and_rearms_per_environment(configured, hz):
+    env = _loss_env(count=4, hz=hz)
+    env.command[:, 2] = .2  # Keep the goal-dwell exemption inactive in both phases.
+    env.scene["robot"].data.body_pos_w[:, :, 1] = torch.tensor([.04, .08, .14, .21])[:, None]
+    env.episode_length_buf[:] = hz
+    term = configured.hand_far
+    rates = term.func(env, **term.params) * term.weight
+    torch.testing.assert_close(rates, torch.tensor([0., 0., -.075, -.3]), atol=1e-6, rtol=0)
+    env._bulb_released[:] = True
+    torch.testing.assert_close(term.func(env, **term.params) * term.weight, rates)
+    # Resetting one environment restores only its initial grace.
+    env._bulb_released[3] = False
+    env.episode_length_buf[3] = 0
+    torch.testing.assert_close(term.func(env, **term.params) * term.weight,
+                               torch.tensor([0., 0., -.075, 0.]), atol=1e-6, rtol=0)
+
+
+@pytest.mark.parametrize("hz", [30, 60, 120])
+def test_configured_far_cost_has_the_same_twenty_second_budget_at_each_control_rate(configured, hz):
+    env = _loss_env(count=1, hz=hz, distance=.4)
+    term = configured.hand_far
+    total = 0.
+    for step in range(1, 20 * hz + 1):
+        env.episode_length_buf[:] = step
+        total += (term.func(env, **term.params) * term.weight * env.step_dt).item()
+    # The first half-second is free; no terminal frame is injected in this rate integral.
+    assert total == pytest.approx(-5.85, abs=1e-6)
 
 
 @pytest.mark.parametrize("hz", [30, 60, 120])
@@ -168,6 +208,19 @@ def test_each_physical_failure_costs_once_and_suppresses_all_positive_rewards(co
     if failure_name == "non_finite":
         env.scene["object"].data.root_lin_vel_w[:] = float("nan")
         env.scene["object"].data.root_ang_vel_w[:] = float("nan")
+    if failure_name == "non_finite":
+        assert not code.rotate_bulb_failed(env).any()
+        assert not penalty(env).any()
+        name = "position_tracking" if released else "unscrew_progress"
+        if released:
+            functions[name](env, **terms[name].params)  # Establish release baseline.
+            env.command[:, 2] = .3
+            functions[name].reset()
+            functions[name](env, **terms[name].params)
+            env.scene["object"].data.root_pos_w[:, 2] = .2
+        credit = functions[name](env, **terms[name].params)
+        assert torch.isfinite(credit).all() and (credit > 0).all()
+        return
     for _ in range(61):
         for name, term in terms.items():
             value = functions[name](env, **term.params)
@@ -195,8 +248,9 @@ def test_goal_dwell_never_exempts_physical_failures_on_success_step(code, failur
         assert not done(env).any()
     env.failure_terms[failure_name][:] = True
     assert not _step(env, loss).any()
-    assert not done(env).any()
-    assert code.rotate_bulb_failed(env).all()
+    disabled = failure_name == "non_finite"
+    assert done(env).tolist() == [disabled]
+    assert code.rotate_bulb_failed(env).tolist() == [not disabled]
 
 
 def test_balanced_action_cost_follows_named_indices_and_has_no_cap(code, configured):
@@ -220,8 +274,17 @@ def test_custom_failure_terms_are_registered_before_success(code):
     configure = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
                      and node.name == "configure_rotate_bulb_scene")
     names = [ast.unparse(node.targets[0]) for node in configure.body if isinstance(node, ast.Assign)]
-    assert names.index("cfg.terminations.bulb_dropped") < names.index("cfg.terminations.lost_grasp")
+    assert names.index("cfg.terminations.bulb_dropped") < names.index("cfg.terminations.success")
     assert names.index("cfg.terminations.lost_grasp") < names.index("cfg.terminations.success")
+    assignment = next(node for node in configure.body if isinstance(node, ast.Assign)
+                      and ast.unparse(node.targets[0]) == "cfg.terminations.lost_grasp")
+    namespace = dict(DoneTerm=lambda **kw: SimpleNamespace(**kw), RotateBulbGraspLoss=code.RotateBulbGraspLoss)
+    term_cfg = eval(compile(ast.Expression(assignment.value), str(code.source_path), "eval"), namespace)
+    assert term_cfg.func is code.RotateBulbGraspLoss
+    assert term_cfg.params["no_contact_duration_s"] == .75
+    assignment = next(node for node in configure.body if isinstance(node, ast.Assign)
+                      and ast.unparse(node.targets[0]) == "cfg.terminations.non_finite")
+    assert ast.literal_eval(assignment.value) is None
 
 
 def _finite_env():
@@ -259,7 +322,7 @@ def test_nonfinite_covers_kinematics_velocities_and_filtered_sensors(code, asset
     flags = code.rotate_bulb_non_finite(env)
     assert flags.tolist() == [True, False]
     env.failure_terms["non_finite"][:] = flags
-    assert code.rotate_bulb_failed(env).tolist() == [True, False]
+    assert not code.rotate_bulb_failed(env).any()  # Detection is retained but disabled as a failure cause.
     assert code.rotate_bulb_any_finger_contact(env)[0] == 0
 
 

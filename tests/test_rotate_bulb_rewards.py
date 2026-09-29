@@ -121,6 +121,7 @@ def test_unheld_rotation_and_regrasp_do_not_repay_old_progress(reward_code):
     term = reward_code.RotateBulbUnscrewProgress(SimpleNamespace(params={}), env)
     thumb = env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"].data.force_matrix_w
     thumb.zero_()
+    env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w.zero_()
     _set_progress(env, (.5, .5))
     assert not term(env).any()
     thumb[..., 2] = 2
@@ -135,7 +136,8 @@ def test_partial_reset_only_clears_selected_environment_progress(reward_code):
     _set_progress(env, (.1, 1.))
     term.reset(torch.tensor([0]))
     torch.testing.assert_close(term.best, torch.tensor([.4, 4.]))
-    torch.testing.assert_close(term.contact_memory, torch.tensor([0., 1.]))
+    memory = torch.tensor([0., 1.])
+    torch.testing.assert_close(term.contact_memory, memory)
     _set_progress(env, (.25, 1.))
     torch.testing.assert_close(term(env) * env.step_dt, torch.tensor([.6, 0.]))
     assert term.completion_paid.tolist() == [False, True]
@@ -190,14 +192,16 @@ def test_regrasp_credit_decays_to_zero_after_grace_and_does_not_repay(reward_cod
     env = _env((0.,))
     env.step_dt = .05
     term = reward_code.RotateBulbUnscrewProgress(SimpleNamespace(params={}), env)
-    assert not term(env).any()  # Establish opposing contact without moving.
+    assert not term(env, regrasp_grace_s=.2).any()  # Establish contact without moving.
     thumb = env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"].data.force_matrix_w
     thumb.zero_()
+    env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w.zero_()
     credits = []
     for step in range(1, 6):
         _set_progress(env, (step / 16,))  # A quarter turn every 50 ms.
-        credits.append((term(env) * env.step_dt).item())
-    assert credits == pytest.approx([.1875, .125, .0625, 0., 0.])
+        credits.append((term(env, regrasp_grace_s=.2) * env.step_dt).item())
+    expected = [.1875, .125, .0625, 0., 0.]
+    assert credits == pytest.approx(expected)
     assert not term.contact_memory.any()
     thumb[..., 2] = 2
     assert not term(env).any()  # Expired or partly credited travel stays consumed.
@@ -208,6 +212,7 @@ def test_zero_grace_disables_contact_memory(reward_code):
     term = reward_code.RotateBulbUnscrewProgress(SimpleNamespace(params={}), env)
     term(env, regrasp_grace_s=0.)
     env.scene.sensors["right_thumbdip_roll_rubber_link_object_s"].data.force_matrix_w.zero_()
+    env.scene.sensors["right_indexdip_roll_rubber_link_object_s"].data.force_matrix_w.zero_()
     _set_progress(env, (.25,))
     assert not term(env, regrasp_grace_s=0.).any()
     assert not term.contact_memory.any()
@@ -265,9 +270,10 @@ def test_soft_contact_pays_progress_but_completion_and_success_remain_strict(rew
         env.scene.sensors[f"right_{finger}dip_roll_rubber_link_object_s"].data.force_matrix_w[:, 0, 0, 2] = weak_forces
     term = reward_code.RotateBulbUnscrewProgress(SimpleNamespace(params={}), env)
     _set_progress(env, (.25,) * 3)
-    torch.testing.assert_close(term(env) * env.step_dt, weak_forces)
+    turn_credit = weak_forces
+    torch.testing.assert_close(term(env) * env.step_dt, turn_credit)
     _set_progress(env, (1.,) * 3)
-    torch.testing.assert_close(term(env) * env.step_dt, 3 * weak_forces)
+    torch.testing.assert_close(term(env) * env.step_dt, 3 * turn_credit)
     assert not term.completion_paid.any()
     assert not reward_code.rotate_bulb_hand_contacts(env, 1.).any()
     env._bulb_released[:] = True

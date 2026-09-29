@@ -9,15 +9,17 @@
 
 import argparse
 import sys
+from pathlib import Path
 
 from isaaclab.app import AppLauncher
 
 # local imports
 import cli_args  # isort: skip
+from play_camera import add_camera_args, validate_camera_args
 
 # add argparse arguments
-parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
-parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
+parser = argparse.ArgumentParser(description="Play an RL checkpoint or preview its recording camera.")
+parser.add_argument("--video", action="store_true", default=False, help="Record one policy playback video and exit.")
 parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
 parser.add_argument(
     "--disable_fabric", action="store_true", default=False, help="Disable fabric and use USD I/O operations."
@@ -39,14 +41,21 @@ parser.add_argument(
     help="Diagnose an original Custom bulb checkpoint with clipped actions and the revised environment rules.",
 )
 # append RSL-RL cli arguments
+add_camera_args(parser)
 cli_args.add_rsl_rl_args(parser)
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
 args_cli, hydra_args = parser.parse_known_args()
+validate_camera_args(parser, args_cli)
 # always enable cameras to record video
-if args_cli.video:
+if args_cli.video or args_cli.screenshot or args_cli.camera_preview:
     args_cli.enable_cameras = True
+    if args_cli.num_envs is None:
+        args_cli.num_envs = 1
+
+# Use this checkout even when another BrainCo project is installed editable.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "source/BrainCo_DexHand"))
 
 # clear out sys.argv for Hydra
 sys.argv = [sys.argv[0]] + hydra_args
@@ -102,6 +111,26 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     env_cfg.seed = agent_cfg.seed
     env_cfg.sim.device = args_cli.device if args_cli.device is not None else env_cfg.sim.device
 
+    from play_camera import apply_play_camera, configure_play_camera, save_camera_preview
+
+    camera_rotation = configure_play_camera(env_cfg, task_name, args_cli)
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+    if args_cli.camera_preview:
+        screenshot = args_cli.screenshot or Path("logs/camera_preview") / task_name / f"{stamp}.png"
+        # Scene inspection needs no tactile encoder checkpoint or policy features.
+        if hasattr(env_cfg, "tactile_policy_enabled"):
+            env_cfg.tactile_policy_enabled = False
+        if hasattr(env_cfg, "observation_history_length"):
+            env_cfg.observation_history_length = 1
+        env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array")
+        try:
+            env.reset(seed=env_cfg.seed)
+            apply_play_camera(env, camera_rotation, camera=args_cli.camera)
+            save_camera_preview(env, screenshot, task=task_name, camera_preset=args_cli.camera)
+        finally:
+            env.close()
+        return
+
     # specify directory for logging experiments
     log_root_path = os.path.join("logs", "rsl_rl", agent_cfg.experiment_name)
     log_root_path = os.path.abspath(log_root_path)
@@ -144,7 +173,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         env_cfg.repose_curriculum_enabled = False
 
     # create isaac environment
-    env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video else None)
+    env = gym.make(args_cli.task, cfg=env_cfg, render_mode="rgb_array" if args_cli.video or args_cli.screenshot else None)
+    apply_play_camera(env, camera_rotation, camera=args_cli.camera)
 
     from BrainCo_DexHand.tactile_representation.policy import prepare_policy_run
 
@@ -159,14 +189,17 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
         env = multi_agent_to_single_agent(env)
 
     # wrap for video recording
+    video_dir = args_cli.video_dir or Path(log_dir) / "videos" / "play"
+    video_prefix = f"{task_name}-{Path(resume_path).stem}-{stamp}"
     if args_cli.video:
         video_kwargs = {
-            "video_folder": os.path.join(log_dir, "videos", "play"),
+            "video_folder": str(video_dir.expanduser().resolve()),
+            "name_prefix": video_prefix,
             "step_trigger": lambda step: step == 0,
             "video_length": args_cli.video_length,
             "disable_logger": True,
         }
-        print("[INFO] Recording videos during training.")
+        print("[INFO] Recording policy playback.")
         print_dict(video_kwargs, nesting=4)
         env = gym.wrappers.RecordVideo(env, **video_kwargs)
 
@@ -233,39 +266,37 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # reset environment
     obs = env.get_observations()
+    if args_cli.video or args_cli.screenshot:
+        screenshot = args_cli.screenshot or video_dir / f"{video_prefix}-preview.png"
+        save_camera_preview(env, screenshot, task=task_name, checkpoint=resume_path, camera_preset=args_cli.camera)
     timestep = 0
-    # simulate environment
-    while simulation_app.is_running():
-        start_time = time.time()
-        # run everything in inference mode
-        with torch.inference_mode():
-            # agent stepping
-            actions = policy(obs)
-            # env stepping
-            obs, rewards, dones, _ = env.step(actions)
-            if bulb_recorder is not None:
-                bulb_recorder.record(actions, rewards, dones)
-            # reset recurrent states for episodes that have terminated
-            policy_nn.reset(dones)
-        if args_cli.video:
-            timestep += 1
-            # Exit the play loop after recording one video
-            if timestep == args_cli.video_length:
-                break
+    # Closing RecordVideo also flushes a partial recording on interruption.
+    try:
+        while simulation_app.is_running():
+            start_time = time.time()
+            with torch.inference_mode():
+                actions = policy(obs)
+                obs, rewards, dones, _ = env.step(actions)
+                if bulb_recorder is not None:
+                    bulb_recorder.record(actions, rewards, dones)
+                policy_nn.reset(dones)
+            if args_cli.video:
+                timestep += 1
+                if timestep == args_cli.video_length:
+                    break
 
-        # time delay for real-time evaluation
-        sleep_time = dt - (time.time() - start_time)
-        if args_cli.real_time and sleep_time > 0:
-            time.sleep(sleep_time)
-
-    # close the simulator
-    if bulb_recorder is not None:
-        bulb_recorder.close()
-    env.close()
+            sleep_time = dt - (time.time() - start_time)
+            if args_cli.real_time and sleep_time > 0:
+                time.sleep(sleep_time)
+    finally:
+        if bulb_recorder is not None:
+            bulb_recorder.close()
+        env.close()
 
 
 if __name__ == "__main__":
     # run the main function
-    main()
-    # close sim app
-    simulation_app.close()
+    try:
+        main()
+    finally:
+        simulation_app.close(wait_for_replicator=False)

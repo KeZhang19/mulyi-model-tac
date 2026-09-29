@@ -51,7 +51,7 @@ class BrainCoVisuotactileHandEnvCfg(DirectRLEnvCfg):
     """Repose-cube parameters plus independent five-finger visual tactile input."""
 
     decimation = 4
-    episode_length_s = 15.0
+    episode_length_s = 10.0
     action_space = 21
     state_observation_dim = 152
     tactile_finger_count = len(TACTILE_FINGER_LINKS)
@@ -62,6 +62,7 @@ class BrainCoVisuotactileHandEnvCfg(DirectRLEnvCfg):
     state_space = 0
     asymmetric_obs = False
     obs_type = "full"
+    tactile_policy_enabled = True
     visuotactile_observation_terms = ("state", "aligned_tactile_z")
     tactile_policy_checkpoint = str(PROJECT_ROOT / "runs/revo3_encoder_exports/sim_policy_encoder.pt")
     tactile_encoder_chunk_size = 256
@@ -179,8 +180,8 @@ class BrainCoVisuotactileHandEnvCfg(DirectRLEnvCfg):
     act_moving_average = 1.0
     force_torque_obs_scale = 10.0
 
-    # Revision 1 remains selectable when playing historical absolute-action policies.
-    repose_training_revision = 2
+    # Match the state-only task; retain revision 2 settings for saved v2 policies.
+    repose_training_revision = 1
     repose_joint_noise_fraction = 0.1
     repose_position_noise = 0.003
     repose_object_rotation_noise_deg = 10.0

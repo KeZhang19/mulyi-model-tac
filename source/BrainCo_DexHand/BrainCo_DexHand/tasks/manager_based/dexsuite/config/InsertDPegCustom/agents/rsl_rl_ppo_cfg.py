@@ -12,10 +12,13 @@ class DexsuiteFlexivInsertDPegPPORunnerCfg(RslRlOnPolicyRunnerCfg):
     save_interval = 250
     experiment_name = "dexsuite_flexiv_insert_d_peg_custom_v4"
     log_all_ranks = False
+    clip_actions = None
     policy = RslRlPpoActorCriticCfg(
         init_noise_std=0.15, actor_obs_normalization=True, critic_obs_normalization=True,
         actor_hidden_dims=[512, 256, 128], critic_hidden_dims=[512, 256, 128], activation="elu",
     )
+    # The local RSL-RL fork accepts this optional ceiling; leave noise unbounded.
+    policy.max_noise_std = None
     algorithm = RslRlPpoAlgorithmCfg(
         value_loss_coef=1.0, use_clipped_value_loss=True, clip_param=0.2,
         entropy_coef=0.001, num_learning_epochs=5, num_mini_batches=4,

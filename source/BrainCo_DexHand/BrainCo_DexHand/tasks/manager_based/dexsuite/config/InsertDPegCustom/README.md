@@ -11,6 +11,16 @@ calibration names only for backward-compatible input files, and uses a task-owne
 residual action contract and tactile observation pipeline. Its PPO model and
 hyperparameters are independent from both the original D-peg and Rotate-Bulb runs.
 
+The arm and hand now both use unit-scale position residuals in radians, with
+`clip=None` and runner `clip_actions=None`. `policy.max_noise_std=None` leaves
+exploration noise uncapped (the initial standard deviation remains 0.15).
+Physical joint limits remain part of the robot asset. Socket resets independently
+sample XY offsets within ±10 cm and world Z yaw within ±90 degrees, composed
+with the calibrated orientation. No X/Y tilt perturbation is applied (roll and
+pitch randomization are both zero). Configure the active ranges via
+`socket_xy_randomization_m` and `socket_yaw_randomization_deg`.
+The action and randomization contracts differ from earlier checkpoints.
+
 `assets/d_peg_insertion/pregrasp_flexiv.json` contains the editor pose from
 `20260913_142053_9886dc87`: all 28 measured joint positions and the peg/socket
 poses remain unchanged. Its drive targets now carry a bounded, finger-only

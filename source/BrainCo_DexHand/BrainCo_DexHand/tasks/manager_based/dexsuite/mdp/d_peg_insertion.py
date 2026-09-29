@@ -345,7 +345,16 @@ class DPegRewardState:
         g, held = snapshot["geometry"], snapshot["held"]
         valid = g["finite"] & snapshot["finite"]
         drop, outbound = snapshot["dropped"], snapshot["outbound"]
-        failure = active & (drop | outbound | ~valid)
+        # Completion is the requested axial-depth dwell, independent of the
+        # stricter containment/entry history used by process rewards. In
+        # particular, a transient floor overlap must not revoke completion.
+        stable = observed & valid & (g["depth"] >= .027)
+        self.hold_time = torch.where(
+            observed, torch.where(stable, self.hold_time + dt, 0.0), self.hold_time)
+        success = observed & valid & (self.hold_time >= .5 - 1e-6)
+        # Completed dwell wins over simultaneous drop/bounds signals. Invalid
+        # numerical samples cannot complete it; earlier failures stay terminal.
+        failure = active & (drop | outbound | ~valid) & ~success
         active &= ~failure
         crossing = (self.previous_tip[:, 2] >= 0.0) & (g["tip"][:, 2] < 0.0)
         # Require an actual through-mouth passage, not an initial/side-inserted pose.
@@ -382,12 +391,6 @@ class DPegRewardState:
         # through the mouth must consume its travel and entry milestone too.
         entry = entered & (g["depth"] >= .002) & ~self.entry_paid
         self.entry_paid |= entry
-        # Completion requires continuous full insertion, including after release.
-        # Entry provenance and containment still reject side entry and wall/floor
-        # penetration; precision, velocity and grip only shape process rewards.
-        stable = entered & (g["depth"] >= .027)
-        self.hold_time = torch.where(selected, torch.where(stable, self.hold_time + dt, 0.0), self.hold_time)
-        success = active & (self.hold_time >= .5 - 1e-6)
         self.success |= success
         self.failed |= failure
         self.dropped |= failure & drop

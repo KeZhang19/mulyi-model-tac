@@ -115,8 +115,8 @@ try:
                 })
         report["maximum_requested_delta_rad"] = {
             "arm": float(maximum_delta[arm].max()), "hand": float(maximum_delta[hand].max())}
-        assert maximum_delta[arm].max() <= 0.02500001
-        assert maximum_delta[hand].max() <= 0.05000001
+        assert maximum_delta[arm].max() <= 1.0000001
+        assert maximum_delta[hand].max() <= 1.0000001
         try:
             action.process_actions(torch.full((2, 28), float("nan"), device=raw.device))
         except ValueError:

@@ -22,7 +22,8 @@ class BulbDiagnosticRecorder:
         from BrainCo_DexHand.tasks.manager_based.dexsuite.config.RotateBulbCustom import env_cfg as bulb
 
         env = self.env
-        loss = env.termination_manager.get_term_cfg("lost_grasp").func
+        loss = (env.termination_manager.get_term_cfg("lost_grasp").func
+                if "lost_grasp" in env.termination_manager.active_terms else None)
         row = {
             "step": self.step,
             "seconds": (self.step + 1) * env.step_dt,
@@ -36,8 +37,8 @@ class BulbDiagnosticRecorder:
             "returned_state_contact_scores": bulb.rotate_bulb_contact_scores(env).cpu().tolist(),
             "returned_state_released": env._bulb_released.cpu().tolist(),
             "returned_state_opposing_distance_m": bulb.rotate_bulb_hand_shell_distance(env).cpu().tolist(),
-            "returned_state_no_contact_time_s": loss.no_contact_time.cpu().tolist(),
-            "returned_state_far_time_s": loss.far_time.cpu().tolist(),
+            "returned_state_no_contact_time_s": loss.no_contact_time.cpu().tolist() if loss is not None else None,
+            "returned_state_far_time_s": loss.far_time.cpu().tolist() if loss is not None else None,
             "step_reward": {
                 name: (env.reward_manager._step_reward[:, i] * env.step_dt).cpu().tolist()
                 for i, name in enumerate(env.reward_manager.active_terms)

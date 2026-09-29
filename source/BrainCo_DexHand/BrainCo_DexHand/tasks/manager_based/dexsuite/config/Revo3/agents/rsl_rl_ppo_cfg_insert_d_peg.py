@@ -8,8 +8,11 @@ from .rsl_rl_ppo_cfg_rotate_bulb import DexsuiteRevo3RotateBulbPPORunnerCfg
 class DexsuiteRevo3InsertDPegPPORunnerCfg(DexsuiteRevo3RotateBulbPPORunnerCfg):
     experiment_name = "dexsuite_revo3_insert_d_peg_v4"
     save_interval = 25
+    clip_actions = None
     policy = DexsuiteRevo3RotateBulbPPORunnerCfg().policy.copy()
     policy.init_noise_std = 0.15
+    # The local RSL-RL fork accepts this optional ceiling; leave noise unbounded.
+    policy.max_noise_std = None
     algorithm = DexsuiteRevo3RotateBulbPPORunnerCfg().algorithm.copy()
     algorithm.learning_rate = 3.0e-5
     # Sparse, high-variance D-Peg rollouts make adaptive KL scheduling

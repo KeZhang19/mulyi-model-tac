@@ -61,7 +61,7 @@ def test_bounded_targets_hold_for_all_substeps_and_map_by_name(action_module):
     action, robot = make_action(action_module)
     values = torch.full((2, 28), 1000.)
     action.process_actions(values)
-    expected = torch.tensor([0.025 if name.startswith("joint") else 0.05 for name in robot.joint_names])
+    expected = torch.ones(28)
     torch.testing.assert_close(action.position_targets, expected.expand(2, 28))
     torch.testing.assert_close(action.processed_actions, action.position_targets)
     assert len(action.arm_action_indices) == 7 and len(action.hand_action_indices) == 21
@@ -75,6 +75,16 @@ def test_bounded_targets_hold_for_all_substeps_and_map_by_name(action_module):
     assert torch.equal(action.action_deltas, torch.zeros_like(values))
     contract = action.action_contract()
     assert contract["joint_names"] == robot.joint_names and contract["decimation"] == 4
+    assert contract["version"] == 3 and contract["delta_limits_rad"] == [1.0] * 28
+
+
+def test_subunit_actions_are_not_attenuated_by_arm_or_hand_scales(action_module):
+    action, robot = make_action(action_module)
+    robot.data.joint_pos.fill_(0.1)
+    controls = torch.linspace(-0.5, 0.5, 28).expand(2, -1)
+    action.process_actions(controls)
+    torch.testing.assert_close(action.action_deltas, controls)
+    torch.testing.assert_close(action.position_targets, robot.data.joint_pos + controls)
 
 
 def test_target_limits_partial_reset_and_nonfinite_rejection(action_module):
