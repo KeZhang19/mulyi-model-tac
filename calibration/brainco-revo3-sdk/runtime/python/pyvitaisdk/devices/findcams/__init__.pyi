@@ -1,0 +1,6 @@
+from .find_device import find_all_cameras as find_all_cameras
+
+__all__ = ['getCamera', 'getCameraIndex', 'find_all_cameras']
+
+def getCamera(name: str, uniqueID: str = None) -> list[dict]: ...
+def getCameraIndex(name: str, uniqueID: str = None) -> list[int]: ...

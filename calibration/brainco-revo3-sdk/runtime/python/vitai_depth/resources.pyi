@@ -1,0 +1,3 @@
+__all__ = ['get_depth_model_path']
+
+def get_depth_model_path(sensor: str, backend: str = 'onnx') -> str: ...

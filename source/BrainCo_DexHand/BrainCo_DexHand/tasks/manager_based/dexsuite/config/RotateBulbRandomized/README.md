@@ -79,30 +79,3 @@ CPU tests: `tests/test_rotate_bulb_randomized.py`. Native validation:
 `scripts/diagnostics/validate_bulb_palm_high_z.py --out <new-output-directory> --headless --num_envs 8`.
 The native probe checks 16 resets, reward gating, contracts and 40 physics steps;
 it is not an independent task-success evaluation.
-
-## Reward profile 4: weak fixed-reset arm pose guidance (2026-09-29)
-
-Local defaults now add `initial_arm_pose`, weight -0.025, alongside the existing
-profile-3 terms. `initial_arm_pose_guidance` reads joint1..7 by name and uses
-`default_joint_pos`, the exact fixed reset reference written by
-`reset_robot_to_grasp`. This task validates the fixed arm reset; if future work
-randomizes reset joints, the reference must instead be captured by that reset.
-Grasp/regrasp never changes this reference. No grasp/contact gate applies.
-
-The cost rate is the weighted sum of squared excess joint angles:
-`sum(w_i * (max(abs(q_i - q_reset_i) - 15deg, 0) / 90deg)^2)`.
-Weights for joint1..7 are `[2, 1, 1, 1, .5, .5, .5]`; there is no maximum clamp.
-RewardManager applies -0.025 and control dt exactly once. After physical
-release the rate is multiplied by 0.2. Fingers are excluded; existing velocity,
-action and grasp-relative motion terms remain. Failed transitions do not waive
-this additional pose cost. Success, failure, physics and policy contracts stay
-unchanged; this is neither a hard joint limit nor a new success requirement.
-
-A 150-degree offset of joint1 alone held for 12 seconds costs 1.35 points before
-release or 0.27 after release. Offline scoring of four model5100 traces gives
-1.86–2.02 additional points per episode (3.68–4.15% of the original return).
-Those scores are scale estimates on old-policy pre-step states, not evidence of
-learning improvement. Local CPU regressions pass; native simulation and
-training with profile4 have not run. Existing GPU4/GPU6 frozen runs still use
-profile3. See `tests/test_rotate_bulb_initial_arm_pose.py` and
-`logs/diagnostics/bulb_initial_pose_guidance_20260929/`.

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "revo3-examples"
+version = "2.1.0"
+description = "BrainCo Revo3 SDK Python Examples"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "bc-revo3-sdk>=2.1.0,<3",
+    "colorlog>=6.9.0",
+    "pyserial>=3.5",
+]
+
+[project.optional-dependencies]
+gui = [
+    "numpy<2.0.0",
+    "PySide6>=6.5.0",
+    "pyqtgraph>=0.13.0",
+    "qasync>=0.24.0",
+]
+
+[project.scripts]
+revo3-gui = "revo3_examples.gui.main:main"
+
+[tool.setuptools]
+packages = ["revo3_examples", "revo3_examples.gui", "revo3_examples.revo3"]
+package-dir = {revo3_examples = "."}
+
+[tool.uv]
+package = false

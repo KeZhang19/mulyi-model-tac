@@ -1,0 +1,3 @@
+__all__ = ['get_yolo_model_path']
+
+def get_yolo_model_path() -> str: ...

@@ -11,14 +11,38 @@ class CurriculumStageComplete(Exception):
 
 
 def install_curriculum_runner(runner, env):
-    if getattr(runner, "is_distributed", False):
-        raise ValueError("Curriculum banks and promotion currently support one rank only")
     runtime = env._bulb_curriculum
+    distributed = bool(getattr(runner, "is_distributed", False))
+    coordinator = None
+    if distributed:
+        from BrainCo_DexHand.tasks.manager_based.dexsuite.config.RotateBulbAssemblyCurriculum.distributed import DistributedCurriculum
+        coordinator = DistributedCurriculum(runtime)
+        original_update, original_iteration = runner.alg.update, runner.env.set_iteration
+
+        def update(self, *args, **kwargs):
+            result = original_update(*args, **kwargs)
+            coordinator.synchronize()
+            return result
+
+        def set_iteration(iteration):
+            if ready():
+                raise CurriculumStageComplete()
+            return original_iteration(iteration)
+
+        runner.alg.update = MethodType(update, runner.alg)
+        runner.env.set_iteration = set_iteration
     original_save, original_log, original_learn = runner.save, runner.log, runner.learn
 
+    def ready():
+        enough_bank = (runtime.cfg.stage not in (1, 2)
+                       or len(runtime.bank.samples[runtime.cfg.stage + 1]) >= runtime.cfg.min_bank_size)
+        return runtime.scheduler.ready and enough_bank
+
     def save(self, path, infos=None):
+        if distributed and self.gpu_global_rank != 0:
+            return
         data = dict(infos or {})
-        data["bulb_curriculum"] = runtime.state_dict()
+        data["bulb_curriculum"] = coordinator.cached_state if coordinator else runtime.state_dict()
         return original_save(path, infos=data)
 
     def log(self, locs, *args, **kwargs):
@@ -31,9 +55,7 @@ def install_curriculum_runner(runner, env):
                        "hover_bank_size": len(runtime.bank.samples[3])}
             for key, value in metrics.items():
                 self.writer.add_scalar("Curriculum/" + key, value, locs["it"])
-        enough_bank = (runtime.cfg.stage not in (1, 2)
-                       or len(runtime.bank.samples[runtime.cfg.stage + 1]) >= runtime.cfg.min_bank_size)
-        if runtime.scheduler.ready and enough_bank:
+        if ready() and not distributed:
             raise CurriculumStageComplete()
         return result
 
@@ -45,6 +67,9 @@ def install_curriculum_runner(runner, env):
             result = original_learn(num_learning_iterations, init_at_random_ep_len=False)
         except CurriculumStageComplete:
             nominated, result = True, None
+        nominated = nominated or ready()
+        if distributed and self.gpu_global_rank != 0:
+            return result
         output = Path(self.log_dir)
         checkpoint = output / f"model_{self.current_learning_iteration}.pt"
         self.save(str(checkpoint))
@@ -52,7 +77,9 @@ def install_curriculum_runner(runner, env):
                   "promotion_nominated": nominated, "full_budget_completed": runtime.cfg.stage == 4,
                   "checkpoint": str(checkpoint.resolve()), "scheduler": runtime.scheduler.state_dict(),
                   "bank_sizes": {str(k): len(v) for k, v in runtime.bank.samples.items()},
-                  "episodes": runtime.episodes, "physics_transitions": runtime.transitions}
+                  "episodes": coordinator.cached_state["episodes"] if coordinator else runtime.episodes,
+                  "physics_transitions": coordinator.cached_state["transitions"] if coordinator else runtime.transitions,
+                  "world_size": coordinator.world_size if coordinator else 1}
         temp = output / "curriculum_status.json.tmp"
         temp.write_text(json.dumps(status, indent=2) + "\n")
         temp.replace(output / "curriculum_status.json")

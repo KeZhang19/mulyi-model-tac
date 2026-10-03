@@ -1,0 +1,6 @@
+pyvitaisdk
+vitai_depth
+vitai_force
+vitai_marker
+vitai_pre_processing
+vitai_slip

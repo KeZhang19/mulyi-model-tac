@@ -1,0 +1,57 @@
+Metadata-Version: 2.4
+Name: bc-revo3-sdk
+Version: 2.1.0
+Classifier: Programming Language :: Rust
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+License-File: LICENSE
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+
+# BrainCo Revo3 Python SDK
+
+Python bindings for the BrainCo Revo3 SDK.
+
+## Device Scope
+
+This package recognizes Revo3 devices only:
+
+- Revo3 Ultra / Ultra Touch / Ultra VisionTouch
+- Revo3 Pro / Pro Touch
+- Revo3 Basic / Basic Touch
+
+Runtime control is enabled for validated Revo3 Ultra 21 DOF configurations. Revo3 Pro and Revo3 Basic devices currently expose device identity and `JointLayout`; other runtime capability domains remain unavailable until separately validated.
+
+## Installation
+
+```bash
+pip install bc-revo3-sdk
+```
+
+## Import
+
+```python
+from bc_revo3_sdk import main_mod as sdk
+```
+
+## Features
+
+- Revo3 Manager/Hand object API for motor control, MIT control, trajectory, and teach/replay workflows
+- Revo3 State and Health snapshots and pull subscriptions
+- Revo3 touch module data APIs
+- Modbus and CANFD connection support
+- C/C++ bindings and Python type stubs
+
+## API Reference
+
+- [Python Type Stubs](https://www.brainco-hz.com/docs/revolimb-hand/revo3/get_sdk.html#%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6)
+- [C Header File](https://www.brainco-hz.com/docs/revolimb-hand/revo3/get_sdk.html#%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89%E6%96%87%E4%BB%B6)
+
+## License
+
+Proprietary - Copyright 2015-2026 BrainCo Inc. All rights reserved.
+

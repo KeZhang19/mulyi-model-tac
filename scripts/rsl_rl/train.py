@@ -179,6 +179,11 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
     # set the log directory for the environment (works for all environment types)
     env_cfg.log_dir = log_dir
+    if args_cli.distributed and getattr(env_cfg, "bulb_curriculum", None) is not None:
+        if args_cli.log_dir is None:
+            raise ValueError("Distributed curriculum requires an explicit shared --log_dir")
+        if app_launcher.global_rank != 0:
+            env_cfg.log_dir = os.path.join(log_dir, f"rank_{app_launcher.global_rank}")
 
     # Resolve saved Repose action semantics before constructing the simulator.
     resume_path = None
@@ -202,8 +207,6 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
 
         configure_bulb_checkpoint(agent_cfg, resume_path, training=True)
     if getattr(env_cfg, "bulb_curriculum", None) is not None:
-        if args_cli.distributed:
-            raise ValueError("Assembly curriculum currently requires one process (banks/scheduler are rank-local)")
         env_cfg.bulb_curriculum.checkpoint = resume_path or ""
 
     # create isaac environment
@@ -216,13 +219,13 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
     from BrainCo_DexHand.tactile_representation.policy import prepare_policy_run
 
     prepare_policy_run(
-        env, log_dir,
+        env, env_cfg.log_dir,
         resume_path=resume_path if agent_cfg.resume or agent_cfg.algorithm.class_name == "Distillation" else None,
     )
     if is_custom_bulb:
         from bulb_training import prepare_bulb_policy_run
 
-        prepare_bulb_policy_run(env, log_dir, resume_path=resume_path)
+        prepare_bulb_policy_run(env, env_cfg.log_dir, resume_path=resume_path)
 
     # wrap for video recording
     if args_cli.video:

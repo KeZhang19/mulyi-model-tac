@@ -1,0 +1,27 @@
+{
+  "vitai-module-depth": {
+    "commit": "3cd83277f557744a4183d06d7e9de3a63e2a6555",
+    "package": "vitai_depth",
+    "repository": "/home/sun/code/vitai/ViTai-SDK-Dev/modules/vitai-module-depth"
+  },
+  "vitai-module-force": {
+    "commit": "6ae72f5eec5f746a291e5efccf2f1e9604cd3f0f",
+    "package": "vitai_force",
+    "repository": "/home/sun/code/vitai/ViTai-SDK-Dev/modules/vitai-module-force"
+  },
+  "vitai-module-marker": {
+    "commit": "e700d9490f1ab9059dcfde66533f801787367292",
+    "package": "vitai_marker",
+    "repository": "/home/sun/code/vitai/ViTai-SDK-Dev/modules/vitai-module-marker"
+  },
+  "vitai-module-pre-process": {
+    "commit": "d1320e5b032a0c46688f10da2d2742af91afabd8",
+    "package": "vitai_pre_processing",
+    "repository": "/home/sun/code/vitai/ViTai-SDK-Dev/modules/vitai-module-pre-process"
+  },
+  "vitai-module-slip": {
+    "commit": "e17dde93e7959f994bca1e300b6fc28573f5813d",
+    "package": "vitai_slip",
+    "repository": "/home/sun/code/vitai/ViTai-SDK-Dev/modules/vitai-module-slip"
+  }
+}

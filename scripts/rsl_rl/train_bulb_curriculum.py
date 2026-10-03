@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run the assembly stages through train.py, with independent promotion checks.
 
-One process per stage keeps the Stage0 world fixture out of every free stage.
+Every stage uses a free bulb. Stage0 starts horizontally on the tabletop.
 This launcher does not reserve GPUs or start any remote process.
 """
 from __future__ import annotations
@@ -15,7 +15,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[2]
 TASK = "BrainCo-Dexsuite-Revo3-Right-Bulb-Assembly-Curriculum-v0"
-PHASES = (("stage0", 0, True), ("stage0_free", 0, False), ("stage1", 1, False),
+PHASES = (("stage0", 0, False), ("stage1", 1, False),
           ("stage2", 2, False), ("stage3", 3, False), ("full", 4, False))
 THRESHOLDS = (.9, .8, .85, .7)
 
@@ -27,7 +27,12 @@ def training_command(args, phase, directory, checkpoint=None, *, transfer=False)
            "--max_iterations", str(args.iterations_per_stage), "--logger", "tensorboard", "--headless",
            "--log_dir", str(directory), f"env.bulb_curriculum.stage={stage}",
            f"env.bulb_curriculum.fixed_bulb={str(fixed).lower()}",
-           f"env.bulb_curriculum.transfer={str(transfer).lower()}"]
+           f"env.bulb_curriculum.transfer={str(transfer).lower()}",
+           f"env.bulb_curriculum.physics_hz={args.physics_hz}"]
+    if args.num_processes > 1:
+        cmd[1:1] = ["-m", "torch.distributed.run", "--standalone", "--nnodes=1",
+                    f"--nproc_per_node={args.num_processes}"]
+        cmd += ["--distributed", "--expected_world_size", str(args.num_processes)]
     if getattr(args, "kit_args", ""):
         cmd += ["--kit_args", args.kit_args]
     if checkpoint:
@@ -39,6 +44,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--num_envs", type=int, default=32)
+    parser.add_argument("--num-processes", type=int, default=1, help="One worker/GPU; num_envs is per worker")
+    parser.add_argument("--physics-hz", type=int, choices=(120, 240), default=120)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--kit_args", default="", help="Kit GPU/thread arguments shared by every training and evaluation process")
@@ -50,7 +57,7 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="Print the first command without launching Isaac")
     parser.add_argument("env_args", nargs="*", help="Additional Hydra overrides forwarded to train and evaluator")
     args = parser.parse_args()
-    if min(args.num_envs, args.iterations_per_stage, args.eval_episodes) < 1 or len(set(args.eval_seeds)) != 3:
+    if min(args.num_envs, args.num_processes, args.iterations_per_stage, args.eval_episodes) < 1 or len(set(args.eval_seeds)) != 3:
         parser.error("Counts must be positive and validation seeds must be distinct")
     if args.start != "stage0" and args.checkpoint is None:
         parser.error("--start requires the selected phase's checkpoint; cannot bypass predecessor learning")

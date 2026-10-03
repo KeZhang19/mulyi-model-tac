@@ -1,0 +1,10 @@
+bc_revo3_sdk-2.1.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+bc_revo3_sdk-2.1.0.dist-info/METADATA,sha256=SrcZpBYfX2I9z5AwICS4lRnToYUYK96OqmvZ3EVn5jc,1822
+bc_revo3_sdk-2.1.0.dist-info/RECORD,,
+bc_revo3_sdk-2.1.0.dist-info/WHEEL,sha256=ie0sdXGKmxFua157GMA8M1e0gzQyZs-b038y9mdQyyE,108
+bc_revo3_sdk-2.1.0.dist-info/licenses/LICENSE,sha256=273y7yGl6UeNuZJh3QBF92NEDYgPnjYZIC4nsvgDOrw,1068
+bc_revo3_sdk-2.1.0.dist-info/sboms/auditwheel.cdx.json,sha256=7DfHijeSfpo1jgjDCvsPkFJzEin454RCz3x6XlHRiT8,1244
+bc_revo3_sdk-2.1.0.dist-info/sboms/bc-revo3-sdk.cyclonedx.json,sha256=gAXsGiYgfWL5aFUIotmyipGueY6TSdD13IUZIQc4Y3Q,175429
+bc_revo3_sdk.libs/libudev-1f47ab3b.so.1,sha256=if6qPTjmvmYQIxSMrZ6K0wWwOEMdJztomRqay8o8PqI,172880
+bc_revo3_sdk/main_mod.abi3.so,sha256=TmA_pMQeCFZeu2T2YHazANEhDvknKdnTlWDD-LhU3sA,6271896
+bc_revo3_sdk/main_mod.pyi,sha256=VnnGO29oMxD4EO8vaRw1E7lLrUCOUJtZHaGNLBt9Y3E,38668

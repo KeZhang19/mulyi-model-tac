@@ -1,0 +1,6 @@
+import numpy as np
+
+seed: int
+
+def preproc_mlp(image, mean=..., std=...) -> np.ndarray: ...
+def post_proc_mlp_np(model_output, output_sz): ...

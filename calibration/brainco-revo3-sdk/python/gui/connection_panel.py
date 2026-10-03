@@ -1,0 +1,865 @@
+"""Revo3-only connection panel for the current GUI layout."""
+
+import asyncio
+import sys
+from pathlib import Path
+
+from PySide6.QtCore import Qt, QObject, QThread, QTimer, Signal
+from PySide6.QtWidgets import (
+    QComboBox,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSpinBox,
+    QToolButton,
+    QVBoxLayout,
+    QWidget,
+)
+
+from .i18n import tr
+from .styles import COLORS, CONNECTION_STATUS_STYLES
+from .async_task_control import AsyncTaskControl
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from common_imports import get_protocol_display_name, int_to_baudrate, sdk, baudrate_to_int
+from .sdk_adapter import GuiHandAdapter
+
+PROTO_AUTO = "auto"
+PROTO_MODBUS = "modbus"
+PROTO_CANFD = "canfd"
+PROTO_MOCK = "mock"
+CONNECT_TIMEOUT_SECONDS = 2.0
+
+PROTOCOL_LABELS = {
+    PROTO_AUTO: "Auto Detect",
+    PROTO_MODBUS: "Modbus/RS485",
+    PROTO_CANFD: "CANFD",
+}
+
+
+def protocol_key_to_label(protocol_key) -> str:
+    return PROTOCOL_LABELS.get(protocol_key or "", protocol_key or "")
+
+
+def sdk_protocol_to_key(protocol_type):
+    if sdk is None:
+        return None
+    if protocol_type == sdk.ProtocolType.Modbus:
+        return PROTO_MODBUS
+    if protocol_type == sdk.ProtocolType.CanFd:
+        return PROTO_CANFD
+    return None
+
+
+def run_in_new_loop(async_factory):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        async def _runner():
+            return await async_factory()
+
+        return loop.run_until_complete(_runner())
+    finally:
+        loop.close()
+        asyncio.set_event_loop(None)
+
+
+try:
+    import serial.tools.list_ports
+
+    HAS_SERIAL = True
+except ImportError:
+    HAS_SERIAL = False
+
+
+def list_serial_ports():
+    if not HAS_SERIAL:
+        return []
+    ports = []
+    for port in serial.tools.list_ports.comports():
+        desc = f"{port.device}"
+        if port.description and port.description != port.device:
+            desc += f" - {port.description}"
+        ports.append((port.device, desc))
+    return ports
+
+
+class AsyncConnectionWorker(QObject):
+    done = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self._task_control = AsyncTaskControl()
+
+    def _start_task(self, loop, coroutine):
+        return self._task_control.start(loop, coroutine)
+
+    def cancel(self):
+        self._task_control.cancel()
+
+    def _finish_task(self):
+        self._task_control.finish()
+        self.done.emit()
+
+
+class AutoDetectWorker(AsyncConnectionWorker):
+    finished = Signal(object, int, object, str, str, object)
+    error = Signal(str)
+    progress = Signal(str)
+
+    def __init__(self, protocol=None, port=None, scan_all=False, slave_id=None, modbus_baudrate=None):
+        super().__init__()
+        self.protocol = protocol
+        self.port = port
+        self.scan_all = scan_all
+        self.slave_id = slave_id
+        self.modbus_baudrate = modbus_baudrate
+
+    def run(self):
+        loop = None
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            task = self._start_task(loop, self._auto_detect_and_connect())
+            result = loop.run_until_complete(task)
+            self.finished.emit(*result)
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            import traceback
+
+            traceback.print_exc()
+            self.error.emit(str(e))
+        finally:
+            if loop is not None:
+                loop.close()
+            asyncio.set_event_loop(None)
+            self._finish_task()
+
+    async def _auto_detect_and_connect(self):
+        device = await self._auto_detect()
+        self.progress.emit("Connecting to Revo3 device...")
+        try:
+            ctx = await asyncio.wait_for(
+                GuiHandAdapter.connect(sdk, device),
+                timeout=CONNECT_TIMEOUT_SECONDS,
+            )
+        except asyncio.TimeoutError as error:
+            raise TimeoutError(
+                f"Timed out connecting to the detected device after {CONNECT_TIMEOUT_SECONDS:.0f}s"
+            ) from error
+        await ctx.initialize_touch_metadata()
+        device_info = await ctx.get_device_info(device.slave_id)
+        protocol_key = sdk_protocol_to_key(device.protocol_type) or PROTO_AUTO
+        protocol_label = get_protocol_display_name(device.protocol_type)
+        return ctx, device.slave_id, device_info, protocol_key, protocol_label, device
+
+    async def _auto_detect(self):
+        self.progress.emit("Scanning Revo3 devices...")
+        protocols = (
+            [self.protocol]
+            if self.protocol is not None
+            else [sdk.ProtocolType.Modbus, sdk.ProtocolType.CanFd]
+        )
+        last_error = None
+        for attempt in range(3):
+            for protocol in protocols:
+                protocol_label = get_protocol_display_name(protocol)
+                self.progress.emit(
+                    f"Scanning Revo3 devices over {protocol_label}..."
+                )
+                manager = sdk.Manager()
+                try:
+                    # Do not wrap discovery in asyncio.wait_for(). Cancelling the
+                    # Python awaitable does not stop an already-running native
+                    # CANFD scan, which can leave the global scan reservation busy
+                    # while the GUI starts its next retry.
+                    devices = await manager.discover(
+                        scan_all=False,
+                        port=self.port,
+                        protocol=protocol,
+                        slave_id=self.slave_id,
+                        modbus_baudrate=self.modbus_baudrate,
+                        broadcast=False,
+                    )
+                    last_error = None
+                except Exception as error:
+                    last_error = error
+                    devices = []
+                finally:
+                    await manager.close()
+                if devices:
+                    return devices[0]
+            if attempt < 2:
+                await asyncio.sleep(1.5)
+
+        if last_error is not None:
+            raise RuntimeError(
+                f"No Revo3 device found; last error: {last_error}"
+            ) from last_error
+        raise RuntimeError("No Revo3 device found")
+
+    async def _auto_detect_streaming(self):
+        return await self._auto_detect()
+
+
+class ManualConnectWorker(AsyncConnectionWorker):
+    finished = Signal(object, int, object, str, str)
+    error = Signal(str)
+
+    def __init__(self, protocol_key, params):
+        super().__init__()
+        self.protocol_key = protocol_key
+        self.params = params
+
+    def run(self):
+        loop = None
+        try:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            task = self._start_task(loop, self._connect())
+            ctx, slave_id, device_info = loop.run_until_complete(task)
+            self.finished.emit(
+                ctx,
+                slave_id,
+                device_info,
+                self.protocol_key,
+                protocol_key_to_label(self.protocol_key),
+            )
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            import traceback
+
+            traceback.print_exc()
+            self.error.emit(str(e))
+        finally:
+            if loop is not None:
+                loop.close()
+            asyncio.set_event_loop(None)
+            self._finish_task()
+
+    async def _connect(self):
+        if self.protocol_key in (PROTO_MODBUS, PROTO_CANFD):
+            protocol = sdk.ProtocolType.Modbus if self.protocol_key == PROTO_MODBUS else sdk.ProtocolType.CanFd
+            port = self.params.get("port") or self.params.get("port_name")
+            manager = sdk.Manager()
+            try:
+                devices = await manager.discover(
+                    scan_all=False,
+                    port=port,
+                    protocol=protocol,
+                    slave_id=self.params["slave_id"],
+                    modbus_baudrate=(
+                        int_to_baudrate(int(self.params["baudrate"]))
+                        if self.protocol_key == PROTO_MODBUS
+                        else None
+                    ),
+                    broadcast=True,
+                )
+            finally:
+                await manager.close()
+            if not devices:
+                raise RuntimeError("No Revo3 device found")
+            device = devices[0]
+            try:
+                ctx = await asyncio.wait_for(
+                    GuiHandAdapter.connect(sdk, device),
+                    timeout=CONNECT_TIMEOUT_SECONDS,
+                )
+            except asyncio.TimeoutError as error:
+                raise TimeoutError(
+                    f"Timed out connecting to the detected device after {CONNECT_TIMEOUT_SECONDS:.0f}s"
+                ) from error
+            await ctx.initialize_touch_metadata()
+            return ctx, device.slave_id, await ctx.get_device_info(device.slave_id)
+
+        raise RuntimeError(f"Unsupported protocol: {self.protocol_key}")
+
+    async def _detect_manual_canfd(self, port_name=None):
+        manager = sdk.Manager()
+        try:
+            devices = await manager.discover(
+                scan_all=False,
+                port=port_name,
+                protocol=sdk.ProtocolType.CanFd,
+                slave_id=self.params["slave_id"],
+                modbus_baudrate=None,
+                broadcast=True,
+            )
+        finally:
+            await manager.close()
+        if devices:
+            return devices[0]
+        raise RuntimeError("No CANFD Revo3 device found")
+
+
+class ConnectionPanel(QWidget):
+    connected = Signal(object, int, object, str, str)
+    disconnected = Signal()
+    about_to_disconnect = Signal()
+
+    def __init__(self, revo3_modbus=False, mock_type=None, canfd=None):
+        super().__init__()
+        self.ctx = None
+        self.slave_id = None
+        self.protocol = None
+        self.protocol_key = None
+        self.last_protocol_key = None
+        self.last_slave_id = None
+        self.last_reconnect_port = None
+        self.last_reconnect_protocol = None
+        self.last_modbus_baudrate = None
+        self._last_connect_succeeded = False
+        self.revo3_modbus = revo3_modbus
+        self.mock_type = mock_type
+        self.canfd_arg = canfd
+        self._thread = None
+        self.worker = None
+        self._setup_ui()
+        if self.mock_type:
+            QTimer.singleShot(0, self._connect_mock)
+        elif self.canfd_arg is not None:
+            # Pre-select CANFD protocol
+            idx = self.protocol_combo.findData(PROTO_CANFD)
+            if idx >= 0:
+                self.protocol_combo.setCurrentIndex(idx)
+        else:
+            QTimer.singleShot(100, self._on_auto_detect)
+
+    def _setup_ui(self):
+        self.setFrameStyle = getattr(self, "setFrameStyle", lambda *_: None)
+        outer_layout = QVBoxLayout(self)
+        outer_layout.setContentsMargins(12, 10, 12, 10)
+        outer_layout.setSpacing(6)
+
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(10)
+        outer_layout.addLayout(layout)
+
+        self.proto_label = QLabel(tr("protocol") + ":")
+        layout.addWidget(self.proto_label)
+
+        self.protocol_combo = QComboBox()
+        for key in [PROTO_AUTO, PROTO_MODBUS, PROTO_CANFD]:
+            self.protocol_combo.addItem(PROTOCOL_LABELS[key], key)
+        self.protocol_combo.currentTextChanged.connect(self._on_protocol_changed)
+        layout.addWidget(self.protocol_combo)
+
+        self.modbus_frame = QWidget()
+        modbus_layout = QHBoxLayout(self.modbus_frame)
+        modbus_layout.setContentsMargins(0, 0, 0, 0)
+        self.modbus_port_label = QLabel(tr("port") + ":")
+        modbus_layout.addWidget(self.modbus_port_label)
+        self.port_combo = QComboBox()
+        self.port_combo.setEditable(True)
+        self.port_combo.setMinimumWidth(220)
+        modbus_layout.addWidget(self.port_combo)
+        self.refresh_port_btn = QToolButton()
+        self.refresh_port_btn.setText("Refresh")
+        self.refresh_port_btn.clicked.connect(self._refresh_port_list)
+        modbus_layout.addWidget(self.refresh_port_btn)
+        self.modbus_baud_label = QLabel(tr("baud") + ":")
+        modbus_layout.addWidget(self.modbus_baud_label)
+        self.baudrate_combo = QComboBox()
+        for baud in ["5000000", "3000000", "2000000", "1000000"]:
+            self.baudrate_combo.addItem(baud)
+        modbus_layout.addWidget(self.baudrate_combo)
+        self.modbus_id_label = QLabel(tr("id") + ":")
+        modbus_layout.addWidget(self.modbus_id_label)
+        self.slave_id_spin = QSpinBox()
+        self.slave_id_spin.setRange(1, 255)
+        self.slave_id_spin.setValue(126)
+        modbus_layout.addWidget(self.slave_id_spin)
+        self.modbus_frame.setVisible(False)
+        layout.addWidget(self.modbus_frame)
+
+        self.canfd_frame = QWidget()
+        canfd_layout = QHBoxLayout(self.canfd_frame)
+        canfd_layout.setContentsMargins(0, 0, 0, 0)
+        self.canfd_adapter_label = QLabel(tr("adapter") + ":")
+        canfd_layout.addWidget(self.canfd_adapter_label)
+        self.canfd_port_combo = QComboBox()
+        self.canfd_port_combo.setEditable(True)
+        self.canfd_port_combo.setMinimumWidth(170)
+        canfd_layout.addWidget(self.canfd_port_combo)
+        self.canfd_id_label = QLabel(tr("id") + ":")
+        canfd_layout.addWidget(self.canfd_id_label)
+        self.canfd_slave_spin = QSpinBox()
+        self.canfd_slave_spin.setRange(1, 255)
+        self.canfd_slave_spin.setValue(126)
+        canfd_layout.addWidget(self.canfd_slave_spin)
+        self.canfd_frame.setVisible(False)
+        layout.addWidget(self.canfd_frame)
+
+        self.auto_detect_btn = QPushButton(tr("btn_auto_detect"))
+        self.auto_detect_btn.clicked.connect(self._on_auto_detect)
+        layout.addWidget(self.auto_detect_btn)
+
+        self.connect_btn = QPushButton(tr("btn_connect"))
+        self.connect_btn.clicked.connect(self._on_connect)
+        self.connect_btn.setVisible(False)
+        layout.addWidget(self.connect_btn)
+
+        self.disconnect_btn = QPushButton(tr("btn_disconnect"))
+        self.disconnect_btn.clicked.connect(self._on_disconnect)
+        self.disconnect_btn.setEnabled(False)
+        layout.addWidget(self.disconnect_btn)
+
+        self.status_indicator = QLabel("● " + tr("status_disconnected"))
+        self.status_indicator.setStyleSheet(CONNECTION_STATUS_STYLES["disconnected"])
+        self.status_indicator.setFixedHeight(32)
+        self.status_indicator.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.status_indicator)
+
+        self.info_labels = {
+            "hardware": QLabel(""),
+            "serial": QLabel(""),
+            "protocol": QLabel(""),
+            "port": QLabel(""),
+            "slave_id": QLabel(""),
+            "firmware": QLabel(""),
+        }
+
+        self.status_label = QLabel("")
+        self.status_label.setVisible(False)
+        outer_layout.addWidget(self.status_label)
+        self._refresh_port_list()
+        self._refresh_canfd_adapters()
+
+    def _refresh_canfd_adapters(self):
+        try:
+            self.canfd_port_combo.clear()
+            
+            # Add common built-in/fallback CANFD ports
+            # BrainCo USB2CANFD adapters
+            self.canfd_port_combo.addItem("brainco:0 (BrainCo USB2CANFD Ch0)", "brainco:0")
+            self.canfd_port_combo.addItem("brainco:1 (BrainCo USB2CANFD Ch1)", "brainco:1")
+            
+            # SocketCAN adapters (Linux only)
+            import platform
+            if platform.system() == "Linux":
+                self.canfd_port_combo.addItem("can0 (SocketCAN)", "can0")
+                self.canfd_port_combo.addItem("can1 (SocketCAN)", "can1")
+
+            # If a custom port was specified via command line, ensure it is added and selected
+            if self.canfd_arg:
+                idx = self.canfd_port_combo.findData(self.canfd_arg)
+                if idx < 0:
+                    self.canfd_port_combo.addItem(self.canfd_arg, self.canfd_arg)
+                self.canfd_port_combo.setCurrentIndex(self.canfd_port_combo.findData(self.canfd_arg))
+        except Exception as e:
+            print(f"Error refreshing CANFD adapters: {e}")
+
+    def update_texts(self):
+        self.proto_label.setText(tr("protocol") + ":")
+        self.modbus_port_label.setText(tr("port") + ":")
+        self.modbus_baud_label.setText(tr("baud") + ":")
+        self.modbus_id_label.setText(tr("id") + ":")
+        self.canfd_adapter_label.setText(tr("adapter") + ":")
+        self.canfd_id_label.setText(tr("id") + ":")
+        self.auto_detect_btn.setText(tr("btn_auto_detect"))
+        self.connect_btn.setText(tr("btn_connect"))
+        self.disconnect_btn.setText(tr("btn_disconnect"))
+
+    def _on_protocol_changed(self, _label):
+        protocol_key = self.protocol_combo.currentData()
+        self.modbus_frame.setVisible(protocol_key == PROTO_MODBUS)
+        self.canfd_frame.setVisible(protocol_key == PROTO_CANFD)
+        self.connect_btn.setVisible(protocol_key != PROTO_AUTO)
+        self.auto_detect_btn.setVisible(protocol_key == PROTO_AUTO)
+        if protocol_key == PROTO_MODBUS:
+            self._refresh_port_list()
+        elif protocol_key == PROTO_CANFD:
+            self._refresh_canfd_adapters()
+
+    def _refresh_port_list(self):
+        current = self.port_combo.currentText() if hasattr(self, "port_combo") else ""
+        self.port_combo.clear()
+        ports = list_serial_ports()
+        if ports:
+            for device, desc in ports:
+                self.port_combo.addItem(desc, device)
+        else:
+            self.port_combo.addItem("No ports found", "")
+        if current:
+            self.port_combo.setEditText(current)
+
+    def _on_auto_detect(self):
+        if sdk is None:
+            self.status_label.setText("SDK not installed")
+            return
+        if self._thread is not None and self._thread.isRunning():
+            return
+        self._last_connect_succeeded = False
+        self._set_connecting_state()
+        protocol_key = self.protocol_combo.currentData()
+        protocol = None
+        if protocol_key == PROTO_MODBUS:
+            protocol = sdk.ProtocolType.Modbus
+        elif protocol_key == PROTO_CANFD:
+            protocol = sdk.ProtocolType.CanFd
+        port = None
+        if protocol_key == PROTO_MODBUS:
+            port = self.port_combo.currentData() or self.port_combo.currentText() or None
+            if port == "No ports found":
+                port = None
+        modbus_baudrate = None
+        if protocol_key == PROTO_MODBUS:
+            modbus_baudrate = int_to_baudrate(int(self.baudrate_combo.currentText()))
+
+        self._thread = QThread()
+        self.worker = AutoDetectWorker(
+            protocol=protocol,
+            port=port,
+            scan_all=False,
+            modbus_baudrate=modbus_baudrate,
+        )
+        self.worker.moveToThread(self._thread)
+        self._thread.started.connect(self.worker.run)
+        self.worker.progress.connect(self._on_progress)
+        self.worker.finished.connect(self._on_connect_success)
+        self.worker.error.connect(self._on_connect_error)
+        self.worker.done.connect(self.worker.deleteLater)
+        self.worker.done.connect(self._thread.quit)
+        self._thread.finished.connect(self._clear_worker_thread)
+        self._thread.finished.connect(self._thread.deleteLater)
+        self._thread.start()
+
+    async def _auto_detect_device(self, protocol, port, slave_id=None, modbus_baudrate=None):
+        for attempt in range(3):
+            manager = sdk.Manager()
+            try:
+                devices = await manager.discover(
+                    scan_all=False,
+                    port=port,
+                    protocol=protocol,
+                    slave_id=slave_id,
+                    modbus_baudrate=modbus_baudrate,
+                )
+                if devices:
+                    return devices[0]
+            except Exception as e:
+                if attempt == 2:
+                    raise e
+            finally:
+                await manager.close()
+            if attempt < 2:
+                await asyncio.sleep(1.5)
+
+        raise RuntimeError("No Revo3 device found")
+
+    def _on_detect_success(self, device):
+        try:
+            ctx, slave_id, device_info, protocol_key, protocol_label = run_in_new_loop(
+                lambda: self._init_detected_device(device)
+            )
+            self._on_connect_success(
+                ctx,
+                slave_id,
+                device_info,
+                protocol_key,
+                protocol_label,
+                detected_device=device,
+            )
+        except Exception as e:
+            self._on_connect_error(str(e))
+
+    async def _init_detected_device(self, device):
+        ctx = await GuiHandAdapter.connect(sdk, device)
+        await ctx.initialize_touch_metadata()
+        device_info = await ctx.get_device_info(device.slave_id)
+
+        protocol_key = sdk_protocol_to_key(device.protocol_type)
+        protocol_label = get_protocol_display_name(device.protocol_type)
+        return ctx, device.slave_id, device_info, protocol_key, protocol_label
+
+    def _on_connect(self):
+        if self.mock_type:
+            self._connect_mock()
+            return
+        protocol_key = self.protocol_combo.currentData()
+        if protocol_key == PROTO_AUTO:
+            self._on_auto_detect()
+            return
+        if protocol_key == PROTO_MODBUS:
+            params = {
+                "port": self.port_combo.currentData() or self.port_combo.currentText(),
+                "baudrate": self.baudrate_combo.currentText(),
+                "slave_id": self.slave_id_spin.value(),
+            }
+        elif protocol_key == PROTO_CANFD:
+            idx = self.canfd_port_combo.currentIndex()
+            port_name = self.canfd_port_combo.itemData(idx) or self.canfd_port_combo.currentText() or None
+            if port_name == "No CANFD devices found" or port_name == "":
+                port_name = None
+            params = {
+                "port_name": port_name,
+                "slave_id": self.canfd_slave_spin.value(),
+                # Default CANFD baudrates for manual connection fallback when no UI selector is present
+                "arb_baudrate": 1000000,
+                "data_baudrate": 5000000,
+            }
+        else:
+            self.status_label.setText(f"Unknown protocol: {protocol_key}")
+            return
+        self._set_connecting_state()
+        self._start_manual_connect(protocol_key, params, "Connecting...")
+
+    def _start_manual_connect(self, protocol_key, params, status_text):
+        self._last_connect_succeeded = False
+        self.status_label.setText(status_text)
+        self._thread = QThread()
+        self.worker = ManualConnectWorker(protocol_key, params)
+        self.worker.moveToThread(self._thread)
+        self._thread.started.connect(self.worker.run)
+        self.worker.finished.connect(self._on_connect_success)
+        self.worker.error.connect(self._on_connect_error)
+        self.worker.done.connect(self.worker.deleteLater)
+        self.worker.done.connect(self._thread.quit)
+        self._thread.finished.connect(self._clear_worker_thread)
+        self._thread.finished.connect(self._thread.deleteLater)
+        self._thread.start()
+
+    def _clear_worker_thread(self):
+        self._thread = None
+        self.worker = None
+
+    def shutdown_worker(self, timeout_ms=1000):
+        thread = self._thread
+        if thread is None or not thread.isRunning():
+            return True
+        worker = self.worker
+        if worker is not None and hasattr(worker, "cancel"):
+            worker.cancel()
+        thread.quit()
+        return thread.wait(max(int(timeout_ms), 0))
+
+    def reconnect_last_device(self):
+        if self.mock_type:
+            self._connect_mock()
+            return
+
+        # Disconnect old context to free up serial port for auto-detect
+        if self.ctx is not None:
+            self._on_disconnect()
+
+        if (
+            self._last_connect_succeeded
+            and self.last_reconnect_protocol is not None
+            and self.last_reconnect_port
+            and self.last_slave_id
+        ):
+            self._set_connecting_state()
+            try:
+                self._on_progress("Reconnecting last Revo3 device...")
+                device = run_in_new_loop(
+                    lambda: self._auto_detect_device(
+                        self.last_reconnect_protocol,
+                        self.last_reconnect_port,
+                        self.last_slave_id,
+                        self.last_modbus_baudrate,
+                    )
+                )
+                self._on_detect_success(device)
+                return
+            except Exception as e:
+                print(f"Fast reconnect failed, falling back to full scan: {e}")
+
+        self._on_auto_detect()
+
+    def _connect_mock(self):
+        try:
+            from .mock_device import MockHand
+
+            self._set_connecting_state()
+            ctx = MockHand(self.mock_type)
+            device_info = run_in_new_loop(lambda: ctx.get_device_info(1))
+            self._on_connect_success(ctx, 1, device_info, PROTO_MOCK, f"Mock ({self.mock_type or 'ut1'})")
+        except Exception as e:
+            self._on_connect_error(str(e))
+
+    def _set_connecting_state(self):
+        self.auto_detect_btn.setEnabled(False)
+        self.connect_btn.setEnabled(False)
+        self.status_indicator.setText("● Connecting...")
+        self.status_indicator.setStyleSheet(CONNECTION_STATUS_STYLES["connecting"])
+
+    def _on_progress(self, message):
+        self.status_label.setText(message)
+
+    def _on_connect_success(
+        self,
+        ctx,
+        slave_id,
+        device_info,
+        protocol_key,
+        protocol_label,
+        detected_device=None,
+    ):
+        self.ctx = ctx
+        self.slave_id = slave_id
+        self.protocol_key = protocol_key
+        self.protocol = protocol_label
+        self.last_protocol_key = protocol_key
+        self.last_slave_id = slave_id
+        self._last_connect_succeeded = True
+        if detected_device is not None:
+            self.last_reconnect_port = detected_device.port_name
+            self.last_reconnect_protocol = detected_device.protocol_type
+            self.last_modbus_baudrate = (
+                detected_device.nominal_baudrate_bps
+                if detected_device.protocol_type == sdk.ProtocolType.Modbus
+                else None
+            )
+            if detected_device.protocol_type == sdk.ProtocolType.CanFd:
+                self.last_canfd_abit = getattr(detected_device, "nominal_baudrate_bps", 1000000)
+                self.last_canfd_dbit = getattr(detected_device, "data_baudrate_bps", 5000000)
+            else:
+                self.last_canfd_abit = None
+                self.last_canfd_dbit = None
+        elif protocol_key == PROTO_MODBUS:
+            self.last_reconnect_port = self.port_combo.currentData() or self.port_combo.currentText()
+            self.last_reconnect_protocol = sdk.ProtocolType.Modbus
+            self.last_modbus_baudrate = int_to_baudrate(int(self.baudrate_combo.currentText()))
+            self.last_canfd_abit = None
+            self.last_canfd_dbit = None
+        elif protocol_key == PROTO_CANFD:
+            idx = self.canfd_port_combo.currentIndex()
+            self.last_reconnect_port = self.canfd_port_combo.itemData(idx) if idx >= 0 else None
+            if self.last_reconnect_port == "No CANFD devices found":
+                self.last_reconnect_port = None
+            self.last_reconnect_protocol = sdk.ProtocolType.CanFd
+            self.last_modbus_baudrate = None
+            self.last_canfd_abit = 1000000
+            self.last_canfd_dbit = 5000000
+        # Automatically switch protocol dropdown to the actually detected protocol
+        self.protocol_combo.blockSignals(True)
+        idx = self.protocol_combo.findData(protocol_key)
+        if idx >= 0:
+            self.protocol_combo.setCurrentIndex(idx)
+        self.protocol_combo.blockSignals(False)
+
+        # Update and show config frames corresponding to the actual connected protocol
+        if protocol_key == PROTO_MODBUS:
+            self.modbus_frame.setVisible(True)
+            self.canfd_frame.setVisible(False)
+            self.connect_btn.setVisible(True)
+            self.auto_detect_btn.setVisible(False)
+            if detected_device is not None:
+                port_idx = self.port_combo.findData(detected_device.port_name)
+                if port_idx >= 0:
+                    self.port_combo.setCurrentIndex(port_idx)
+                else:
+                    self.port_combo.setEditText(detected_device.port_name)
+                baud_val = baudrate_to_int(detected_device.nominal_baudrate_bps)
+                baud_idx = self.baudrate_combo.findText(str(baud_val))
+                if baud_idx >= 0:
+                    self.baudrate_combo.setCurrentIndex(baud_idx)
+                self.slave_id_spin.setValue(detected_device.slave_id)
+        elif protocol_key == PROTO_CANFD:
+            self.modbus_frame.setVisible(False)
+            self.canfd_frame.setVisible(True)
+            self.connect_btn.setVisible(True)
+            self.auto_detect_btn.setVisible(False)
+            if detected_device is not None:
+                port_idx = self.canfd_port_combo.findData(detected_device.port_name)
+                if port_idx >= 0:
+                    self.canfd_port_combo.setCurrentIndex(port_idx)
+                self.canfd_slave_spin.setValue(detected_device.slave_id)
+        # Lock inputs in connected state
+        self.protocol_combo.setEnabled(False)
+        self.port_combo.setEnabled(False)
+        self.baudrate_combo.setEnabled(False)
+        self.slave_id_spin.setEnabled(False)
+        self.canfd_port_combo.setEnabled(False)
+        self.canfd_slave_spin.setEnabled(False)
+
+        self.auto_detect_btn.setEnabled(False)
+        self.connect_btn.setEnabled(False)
+        self.disconnect_btn.setEnabled(True)
+        self.status_indicator.setText("● Connected")
+        self.status_indicator.setStyleSheet(CONNECTION_STATUS_STYLES["connected"])
+        if device_info:
+            self.info_labels["serial"].setText(getattr(device_info, "serial_number", ""))
+            self.info_labels["firmware"].setText(getattr(device_info, "firmware_version", ""))
+        self.connected.emit(ctx, slave_id, device_info, protocol_key, protocol_label)
+
+    def get_connection_info(self):
+        baudrate = "--"
+        if self.protocol_key == PROTO_MODBUS:
+            if self.last_modbus_baudrate is not None:
+                baudrate = str(baudrate_to_int(self.last_modbus_baudrate))
+            else:
+                baudrate = self.baudrate_combo.currentText() or "--"
+        elif self.protocol_key == PROTO_CANFD:
+            abit_raw = getattr(self, "last_canfd_abit", None)
+            dbit_raw = getattr(self, "last_canfd_dbit", None)
+            abit_val = baudrate_to_int(abit_raw) if abit_raw is not None else 1000000
+            dbit_val = baudrate_to_int(dbit_raw) if dbit_raw is not None else 5000000
+            if abit_val == 0:
+                abit_val = 1000000
+            if dbit_val == 0:
+                dbit_val = 5000000
+            abit_str = (
+                f"{abit_val / 1000000:.0f} Mbps"
+                if abit_val % 1000000 == 0
+                else f"{abit_val / 1000.0:.0f} kbps"
+            )
+            dbit_str = (
+                f"{dbit_val / 1000000:.0f} Mbps"
+                if dbit_val % 1000000 == 0
+                else f"{dbit_val / 1000.0:.0f} kbps"
+            )
+            baudrate = f"Arbitration: {abit_str} · Data: {dbit_str}"
+        return {
+            "protocol": self.protocol or "--",
+            "port": self.last_reconnect_port or "--",
+            "slave_id": self.slave_id,
+            "baudrate": baudrate,
+            "canfd_arbitration_baudrate": (
+                abit_val if self.protocol_key == PROTO_CANFD else None
+            ),
+        }
+
+    def _on_connect_error(self, error):
+        self.auto_detect_btn.setEnabled(True)
+        self.connect_btn.setEnabled(True)
+        self.status_indicator.setText("● Error")
+        self.status_indicator.setStyleSheet(CONNECTION_STATUS_STYLES["error"])
+        self.status_label.setText(error)
+
+    def _on_disconnect(self):
+        if self.ctx:
+            self.about_to_disconnect.emit()
+            try:
+                if hasattr(self.ctx, "close"):
+                    run_in_new_loop(lambda: self.ctx.close())
+            except Exception as e:
+                print(f"Error closing device: {e}")
+        self.ctx = None
+        self.slave_id = None
+        self.protocol = None
+        self.protocol_key = None
+
+        # Restore widgets state
+        self.protocol_combo.setEnabled(True)
+        self.port_combo.setEnabled(True)
+        self.baudrate_combo.setEnabled(True)
+        self.slave_id_spin.setEnabled(True)
+        self.canfd_port_combo.setEnabled(True)
+        self.canfd_slave_spin.setEnabled(True)
+        # Update button visibilities based on current protocol dropdown selection
+        current_proto = self.protocol_combo.currentData()
+        self.connect_btn.setVisible(current_proto != PROTO_AUTO)
+        self.auto_detect_btn.setVisible(current_proto == PROTO_AUTO)
+
+        self.auto_detect_btn.setEnabled(True)
+        self.connect_btn.setEnabled(True)
+        self.disconnect_btn.setEnabled(False)
+        self.status_indicator.setText("● Disconnected")
+        self.status_indicator.setStyleSheet(CONNECTION_STATUS_STYLES["disconnected"])
+        self.info_labels["hardware"].setText("")
+        self.disconnected.emit()

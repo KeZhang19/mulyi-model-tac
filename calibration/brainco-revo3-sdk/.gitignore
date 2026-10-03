@@ -1,0 +1,34 @@
+.DS_Store
+VERSION
+logs/
+ota_bin/
+dist/shared/
+dist/include/
+.bc-revo3-sdk.*
+c/build/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.so
+*.dylib
+*.dll
+*.zip
+# Ignore all compiled binaries in c/demo/
+c/demo/*
+!c/demo/Makefile
+!c/demo/CMakeLists.txt
+!c/demo/**/*.cpp
+!c/demo/**/*.h
+!c/demo/**/*.hpp
+!c/demo/**/*.c
+!c/demo/**/*.md
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Locally supplied vision-tactile deployment artifacts
+python/vts/
+
+# Python lock files
+uv.lock

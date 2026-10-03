@@ -9,7 +9,7 @@ from ..RotateBulbCustom.agents.rsl_rl_ppo_cfg import DexsuiteRevo3RotateBulbPPOR
 from . import mdp
 from .progress_penalty import ProgressPenaltySettings
 from .progress_penalty_terms import RandomizedProgressPenalty
-from .phase_rewards import ReleasedContactGuidance, initial_arm_pose_guidance, prerelease_arm_motion
+from .phase_rewards import ReleasedContactGuidance, prerelease_arm_motion
 
 
 @configclass
@@ -19,7 +19,7 @@ class RotateBulbRandomizedEnvCfg(DexsuiteRevo3RotateBulbEnvCfg):
     randomized_workspace_path: str = str(mdp.BANK_PATH)
     pressure_pose_mode: str = "pose_only"
     unscrew_progress_penalty: dict = asdict(ProgressPenaltySettings())
-    contact_transport_reward_version: int = 4
+    contact_transport_reward_version: int = 3
 
     def __post_init__(self):
         super().__post_init__()
@@ -40,13 +40,6 @@ class RotateBulbRandomizedEnvCfg(DexsuiteRevo3RotateBulbEnvCfg):
         self.commands.object_pose.ranges.pos_z = mdp.GOAL_Z_RANGE
         self.rewards.action_l2 = RewTerm(func=mdp.randomized_action_l2, weight=-.05)
         self.rewards.arm_motion = RewTerm(func=prerelease_arm_motion, weight=-.3)
-        # A small reset-pose preference, including the previously ungated approach.
-        # Parameters use radians; this is a reward rate, integrated by RewardManager.
-        self.rewards.initial_arm_pose = RewTerm(
-            func=initial_arm_pose_guidance, weight=-.025,
-            params={"deadband": 0.2617993877991494, "angle_scale": 1.5707963267948966,
-                    "joint_weights": (2., 1., 1., 1., .5, .5, .5),
-                    "after_release_multiplier": .2})
         self.rewards.hand_far = RewTerm(func=mdp.randomized_hand_far, weight=-.3)
         self.rewards.randomized_grasp = RewTerm(func=mdp.randomized_grasp_reward, weight=0.)
         # Pay contact guidance only after detachment. Opposing contact earns

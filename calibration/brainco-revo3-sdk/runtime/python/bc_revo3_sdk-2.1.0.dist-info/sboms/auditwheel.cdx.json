@@ -1,0 +1,47 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "bom-ref": "pkg:pypi/bc-revo3-sdk@2.1.0",
+      "name": "bc-revo3-sdk",
+      "purl": "pkg:pypi/bc-revo3-sdk@2.1.0",
+      "type": "library",
+      "version": "2.1.0"
+    },
+    {
+      "bom-ref": "pkg:deb/ubuntu/libudev1@249.11-0ubuntu3.22#17298179def745ef2634759ba318eb1e76aa0fea82791f0ee5d38879d7e7ceaa",
+      "name": "libudev1",
+      "purl": "pkg:deb/ubuntu/libudev1@249.11-0ubuntu3.22",
+      "type": "library",
+      "version": "249.11-0ubuntu3.22"
+    }
+  ],
+  "dependencies": [
+    {
+      "dependsOn": [
+        "pkg:deb/ubuntu/libudev1@249.11-0ubuntu3.22#17298179def745ef2634759ba318eb1e76aa0fea82791f0ee5d38879d7e7ceaa"
+      ],
+      "ref": "pkg:pypi/bc-revo3-sdk@2.1.0"
+    },
+    {
+      "ref": "pkg:deb/ubuntu/libudev1@249.11-0ubuntu3.22#17298179def745ef2634759ba318eb1e76aa0fea82791f0ee5d38879d7e7ceaa"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "bom-ref": "pkg:pypi/bc-revo3-sdk@2.1.0",
+      "name": "bc-revo3-sdk",
+      "purl": "pkg:pypi/bc-revo3-sdk@2.1.0",
+      "type": "library",
+      "version": "2.1.0"
+    },
+    "tools": [
+      {
+        "name": "maturin",
+        "version": "1.15.0"
+      }
+    ]
+  },
+  "specVersion": "1.4",
+  "version": 1
+}

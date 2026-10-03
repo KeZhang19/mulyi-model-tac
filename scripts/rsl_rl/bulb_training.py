@@ -179,6 +179,11 @@ def prepare_bulb_policy_run(env, log_dir: str | Path, *, resume_path: str | None
     observation_dim = sum(int(dimensions[name][0]) for name in ("policy", "proprio", "perception"))
     guidance = "rotation_subgoal" in getattr(raw.observation_manager, "active_terms", {}).get("policy", [])
     expected_dim = 673 if guidance else 669
+    curriculum = getattr(getattr(raw, "cfg", None), "bulb_curriculum", None)
+    if curriculum is not None and getattr(curriculum, "version", 1) == 2:
+        # v2 state-only removes 285 taxels and 15 contact-force columns.
+        # An enabled five-finger encoder adds 5 * 128 latent columns.
+        expected_dim = 1309 if raw.cfg.tactile_policy_enabled else 369
     randomized = getattr(getattr(raw, "cfg", None), "bulb_randomized_task", False)
     if randomized:
         if not guidance or legacy_diagnostic:
@@ -194,6 +199,11 @@ def prepare_bulb_policy_run(env, log_dir: str | Path, *, resume_path: str | None
         "latent_std_bounds": None if legacy_diagnostic else [BulbActorCritic.minimum_std, None],
         "action": action.action_contract(),
     }
+    if curriculum is not None and getattr(curriculum, "version", 1) == 2:
+        contract["assembly_curriculum"] = {
+            "version": 2, "reset": "free_horizontal_tabletop",
+            "sensor_mode": "tactile" if raw.cfg.tactile_policy_enabled else "state_only",
+        }
     if guidance:
         if legacy_diagnostic or "Bulb-Assembly" in contract["task"]:
             raise ValueError("Rotation subgoals require a new guided-rotation policy, not an assembly or legacy policy")

@@ -20,7 +20,9 @@ LIFT_LEVELS = ((0, 0., 0.), (1, 0., 0.), (2, 0., 0.), (2, .005, 0.),
 @dataclass
 class CurriculumSettings:
     stage: int = 0
-    fixed_bulb: bool = True
+    fixed_bulb: bool = False
+    version: int = 2
+    physics_hz: int = 120
     checkpoint: str = ""
     transfer: bool = False
     evaluation: bool = False
@@ -37,8 +39,10 @@ class CurriculumSettings:
     def validate(self):
         if type(self.stage) is not int or not 0 <= self.stage <= 4:
             raise ValueError("curriculum stage must be an integer in [0, 4]")
-        if self.fixed_bulb and self.stage != 0:
-            raise ValueError("Only Stage0 may use the fixed world fixture")
+        if self.version != 2 or self.fixed_bulb:
+            raise ValueError("Curriculum v2 starts with a free horizontal bulb; use the frozen v1 workspace for old fixtures")
+        if type(self.physics_hz) is not int or self.physics_hz not in (120, 240):
+            raise ValueError("physics_hz must be 120 or 240, with 30 Hz control")
         for name in ("min_episodes", "consecutive_windows", "bank_capacity", "min_bank_size", "validation_steps"):
             if type(getattr(self, name)) is not int or getattr(self, name) < 1:
                 raise ValueError(f"{name} must be a positive integer")

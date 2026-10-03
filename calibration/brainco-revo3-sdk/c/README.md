@@ -1,0 +1,300 @@
+# Revo3 C and C++ Examples
+
+The public C ABI header is C11 compatible. C++ examples require a C++17
+compliant compiler or newer and use the RAII wrapper from
+`dist/include/revo3/revo3.hpp`. They are Revo3-only and cover Modbus and CANFD
+discovery, device operations, motion, state, and touch data.
+
+The independent Linux EtherCAT example under `platform/linux/revo3_ec` uses
+IgH `libethercat` directly and does not depend on the main Revo3 SDK shared library.
+
+## Build
+
+From the repository root:
+
+```bash
+bash download-lib.sh
+make -C c
+```
+
+Use `dist/include/revo3-sdk.h` for pure C projects, embedded C projects, and
+cross-language bindings. C++ applications can include `revo3/revo3.hpp` for
+the move-only `revo3::Manager`, `revo3::Hand`, and `revo3::OperationHandle` API.
+The C++ object methods omit the redundant `revo3_` prefix; only C ABI symbols
+retain it.
+
+SDK logging writes to both the terminal and a timestamped file under `logs/`
+by default. Select the level and whether a file is created when initializing
+logging:
+
+```cpp
+revo3::init_logging(LOG_LEVEL_INFO, true);   // Terminal and log file
+revo3::init_logging(LOG_LEVEL_DEBUG, false); // Terminal only
+```
+
+Call logging initialization once, before creating a `revo3::Manager`. The first
+call selects the output mode for the process; later calls can update the level
+but cannot replace the logger outputs.
+
+Minimal C++ usage:
+
+```cpp
+#include <revo3/revo3.hpp>
+
+#include <cstdio>
+
+int main() {
+  try {
+    revo3::Manager manager;
+    auto hand = manager.connect_auto();
+    const auto device_info = hand.device_info();
+    const auto state = hand.state().snapshot();
+    const auto health = hand.health().snapshot();
+    std::printf("Connected to %s with %zu motor values; safety=%u\n",
+                device_info.serial_number.c_str(), state.motors.positions_deg.size(),
+                static_cast<unsigned>(health.safety_state));
+    return 0;
+  } catch (const revo3::SdkError &error) {
+    std::fprintf(stderr, "Revo3 error: %s\n", error.what());
+    return 1;
+  }
+}
+```
+
+Use one of `move_joint()`, `flex_finger()`, or `move_thumb()` instead when the
+application needs a narrower motion scope. The `quickstart` flags demonstrate
+each alternative without starting overlapping motions.
+
+`move_to()` returns immediately with a handle, so the C++ API does not need
+coroutines for the core motion path. A future C++20 async adapter should only be
+added after discovery, subscriptions, cancellation, and executor behavior are
+truly asynchronous end to end.
+
+Build the pure C++ EtherCAT example on Linux:
+
+```bash
+make -C c/platform/linux/revo3_ec
+```
+
+Before running it, verify the IgH master, `/dev/EtherCAT0`, and the selected
+NIC with `c/platform/linux/revo3_ec/README.md`.
+
+Run the standalone EtherCAT benchmark:
+
+```bash
+./c/platform/linux/revo3_ec/revo3_benchmark \
+  --scenario motor --read full-state --duration 10
+```
+
+## Run
+
+Device discovery and examples:
+
+```bash
+./c/build/demo/quickstart
+./c/build/demo/discover_devices --scan-all
+./c/build/demo/subscriptions --count 3
+./c/build/demo/multi_hand
+./c/build/demo/device_operations
+./c/build/demo/firmware_update --firmware <FILE> --target main --run
+./c/build/demo/touch_sensor
+./c/build/demo/touch_hybrid
+./c/build/demo/streaming_control --move
+./c/build/demo/mit_plan --run
+./c/build/demo/teaching_mode --move
+```
+
+`touch_sensor` is read-only. On Ultra VisionTouch it reports only detected
+main-link pressure-array or high-density-array finger-pad and palm modules; independent vision tactile
+fingertips are outside this SDK snapshot.
+
+If the serial number and register 135 cannot identify an Ultra VisionTouch
+hand with a pressure-array main-link topology, apply confirmed session overrides:
+
+```bash
+./c/build/demo/touch_sensor --port /dev/ttyUSB0 \
+  --model ultra-vision-touch --layout vision-mt
+```
+
+Use `--layout vision-mx --mx-point-counts <11 comma-separated counts>` for a
+confirmed high-density tactile array. These overrides do not write device registers, and the
+layout intentionally excludes the independent vision tactile fingertips.
+
+`firmware_update` is the standalone destructive maintenance workflow. It
+supports `main`, `image`, and `motor` targets, defaults to a 600-second
+operation timeout, and refuses to connect unless `--run` is present. If the
+result is `Indeterminate`, do not immediately retry: inspect the reported
+operation effect and recovery requirement, then verify device state.
+
+`mit_plan` runs the same default plan as the Python `mit_plan.py` example:
+a 100 Hz quintic trajectory from the initial feedback position to the 50% point
+of each target joint's configured position range and back, with 800 ms per
+segment, `Kp=3.0`, `Kd=0.3`, and zero feedforward current. Invalid position
+or speed limits, including a quintic peak velocity above the configured speed
+envelope, stop the example before opening the ServoSession. The demo reuses
+`common/revo3_mit_plan.hpp`, which is also shared with the EtherCAT example,
+and prints periodic position feedback plus the measured command rate.
+
+`touch_hybrid` requires a confirmed fingertip force/torque and pressure-array hardware layout. It changes
+only the current SDK session's parsing layout by default. Pass `--test-tare`
+only when changing touch calibration state is intended.
+
+`discover_devices` stops after the first match by default. Add `--scan-all` to
+scan every candidate. Use `--port`, `--protocol`, `--slave-id`,
+`--modbus-baudrate`, or `--canfd-data-baudrate` to constrain the scan. By
+default, CANFD auto-detect tries data baudrates in order:
+`5M`, `4M`, `2M`, `1M` on adapters that support them. BrainCo USB2CANFD
+supports only `5M`; add `--canfd-data-baudrate 2000000` to probe only one
+known CANFD data baudrate on compatible adapters.
+
+`subscriptions` performs finite State, optional Touch, and Health pull
+subscriptions, closes each subscription explicitly, and prints the resulting
+runtime counters. The requested period is a minimum SDK pull interval, not a
+device sampling-rate guarantee.
+
+For lower-level C integrations that need callback delivery or cancellation
+before discovery completes, use the asynchronous C ABI directly:
+
+```cpp
+struct ScanState {
+  bool selected = false;
+};
+
+bool on_device_found(const CRevo3DetectedDevice *device, void *user_data) {
+  auto *state = static_cast<ScanState *>(user_data);
+  std::printf("Found %s slave=%u\n", device->port_name, device->slave_id);
+  state->selected = true;
+  return false; // stop scanning after this device
+}
+
+ScanState state;
+Revo3AutoDetectHandle *scan = revo3_auto_detect_start(
+    true,
+    nullptr,
+    REVO3_PROTOCOL_TYPE_AUTO,
+    0,
+    0,
+    0,
+    true, // broadcast
+    on_device_found,
+    &state);
+
+revo3_auto_detect_join(scan);
+revo3_auto_detect_free_handle(scan);
+```
+
+The `CRevo3DetectedDevice` pointer passed to the callback is valid only during the
+callback. Copy fields you need before returning.
+
+Pass a non-zero `slave_id` to `revo3_auto_detect_start()` to probe only one
+known slave ID. Pass `0` to probe the default Revo3 IDs. Pass a non-zero
+`modbus_baudrate`, such as `5000000`, to probe only one known Modbus baudrate;
+pass `0` to probe the default list.
+Pass a non-zero `canfd_data_baudrate`, such as `2000000`, to probe only one
+known CANFD data baudrate; pass `0` to probe the default CANFD data baudrate
+list (`5M`, `4M`, `2M`, `1M`).
+
+For GUI or event-loop applications, keep the handle instead of joining
+immediately:
+
+```cpp
+Revo3AutoDetectHandle *scan = revo3_auto_detect_start(
+    false,
+    nullptr,
+    REVO3_PROTOCOL_TYPE_AUTO,
+    0,
+    0,
+    0,
+    true, // broadcast
+    on_device_found,
+    &state);
+
+// UI keeps running. When the user chooses a device or cancels:
+revo3_auto_detect_stop(scan);
+revo3_auto_detect_join(scan);
+revo3_auto_detect_free_handle(scan);
+```
+
+## Troubleshooting & Serial Port Cleanup
+
+If `connect_auto` or device scanner fails with `Failed to open ... at 5000000 bps: Invalid argument` or `No Revo3 device detected`, it typically indicates an active background process (e.g. from a previously killed shell or interrupted debug session) holding an open handle on the physical serial port `/dev/tty.usbserial-*`.
+
+To inspect and release the occupied serial port:
+
+```bash
+# 1. Find process holding the serial port
+lsof /dev/tty.usbserial*
+
+# 2. Terminate the zombie process
+kill -9 <PID>
+```
+
+Always ensure `hand.close()` and `manager.close()` are called on application exit, and handle `SIGINT` (Ctrl+C) signals appropriately to release underlying OS file descriptors cleanly.
+
+## Motion demonstrations
+
+Four C++17 entrypoints provide opposition, finger functions, gesture dance, and
+classic sine servo motion. They preview offline unless `--run` is supplied.
+The C++ executables do not invoke Python. Build them with `make -C c`.
+
+```bash
+./c/build/demo/opposition_demo
+./c/build/demo/finger_function_demo
+./c/build/demo/gesture_dance_demo
+./c/build/demo/servo_classic_demo
+
+# Replace the endpoint and address with the intended device.
+./c/build/demo/gesture_dance_demo --port brainco:0 --slave-id 127 --side right --run
+```
+
+The candidate poses match the Python defaults, including 60/60/45 degree wave
+amplitudes, overlapping continuous finger pulses, and delayed finger flexion
+in opposition. Poses are not calibrated fingertip contact coordinates. A 21-joint
+layout and the requested hand side are required. Left-hand mechanical clearance
+still requires separate validation.
+
+Common options: `--tempo`, `--repeat`, `--feedback-tolerance-deg` (0..2 degrees),
+and `--skip-joints` (comma-separated logical indices, for example `2,12,20`).
+Skipped joints receive zero Kp, Kd, velocity and feedforward current; they do not
+actively hold position. Only explicitly excluded stall faults are tolerated.
+New faults stop the sequence rather than expanding the exclusions automatically.
+Software stop and zero-force mode must be resolved separately before running.
+No fault clearing or automatic recovery is performed.
+
+All four C++ demos use host MIT streaming. Every target is checked against device
+limits; transitions are lengthened to respect speed limits. Health is checked
+between steps and approximately every 250 ms. The requested send interval is
+10 ms, with a 500 ms command timeout; this is not a realtime guarantee.
+Normal completion returns to the bounded initial pose and checks a 5 degree
+return-error threshold on non-excluded joints. Intermediate tracking is not
+an arrival guarantee. Exceptions or interruption close the session and attempt
+software stop; they do not execute an automatic return motion.
+
+Classic servo defaults to 0..60 degrees, 0.75 Hz, three cycles and a critically
+damped filter at 25 rad/s. It supports `--minimum`, `--maximum`, `--frequency`,
+`--cycles`, and `--omega` (zero disables filtering). It controls the twelve
+four-finger flexion joints, excluding explicitly skipped joints. Unlike the
+Python classic entrypoint, this C++ example has no custom joint selection,
+send-rate option, JSON profile loading, or relax-on-finish option. Gains are
+fixed at Kp=1, Kd=0.1. `--tempo` scales transitions, not sine frequency.
+
+
+On 2026-09-18, all four C++ entrypoints completed an empty-hand run on a right
+21-joint hand with controller firmware 0.1.1 over BrainCo CANFD. J2, J12 and J20
+were explicitly excluded. Maximum return errors were 0.85 degrees (dance),
+1.47 degrees (opposition), 0.73 degrees (finger functions at tempo 2.5), and
+0.96 degrees (classic at 0..60 degrees, 0.75 Hz, three cycles). These are return
+checks for that run, not whole-trajectory tracking, contact, or all-joint acceptance.
+
+The standalone opposition demo now retains the later approach trials: index
+thumb targets `[73,45,40,10,15]` degrees and finger flexion `[75,65,50]`;
+other fingers use thumb `[70,40,35,10,15]` and flexion `[70,60,45]`.
+After 0.6 seconds of thumb alignment, the first 90% of flexion takes 1.2 seconds and the final 10% takes 0.35 seconds, followed by a 0.5-second hold and 0.8-second release. Device speed limits may extend these durations.
+These trials excluded J2/J12/J20, so the configured J20 target was not actuated.
+Index clearance improved but remains uncalibrated; the other three fingertips
+still remain far apart. The dance opposition pose is unchanged. The earlier
+return-error results above refer to the previous profile, not these saved values.
+
+Fast defaults retain 0.8-second general transitions, 0.35-second individual and collective lateral swings with two repetitions, and the smooth 6.5-second overlapping wave. Middle/ring lateral targets are +/-12 degrees; pinky is -12/+7 and index is -7/+12 degrees. Saved opposition endpoint angles are unchanged. Both languages use the same generated pose table.
+
+Final fast-profile rerun on 2026-09-18 used native SDK 2.0.2, firmware 0.1.1 and explicit exclusions J2/J12/J16/J20. All four entries completed; maximum return errors were 0.75 degrees (finger), 0.31 (opposition), 0.49 (dance), and 1.85 (classic). Thumb rotation was not actuated, so opposition/contact and all-joint acceptance remain unverified.

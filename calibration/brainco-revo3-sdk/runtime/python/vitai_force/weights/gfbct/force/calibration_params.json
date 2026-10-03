@@ -1,0 +1,67 @@
+{
+  "GFBCT000B0135": {
+    "degree": 3,
+    "coefficients": [
+      0.00046795844699600443,
+      0.025007847891284348,
+      0.7268865104727978,
+      0.0
+    ],
+    "formula": "+0.0005*x^3 +0.0250*x^2 +0.7269*x",
+    "n_points": 5,
+    "calibrated_mean_error_pct": 3.07,
+    "calibrated_max_error_pct": 11.39
+  },
+  "GFBCT000C2885": {
+    "degree": 3,
+    "coefficients": [
+      0.00043120945256134045,
+      0.02350916968364237,
+      0.5802517626195238,
+      0.0
+    ],
+    "formula": "+0.0004*x^3 +0.0235*x^2 +0.5803*x",
+    "n_points": 5,
+    "calibrated_mean_error_pct": 2.32,
+    "calibrated_max_error_pct": 8.54
+  },
+  "GFBCT000DF495": {
+    "degree": 3,
+    "coefficients": [
+      0.0004412164618739447,
+      0.009016569876448777,
+      0.48439443794810705,
+      0.0
+    ],
+    "formula": "+0.0004*x^3 +0.0090*x^2 +0.4844*x",
+    "n_points": 17,
+    "calibrated_mean_error_pct": 1.79,
+    "calibrated_max_error_pct": 4.79
+  },
+  "GFBCT000FA7F5": {
+    "degree": 3,
+    "coefficients": [
+      0.0005425958499346488,
+      0.005895867318656221,
+      0.3714257251778121,
+      0.0
+    ],
+    "formula": "+0.0005*x^3 +0.0059*x^2 +0.3714*x",
+    "n_points": 17,
+    "calibrated_mean_error_pct": 10.97,
+    "calibrated_max_error_pct": 38.41
+  },
+  "GFBCT000G8E45": {
+    "degree": 3,
+    "coefficients": [
+      0.0013942614522450332,
+      0.043547169964690415,
+      0.7058863142795937,
+      0.0
+    ],
+    "formula": "+0.0014*x^3 +0.0435*x^2 +0.7059*x",
+    "n_points": 17,
+    "calibrated_mean_error_pct": 4.39,
+    "calibrated_max_error_pct": 27.06
+  }
+}

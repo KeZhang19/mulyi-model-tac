@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 from pathlib import Path
 
 import torch
@@ -13,9 +14,11 @@ from ..RotateBulbCustom.assembly_env_cfg import assembly_hand_shell_distance
 from ..RotateBulbCustom.assembly_lift import bulb_collision_vertices, bulb_table_clearance
 from ..RotateBulbCustom.env_cfg import reset_robot_to_grasp, rotate_bulb_finger_forces
 from .core import HoldCounter, LIFT_LEVELS, StageScheduler, StateBank, settings_dict, soft_grasp_quality
+from .floor_reset import reset_floor_bulb
+from .distributed import restore_worker_state
 
 ROOT = Path(__file__).resolve().parents[8]
-PREGRASP_PATH = ROOT / "assets/rotate_bulb_assembly_curriculum/pregrasp.json"
+PREGRASP_PATH = ROOT / "assets/rotate_bulb_assembly_curriculum/floor_pregrasp_v2.json"
 EVENTS = ("grasp", "stable_grasp", "lift", "hover", "alignment", "engagement", "insertion", "final")
 
 
@@ -37,14 +40,15 @@ def curriculum_contract(env):
               ("assembly.py", "assembly_env_cfg.py", "assembly_guidance.py", "assembly_lift.py",
                "actions.py", "robot_asset_cfg.py", "env_cfg.py", "self_collision.py", "tactile.py")}
     return {
-        "schema": 1, "seed": int(env.cfg.seed), "joint_names": list(robot.joint_names),
+        "schema": 2, "curriculum_version": 2, "seed": int(env.cfg.seed), "joint_names": list(robot.joint_names),
         "action": env.action_manager.get_term("action").action_contract(),
         "observations": env.tactile_policy_contract,
         "sources": source, "pregrasp": hashlib.sha256(PREGRASP_PATH.read_bytes()).hexdigest(),
         "curriculum_sources": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                               for name in ("core.py", "runtime.py", "env_cfg.py", "environment.py", "insertion.py")},
+                               for name in ("core.py", "runtime.py", "env_cfg.py", "environment.py", "insertion.py",
+                                            "floor_reset.py", "rewards.py", "distributed.py")},
         "hover_m": env.cfg.assembly_guidance.hover_clearance_m,
-        "sim_dt": env.cfg.sim.dt, "gravity": list(env.cfg.sim.gravity),
+        "sim_dt": env.cfg.sim.dt, "decimation": env.cfg.decimation, "gravity": list(env.cfg.sim.gravity),
         "solver": {k: getattr(env.cfg.sim.physx, k) for k in
                    ("solver_type", "min_position_iteration_count", "max_position_iteration_count",
                     "min_velocity_iteration_count", "max_velocity_iteration_count")},
@@ -89,6 +93,10 @@ class CurriculumRuntime:
         self.finished_records = []
         self.vertices = bulb_collision_vertices(env.scene.stage,
             env.scene["object"].root_physx_view.prim_paths[0], env.device)
+        self.joint1_id = env.scene["robot"].joint_names.index("joint1")
+        self.joint1_previous = torch.zeros(n, device=device)
+        self.joint1_travel = torch.zeros(n, device=device)
+        self.joint1_max_excursion = torch.zeros(n, device=device)
         self.log_path = Path(env.cfg.log_dir) / "curriculum_episodes.jsonl" if env.cfg.log_dir else None
         if self.log_path:
             self.log_path.parent.mkdir(parents=True, exist_ok=True)
@@ -109,6 +117,9 @@ class CurriculumRuntime:
                 "transitions": self.transitions, "episodes": self.episodes}
 
     def load_state_dict(self, saved, *, transfer=False):
+        saved = restore_worker_state(saved, seed=int(self.env.cfg.seed),
+                                     world_size=int(os.environ.get("WORLD_SIZE", "1")),
+                                     rank=int(os.environ.get("RANK", "0")), evaluation=self.cfg.evaluation)
         if saved.get("schema") != 1:
             raise ValueError("Unsupported curriculum checkpoint schema")
         previous = saved["settings"]
@@ -146,14 +157,18 @@ class CurriculumRuntime:
         env, cfg = self.env, self.cfg
         ids = torch.as_tensor(ids, device=env.device, dtype=torch.long)
         self.pending.clear()
-        for i in ids.tolist():
-            source = cfg.stage
-            if not cfg.evaluation and cfg.stage and float(torch.rand((), generator=self.rng)) < cfg.previous_fraction:
-                source = cfg.stage - 1 if cfg.stage < 4 else int(torch.randint(1, 4, (), generator=self.rng))
-            if source >= 2 and source < 4 and not self.bank.samples[source]:
+        sources = torch.full((len(ids),), cfg.stage, dtype=torch.long)
+        if not cfg.evaluation and cfg.stage:
+            replay = torch.rand(len(ids), generator=self.rng) < cfg.previous_fraction
+            previous = torch.full_like(sources, cfg.stage - 1) if cfg.stage < 4 else torch.randint(
+                1, 4, (len(ids),), generator=self.rng)
+            sources = torch.where(replay, previous, sources)
+        for source in (2, 3):
+            if (sources == source).any() and not self.bank.samples[source]:
                 raise ValueError(f"Requested unavailable Stage{source} bank")
-            self.source[i], self.level[i] = source, self.scheduler.level
-            self.sample_id[i] = -1
+        self.source[ids] = sources.to(env.device)
+        self.level[ids] = self.scheduler.level
+        self.sample_id[ids] = -1
         # Batch each tabletop source/level. Randomization is sampled once per reset.
         robot = env.scene["robot"]
         reset_robot_to_grasp(env, ids)
@@ -165,14 +180,13 @@ class CurriculumRuntime:
                 LIFT_LEVELS[self.scheduler.level] if source == 1 and cfg.stage == 1 else
                 ((2, .05, torch.pi / 2) if source == 1 else (0, 0., 0.)))
             params = {**table_params, "x_range": (-xy, xy), "y_range": (-xy, xy), "yaw_range": (-yaw, yaw)}
-            assembly.reset_bulb_assembly_on_table(env, selected, **params)
+            reset_floor_bulb(env, selected, self.template, **params)
             if path_index < 2:
                 by_name = dict(zip(self.template["joint_names"], self.template["approach_joint_positions"][path_index]))
                 q = torch.tensor([by_name[name] for name in robot.joint_names], device=env.device).expand(len(selected), -1)
                 robot.write_joint_state_to_sim(q, torch.zeros_like(q), env_ids=selected)
                 robot.set_joint_position_target(q, env_ids=selected)
-        for i in ids.tolist():
-            source = int(self.source[i])
+        for i, source in zip(ids.cpu().tolist(), sources.tolist()):
             if source not in (2, 3):
                 continue
             index, item = self.bank.sample(source, self.rng)
@@ -217,12 +231,13 @@ class CurriculumRuntime:
         self.initial_clearance[ids] = bulb_table_clearance(env, self.vertices, ids)
         self.start_pose[ids] = env.scene["object"].data.root_state_w[ids, :7]
         self.grasp_anchor[ids] = 0
+        self.joint1_previous[ids] = env.scene["robot"].data.joint_pos[ids, self.joint1_id]
+        self.joint1_travel[ids] = 0
+        self.joint1_max_excursion[ids] = 0
         for hold in self.holds:
             hold.reset(ids)
         action, robot = env.action_manager.get_term("action"), env.scene["robot"]
-        for i in ids.tolist():
-            if i not in self.pending:
-                continue
+        for i in self.pending:
             selected = torch.tensor([i], device=env.device)
             s = self.pending[i]["state"]
             for key, setter in (("target", robot.set_joint_position_target),
@@ -256,9 +271,12 @@ class CurriculumRuntime:
         if self.last_step == env.common_step_counter:
             return
         self.last_step = env.common_step_counter
-        if not self.active.any():
-            return
-        self.transitions += int(self.active.sum())
+        self.transitions += env.num_envs
+        q1 = env.scene["robot"].data.joint_pos[:, self.joint1_id]
+        self.joint1_travel += (q1 - self.joint1_previous).abs() * self.active
+        self.joint1_previous.copy_(q1)
+        reference = env.scene["robot"].data.default_joint_pos[:, self.joint1_id]
+        self.joint1_max_excursion = torch.maximum(self.joint1_max_excursion, (q1 - reference).abs())
         state = env._bulb_assembly_state.update(env)
         forces = rotate_bulb_finger_forces(env)
         thumb, other = forces[:, 0], forces[:, 1:].amax(-1)
@@ -303,13 +321,19 @@ class CurriculumRuntime:
         first = events & ~self.ever
         self.first.copy_(torch.where(first, (age * env.step_dt)[:, None], self.first))
         self.ever |= events
-        self.stage_success |= (stable_grasp, lifted, hovered, state.success, state.success)[cfg.stage] & valid
+        achieved = torch.stack((stable_grasp, lifted, hovered, state.success, state.success), dim=-1)
+        self.stage_success |= achieved.gather(1, self.source[:, None]).squeeze(1) & valid
         # A Stage3 reset is not allowed to receive hover credit unless physically reconstructed.
         if cfg.stage == 3:
             for name in ("position_tracking", "insertion_tracking"):
                 if name in env.reward_manager.active_terms:
                     term = env.reward_manager.get_term_cfg(name).func
                     term.hover_reached |= hover & valid
+        if cfg.version == 2:
+            # v2's reward graph owns all shaping. The legacy curriculum
+            # potential was otherwise still recomputed every control step.
+            self.reward_value.zero_()
+            return
         quality = soft_grasp_quality(forces)
         distance = torch.nan_to_num(assembly_hand_shell_distance(env), nan=1., posinf=1.)
         approach = 1 - torch.tanh(distance / .08)
@@ -352,26 +376,38 @@ class CurriculumRuntime:
     def finish(self, ids):
         env = self.env
         records = []
-        for i in ids.tolist():
-            if not self.active[i] or int(env.episode_length_buf[i]) == 0:
-                continue
-            flags = {name: bool(env.termination_manager.get_term(name)[i]) for name in env.termination_manager.active_terms}
+        ids = ids[self.active[ids] & (env.episode_length_buf[ids] > 0)]
+        if not len(ids):
+            return records
+        # A bounded number of batch transfers, instead of O(envs * fields)
+        # GPU synchronizations inside the Python episode loop.
+        fields = {name: getattr(self, name)[ids].cpu().tolist() for name in
+                  ("source", "level", "serial", "sample_id", "validated", "reset_failed",
+                   "stage_success", "ever", "first", "start_pose", "joint1_travel", "joint1_max_excursion")}
+        steps = env.episode_length_buf[ids].cpu().tolist()
+        terms = {name: env.termination_manager.get_term(name)[ids].cpu().tolist()
+                 for name in env.termination_manager.active_terms}
+        rewards = {name: env.reward_manager._episode_sums[name][ids].cpu().tolist()
+                   for name in env.reward_manager.active_terms} if self.cfg.evaluation else {}
+        for row, i in enumerate(ids.cpu().tolist()):
+            flags = {name: values[row] for name, values in terms.items()}
             failed = any(flags.get(k, False) for k in ("non_finite", "object_out_of_bound", "bulb_dropped", "lost_grasp", "curriculum_reset_failed"))
-            success = bool(self.stage_success[i]) and not failed
-            source, level = int(self.source[i]), int(self.level[i])
-            record = {"episode_id": self.episodes, "env_id": i, "env_episode": int(self.serial[i]),
+            success = fields["stage_success"][row] and not failed
+            source, level = fields["source"][row], fields["level"][row]
+            record = {"episode_id": self.episodes, "env_id": i, "env_episode": fields["serial"][row],
                       "seed": int(env.cfg.seed), "stage": self.cfg.stage, "source_stage": source,
                       "level": level, "scheduler_version": self.scheduler.version,
-                      "fixed_fixture": self.cfg.fixed_bulb, "sample_id": int(self.sample_id[i]),
-                      "reset_valid": bool(self.validated[i]), "reset_failure": bool(self.reset_failed[i]),
-                      "steps": int(env.episode_length_buf[i]), "success": success,
-                      "events": dict(zip(EVENTS, self.ever[i].tolist())),
-                      "first_seconds": dict(zip(EVENTS, self.first[i].tolist())),
-                      "termination": flags, "initial_pose_w": self.start_pose[i].tolist(),
-                      "rewards": {name: (value if math.isfinite(value) else None)
-                                  for name in env.reward_manager.active_terms
-                                  for value in [float(env.reward_manager._episode_sums[name][i])]}}
-            if success and self.cfg.stage in (1, 2) and not self.cfg.evaluation:
+                      "fixed_fixture": self.cfg.fixed_bulb, "sample_id": fields["sample_id"][row],
+                      "reset_valid": fields["validated"][row], "reset_failure": fields["reset_failed"][row],
+                      "steps": steps[row], "success": success,
+                      "events": dict(zip(EVENTS, fields["ever"][row])),
+                      "first_seconds": dict(zip(EVENTS, fields["first"][row])),
+                      "termination": flags, "initial_pose_w": fields["start_pose"][row],
+                      "joint1_travel_rad": fields["joint1_travel"][row],
+                      "joint1_max_excursion_rad": fields["joint1_max_excursion"][row],
+                      "rewards": {name: (values[row] if math.isfinite(values[row]) else None)
+                                  for name, values in rewards.items()}}
+            if success and source == self.cfg.stage and self.cfg.stage in (1, 2) and not self.cfg.evaluation:
                 self.bank.add(self.cfg.stage + 1, self.snapshot(i), {
                     "source_stage": self.cfg.stage, "physical_success": True, "seed": int(env.cfg.seed),
                     "episode_id": self.episodes, "step": int(env.common_step_counter),
@@ -384,7 +420,7 @@ class CurriculumRuntime:
         self.finished_records = self.finished_records[-max(1000, env.num_envs * 2):]
         if records and self.log_path:
             with self.log_path.open("a") as stream:
-                stream.writelines(json.dumps(record, allow_nan=False) + "\n" for record in records)
+                stream.writelines(json.dumps(record, allow_nan=False, separators=(",", ":")) + "\n" for record in records)
         return records
 
 
@@ -396,7 +432,8 @@ def reset_curriculum_scene(env, env_ids, x_range=(0., 0.), y_range=(0., 0.), tab
                   desktop_offset_y=desktop_offset_y, yaw_range=yaw_range)
     runtime = getattr(env, "_bulb_curriculum", None)
     if runtime is None:
-        assembly.reset_bulb_assembly_on_table(env, env_ids, **{**params, "x_range": (0., 0.), "y_range": (0., 0.), "yaw_range": (0., 0.)})
+        ids = assembly._ensure_ids(env, env_ids)
+        reset_floor_bulb(env, ids, load_pregrasp(), **{**params, "x_range": (0., 0.), "y_range": (0., 0.), "yaw_range": (0., 0.)})
         reset_robot_to_grasp(env, env_ids)
     else:
         runtime.reset_physics(env_ids, params)

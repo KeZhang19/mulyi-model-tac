@@ -1,0 +1,3410 @@
+{
+  "copied_at": "2026-10-03T08:00:44.440785+00:00",
+  "source": "/home/liuxinyu/workspace/brainco-revo3-sdk",
+  "source_revision": "52e3fcb35bcbe91e17ab66bd8a0cbccc19d8e69f",
+  "excluded": [
+    ".git",
+    ".venv",
+    ".agents",
+    ".vscode",
+    "__pycache__",
+    "*.pyc",
+    "logs",
+    ".env*",
+    "*.pem",
+    "*.key",
+    "*credential*",
+    "*token*",
+    "runtime direct_url.json"
+  ],
+  "runtime_packages": {
+    "bc-revo3-sdk": "2.1.0",
+    "pyvitaisdk": "1.0.17"
+  },
+  "runtime_source": "/home/liuxinyu/workspace/brainco-revo3-sdk/.venv/lib/python3.11/site-packages",
+  "historical_artifacts": "artifacts/vision_touch_capture contains source snapshots, NOT current test evidence",
+  "file_count": 676,
+  "total_bytes": 276582053,
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 458,
+      "sha256": "75ada9c7075ebf8b615b728389211f960c50f9fb68b01977a3b2e2b2975ba8e4"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2657,
+      "sha256": "9f396298122226f4abe796c6d0f9be3498fe8fde582db0c887bedbe955de72fb"
+    },
+    {
+      "path": "artifacts/vision_touch_capture/five_sensors_montage.png",
+      "bytes": 663814,
+      "sha256": "dcf29c468a035833fa9ac716c454aeb9405b187c81f5bbc0e879e119b4fd8538"
+    },
+    {
+      "path": "artifacts/vision_touch_capture/sensor_1_video10_WTUVL3194X26000EB.png",
+      "bytes": 120048,
+      "sha256": "0ea39b3f21abb64a41435cdd05992dc58d21c884cbd18f846fc59a714b2a28e4"
+    },
+    {
+      "path": "artifacts/vision_touch_capture/sensor_2_video2_WTUVL2198X260001A.png",
+      "bytes": 134275,
+      "sha256": "bafac87acc697d9b845e6896f22967e91388370078b98c68b166585a6856e555"
+    },
+    {
+      "path": "artifacts/vision_touch_capture/sensor_3_video4_WTUVL3197X2600106.png",
+      "bytes": 126421,
+      "sha256": "83bd22a6b40ef518b010e986fc381b3eb1ab307abc6c4641749d4128b8ad0420"
+    },
+    {
+      "path": "artifacts/vision_touch_capture/sensor_4_video6_WTUVL3195X26000EE.png",
+      "bytes": 118790,
+      "sha256": "ed72060bbfea47d5fe1262817778023f997747661d0361cfd844e08b788e06a8"
+    },
+    {
+      "path": "artifacts/vision_touch_capture/sensor_5_video8_WTUVL3197X260010B.png",
+      "bytes": 123027,
+      "sha256": "12a7a064c68555218b08698a2670df9da0526b1828ecc2c67307cdaff97c98cf"
+    },
+    {
+      "path": "c/Makefile",
+      "bytes": 5156,
+      "sha256": "8bf9adc8f8d836496e0df88fa7061b189670b98c87f6a0da714bf20ccabfa297"
+    },
+    {
+      "path": "c/README.md",
+      "bytes": 13066,
+      "sha256": "4cdf31bbd15c9abbed86ab42c8e7d983b803a0a1076c9f5e5b8d2227199584c2"
+    },
+    {
+      "path": "c/common/motion_demo.hpp",
+      "bytes": 13656,
+      "sha256": "f28ace8e41a94952e52d34aad54ec3ad697c76fdbb24334b8d267d02a3a19a12"
+    },
+    {
+      "path": "c/common/motion_profiles.hpp",
+      "bytes": 23609,
+      "sha256": "aa3ae51c6305dca6204627d37c75842491e5edf995a1bd3b748805fdd6699848"
+    },
+    {
+      "path": "c/common/revo3_mit_plan.hpp",
+      "bytes": 3006,
+      "sha256": "d30170b52d2431918435fad9261ab125c99316933025b618e5c3860222f45395"
+    },
+    {
+      "path": "c/demo/device_operations.cpp",
+      "bytes": 2304,
+      "sha256": "0a21724948d02da2bad6778bd9b17c33b466efd7ebb946e14f189b08840a81a0"
+    },
+    {
+      "path": "c/demo/discover_devices.cpp",
+      "bytes": 4594,
+      "sha256": "329824dafe1457ccac9f73f641d807b0b7387313949761faf3e1f031330b0409"
+    },
+    {
+      "path": "c/demo/finger_function_demo.cpp",
+      "bytes": 130,
+      "sha256": "45182fa71487283ffb66109aae00791fe116cb6959f0e06adc12426094560f2a"
+    },
+    {
+      "path": "c/demo/firmware_update.cpp",
+      "bytes": 5523,
+      "sha256": "2c59ec1c1523163729b4232a026424419df91aac62ccc4eddd44bf4411fc6a0e"
+    },
+    {
+      "path": "c/demo/gesture_dance_demo.cpp",
+      "bytes": 129,
+      "sha256": "b245e7608678521ad2cb2c162e942259109e192e8e0636cbac5ab1903937a9b1"
+    },
+    {
+      "path": "c/demo/mit_plan.cpp",
+      "bytes": 10802,
+      "sha256": "9118ffe219b25b7a760d5908a6bfa380eff4aeed9096aa8f12485bcc215cbf8f"
+    },
+    {
+      "path": "c/demo/multi_hand.cpp",
+      "bytes": 1848,
+      "sha256": "93f6cf6a66bc5afb1d5e597f96354e62193f0bbd249d2cfd3ac9e4902244723f"
+    },
+    {
+      "path": "c/demo/opposition_demo.cpp",
+      "bytes": 134,
+      "sha256": "7a00d78b74b91c25bc58a4e04c3f8d8726e2d5d3a399c8793418451df46b63e3"
+    },
+    {
+      "path": "c/demo/quickstart.cpp",
+      "bytes": 8754,
+      "sha256": "5e5d36a938810087fffc7523b1b1d1fae06ea70db2c09b28d981f1fab59492d8"
+    },
+    {
+      "path": "c/demo/servo_classic_demo.cpp",
+      "bytes": 131,
+      "sha256": "3252688d1bb94f5d029b4ecce50448511bab1336297a337e10ab8b0f0e38d177"
+    },
+    {
+      "path": "c/demo/streaming_control.cpp",
+      "bytes": 1854,
+      "sha256": "f07214de5d0301811d56bcfb0ae40f615a4e4866205179427c69248d868f9f9e"
+    },
+    {
+      "path": "c/demo/subscriptions.cpp",
+      "bytes": 5494,
+      "sha256": "29d16c7302f2acdfc6800a11b0573fdf1f89f75af0d7fce56001cc7685bf0de0"
+    },
+    {
+      "path": "c/demo/teaching_mode.cpp",
+      "bytes": 1128,
+      "sha256": "66ccf53a94852a8a451c5419e2f8e6fdd1f22872b0b35d7828a1e85ca26aeb66"
+    },
+    {
+      "path": "c/demo/touch_hybrid.cpp",
+      "bytes": 7158,
+      "sha256": "b68b661edbd1249396a323797bedc3e178811524ac9e72f121ced2a1ac6ebe0a"
+    },
+    {
+      "path": "c/demo/touch_sensor.cpp",
+      "bytes": 9592,
+      "sha256": "de75e66199c285799ab24e7c33cd4e4a216de2a80b84acee530c77c9db9e9bf1"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/Makefile",
+      "bytes": 993,
+      "sha256": "fc65dd9464875b759192dfded5d605ccb0295c0eb067956773f88019dd69fcd8"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/README.md",
+      "bytes": 11723,
+      "sha256": "9578304c3375708135828e11e39135d6d80f56a90b0e2831fefb3aad6005b11e"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/revo3_benchmark.cpp",
+      "bytes": 21199,
+      "sha256": "8ad8ee3a12922fb6627a1149af74908ffb5ef6d9fc463c96c94313f79a112438"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/revo3_ethercat.cpp",
+      "bytes": 19639,
+      "sha256": "b9fff7a95db4dd15e46c23a2da6bf23bf1c06c0f7b7af903e9614aee9c4be4c7"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/revo3_ethercat.hpp",
+      "bytes": 15146,
+      "sha256": "ebe02ddac506790c4780fba8d29d35c55342e948b54c1fcbcfd2b5b1584fd4b9"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/revo3_pdo.cpp",
+      "bytes": 15768,
+      "sha256": "d426fbacdcba3389817ca72e8354a513a4aa3238061789b4909cd7a92e163719"
+    },
+    {
+      "path": "c/platform/linux/revo3_ec/revo3_sdo.cpp",
+      "bytes": 8056,
+      "sha256": "3be4a941ef28bc4d99e721447ad0be8b55ad59bee8d890eac5924ec7014ed49f"
+    },
+    {
+      "path": "docs/api/REVO3_API.en-US.md",
+      "bytes": 116082,
+      "sha256": "a4f84c25c5a67269d8bc311bedbbdf2c48d357790feb5263aab88a07ad06e274"
+    },
+    {
+      "path": "docs/api/REVO3_API.zh-CN.md",
+      "bytes": 125662,
+      "sha256": "31c1ea84f284329f72db660b40733a130d6802b51646733cc67bef303935f657"
+    },
+    {
+      "path": "docs/device/REVO3_COLLISION_DETECTION.md",
+      "bytes": 7542,
+      "sha256": "acc790ee8dde1b1a6e703dd6e26c2d93095168c27ef44e74003a05a85ee8fcd4"
+    },
+    {
+      "path": "docs/device/REVO3_COLLISION_DETECTION.zh-CN.md",
+      "bytes": 6706,
+      "sha256": "355ed8009eb94578fdfbe449eff2462c79f211fc946cf400fd446b94666576b7"
+    },
+    {
+      "path": "docs/device/REVO3_MOTOR_API.md",
+      "bytes": 7037,
+      "sha256": "77d160c49c211943479f1dce4d7d54e86abf31f42de32ff631cc7b05eaf01838"
+    },
+    {
+      "path": "docs/device/REVO3_TOUCH_API.md",
+      "bytes": 21710,
+      "sha256": "2e9e8e5dff153f1113c1d3d59f9e61bfcfd103597df783e93f8ab3cf1d282e83"
+    },
+    {
+      "path": "download-lib.sh",
+      "bytes": 5545,
+      "sha256": "f02052d71783189d75d367ee2ef266f23d07a68572db364aefd3cb1783816db1"
+    },
+    {
+      "path": "python/README.md",
+      "bytes": 901,
+      "sha256": "d62ee830d760dfd2d7475bd153980658164035082dde93c411ca15f40d54aebc"
+    },
+    {
+      "path": "python/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "python/common_imports.py",
+      "bytes": 6743,
+      "sha256": "17b6fa97800dfc413d133b1afb2d5b4e8bb34afd56d73d0b18c450b12c73eeaf"
+    },
+    {
+      "path": "python/common_init.py",
+      "bytes": 8681,
+      "sha256": "55b424654a784d2e67c6bc6ee0177ab4e5e3e6a86956b077dc0ce75779f86b07"
+    },
+    {
+      "path": "python/gui/README.md",
+      "bytes": 6697,
+      "sha256": "9fd2abfa8e5b00f2930c86bab930a68a3f1fec0f90ddebca63530ed2cfdbbcf3"
+    },
+    {
+      "path": "python/gui/README.zh.md",
+      "bytes": 5058,
+      "sha256": "124c588431929b88d2ff0262e4a129cf66c90b1933ccf0d965e0b5b7c3ca152b"
+    },
+    {
+      "path": "python/gui/__init__.py",
+      "bytes": 46,
+      "sha256": "ad58e3bca0ff02d681f54ee2acb6684ed052c35f96eccee7c8527b7214955fc8"
+    },
+    {
+      "path": "python/gui/async_task_control.py",
+      "bytes": 953,
+      "sha256": "6776b715894625fc3b9eaab49b6a5983d84b5bb73ea4c85ccf1ddae60ecee98e"
+    },
+    {
+      "path": "python/gui/connection_panel.py",
+      "bytes": 33746,
+      "sha256": "d3035ace41d304d81aa6ce1a64d3f87f7569afb13d2b922beb0b8aad19608322"
+    },
+    {
+      "path": "python/gui/constants.py",
+      "bytes": 4292,
+      "sha256": "5dfc96a824b6dd921500bd3783e024f8841a59e470e48585ce717b6f47226760"
+    },
+    {
+      "path": "python/gui/data_collector_panel.py",
+      "bytes": 8987,
+      "sha256": "8199b1ed99556046498cdbbda3a76f467db45445487cd47378c71bb0bec0ff59"
+    },
+    {
+      "path": "python/gui/dfu_panel.py",
+      "bytes": 9926,
+      "sha256": "b9b02884e021172280eee9907eb4ec2d40b394fff776d2a691b16e6ea5ce4686"
+    },
+    {
+      "path": "python/gui/i18n.py",
+      "bytes": 42758,
+      "sha256": "61884cbb4b6066b007519d35085047cd612d1be0285145b4022ab66a9c294e9b"
+    },
+    {
+      "path": "python/gui/main.py",
+      "bytes": 4250,
+      "sha256": "a11452047354a033f7d5898dd8456ae390b3239d3640fc08220a5fd3810b2e5b"
+    },
+    {
+      "path": "python/gui/main_window.py",
+      "bytes": 26596,
+      "sha256": "0021e50d83a9bcd58b09d64a73c784f9ae13e1a72004f604412589caa4c5bbcf"
+    },
+    {
+      "path": "python/gui/mock_device.py",
+      "bytes": 24789,
+      "sha256": "177eba2cd872b4cdaa0308fb96e835f5b58c5e12a733bdf0c1773c6239af41cb"
+    },
+    {
+      "path": "python/gui/motor_config_panel_revo3.py",
+      "bytes": 25031,
+      "sha256": "873ff3003277e5be392eff581379455a35ef8cc056031b22e4e9ca610694974c"
+    },
+    {
+      "path": "python/gui/motor_control_panel_revo3.py",
+      "bytes": 145360,
+      "sha256": "d82b4ce2e07200ee46908a5f71432c8d8b0d47f9de45ce8cffe44deaedc9ffda"
+    },
+    {
+      "path": "python/gui/runtime_support.py",
+      "bytes": 4469,
+      "sha256": "94005a3c5de359168bff02773971886985147d627e9d9222eda217152f57b6cd"
+    },
+    {
+      "path": "python/gui/sdk_adapter.py",
+      "bytes": 42959,
+      "sha256": "62f3b027b11b48c9b5e99dd4efb66856901913bbc92f5e4b7c73688ba44d2d83"
+    },
+    {
+      "path": "python/gui/shared_data.py",
+      "bytes": 46363,
+      "sha256": "4cc7fbb936d1b076ec4a4ef5c5a19d029d53ab59873dea75018d9924ed89863a"
+    },
+    {
+      "path": "python/gui/styles.py",
+      "bytes": 23023,
+      "sha256": "b5d2f83ffabe1eff715c20631a28c6def298885a9609c96da4d8147c419dd393"
+    },
+    {
+      "path": "python/gui/system_config_panel.py",
+      "bytes": 45846,
+      "sha256": "b2d8b28d6d52c9e85e84c77e5e6dd1cdb42c7bc3a4cde0e8205d71f8742336e1"
+    },
+    {
+      "path": "python/gui/teaching_panel.py",
+      "bytes": 35170,
+      "sha256": "6536e205c0338b049334e909092c1ebdca2a8cfe867a5a0a851763071dc624a7"
+    },
+    {
+      "path": "python/gui/touch_common.py",
+      "bytes": 44229,
+      "sha256": "4bf3213304a93c231efd2b9f6676cd97d82a96f6dc76cc83468cb15de4510626"
+    },
+    {
+      "path": "python/gui/touch_panel_revo3.py",
+      "bytes": 115746,
+      "sha256": "51f6717e5befc9ba83230e2e420e298797efbd6c25701f3474993d7affb4b254"
+    },
+    {
+      "path": "python/install_whl.sh",
+      "bytes": 1997,
+      "sha256": "cb7d9d79a67206816b3ebf4809a2f65ecedf1b9acee2e717606a66c1246e82f3"
+    },
+    {
+      "path": "python/logger.py",
+      "bytes": 3084,
+      "sha256": "de50fa139a041fa432d59b019002d8840091963b45e2004e0470608f39c47cb0"
+    },
+    {
+      "path": "python/pyproject.toml",
+      "bytes": 681,
+      "sha256": "fd4745257f96ef7a0dd22cfd8c6cdc28b4b9beb87def0be1ef49fe69e419a45e"
+    },
+    {
+      "path": "python/revo3/MOTION_DEMOS.zh-CN.md",
+      "bytes": 12318,
+      "sha256": "934b64455c78eaccc6175d2fe1c8e7d88ef8b03011b422e0d86198b65c569d49"
+    },
+    {
+      "path": "python/revo3/README.md",
+      "bytes": 6358,
+      "sha256": "e68997f749648733dda5d2f8918169257cf344a381bd92d0d2e8fad761ee0394"
+    },
+    {
+      "path": "python/revo3/concurrent_control.py",
+      "bytes": 2482,
+      "sha256": "cf5a263a524259792e1abfaee3bec8bac1df92bc6e6d4d5c52ec6abe87e173ee"
+    },
+    {
+      "path": "python/revo3/demo_motion.py",
+      "bytes": 27433,
+      "sha256": "d36b8cbf927bcae5b8b26680de20d38b92bf82369c6f67544440d910f73629f2"
+    },
+    {
+      "path": "python/revo3/device_operations.py",
+      "bytes": 3622,
+      "sha256": "c1145ff865fde66c941a84c6f5d7cf4a2bc7ab5f1c3a612739ff953265147701"
+    },
+    {
+      "path": "python/revo3/discover_devices.py",
+      "bytes": 5619,
+      "sha256": "06285f35ee5fe11ccbc5d5682d735b7df1794c88b7c11bcffb75e59f0b520ac3"
+    },
+    {
+      "path": "python/revo3/finger_function_demo.py",
+      "bytes": 165,
+      "sha256": "03bd2faad3f48c6bac26a9a9cf15b2de2735209117719f90581d2f3166e6a79b"
+    },
+    {
+      "path": "python/revo3/finger_motion.py",
+      "bytes": 2899,
+      "sha256": "ebf875313787587caed9def7ec349fb3bf13c9f5c9ea11cd9a71c92e52ea91c1"
+    },
+    {
+      "path": "python/revo3/firmware_update.py",
+      "bytes": 3501,
+      "sha256": "745047e430b61232d52250c816c5cbe6347c146904b3b33532a470318b468774"
+    },
+    {
+      "path": "python/revo3/gesture_dance_demo.py",
+      "bytes": 163,
+      "sha256": "aa896857e8b2216c6e57a99c4cb9b534976f1ba9980980f7b38928e563a07800"
+    },
+    {
+      "path": "python/revo3/hand_joint_diagram.png",
+      "bytes": 536614,
+      "sha256": "021cb6f13ce12efe48cffebad97900b7f83bdd933ff00f47673b7b88a3996347"
+    },
+    {
+      "path": "python/revo3/manager_cli.py",
+      "bytes": 7441,
+      "sha256": "8b8d500226d0395f581c8e3cfdc66dee8d79345c09a30f817911f987ff0dd82e"
+    },
+    {
+      "path": "python/revo3/mit_plan.py",
+      "bytes": 10353,
+      "sha256": "10c94bdd3ffad0952412bb78d0fe9a71d9f72751461bf674f07c05a651f8fe93"
+    },
+    {
+      "path": "python/revo3/multi_hand.py",
+      "bytes": 2853,
+      "sha256": "22304bd93c0054218cdf548b0c69fe12b6f6ff92b84432c41bb92ca9f4be255b"
+    },
+    {
+      "path": "python/revo3/opposition_demo.py",
+      "bytes": 173,
+      "sha256": "51c840b962c74cbecf374b2d39e01c21886fc7279972af1e1c69e0fa59975197"
+    },
+    {
+      "path": "python/revo3/quickstart.py",
+      "bytes": 12085,
+      "sha256": "1a2fa9e873b43c02e82b1468fa263b9b983226c4b19dcb1e39a18724777db594"
+    },
+    {
+      "path": "python/revo3/revo3_joint_map.md",
+      "bytes": 5966,
+      "sha256": "de464c9ac861b31600f46ed233dee9418187a2ba6f44d5d3ac267f0b13d3dd3c"
+    },
+    {
+      "path": "python/revo3/revo3_motor_ids.png",
+      "bytes": 209757,
+      "sha256": "956b527f3325d97360c91d72abbdb7ac5b4ae4cec5a75bcea149a84270341995"
+    },
+    {
+      "path": "python/revo3/servo_classic_demo.py",
+      "bytes": 167,
+      "sha256": "c0c9d96d5e931c2c88dbbb825cb44af7b65dae21386484e92a8f804b6ca9488d"
+    },
+    {
+      "path": "python/revo3/shared_ports.py",
+      "bytes": 1056,
+      "sha256": "ef3f36e9c40b020ebb9445cb64136396ed08da75633cf934392e6dded1f40604"
+    },
+    {
+      "path": "python/revo3/streaming_control.py",
+      "bytes": 1759,
+      "sha256": "1b04e7f7a45e8afa4b9ee4386ef1999942e3c7f60ba1e2b501d34b132fa54ac8"
+    },
+    {
+      "path": "python/revo3/subscriptions.py",
+      "bytes": 3398,
+      "sha256": "ce8f52b6b071cafa17e5d27b2145c8b0630db54b24012e4bcfbf3324dfe17caf"
+    },
+    {
+      "path": "python/revo3/teaching_mode.py",
+      "bytes": 2397,
+      "sha256": "020b5f1554ba7a64fde5c20d8c679554b315a3cfe3ff466017a3b6255c1c4437"
+    },
+    {
+      "path": "python/revo3/touch_hybrid.py",
+      "bytes": 13015,
+      "sha256": "0f738400903730549fc6bd90c373a33004dd8683593c85db41fce76e0952fd41"
+    },
+    {
+      "path": "python/revo3/touch_sensor.py",
+      "bytes": 17098,
+      "sha256": "462cb8bb0cbc7c376fe4230c9cf771a9cc45e6ca83683f55b1825e4a16d51745"
+    },
+    {
+      "path": "python/revo3/trajectory_control.py",
+      "bytes": 1809,
+      "sha256": "fe99414ca8813b7548c63f0d9ee453c5221645da5e9cdba0efcdb7fbf4800971"
+    },
+    {
+      "path": "python/revo3/units.py",
+      "bytes": 856,
+      "sha256": "9bf9a57e95eae489ef4fe622d05ba09184faf67ca57392b0b5f1212c57256197"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk/main_mod.abi3.so",
+      "bytes": 6271896,
+      "sha256": "4e603fa4c41e08565ebb64f66076b300d1210ef92729d9d39560c3f8b854dec0"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk/main_mod.pyi",
+      "bytes": 38668,
+      "sha256": "5679c63b6f683310f810ef2f691c3513b94bad408e509b591da18d2c1b7d6371"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/INSTALLER",
+      "bytes": 4,
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/METADATA",
+      "bytes": 1822,
+      "sha256": "4ab719a4161f5f623dcf90302024b89519d3a185182bde8eaa6bd9dc4567e637"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/RECORD",
+      "bytes": 928,
+      "sha256": "11a8df4dc1c2adf5af45a62c160d7eb0887c371558075694f5db6e7691650541"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/WHEEL",
+      "bytes": 108,
+      "sha256": "89ed2c75718a9b116e6b5e7b18c03c3357b483343266cf9bd37f32f66750cb21"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/licenses/LICENSE",
+      "bytes": 1068,
+      "sha256": "dbbdf2ef21a5e9478db99261dd0045f763440d880f9e3619202e27b2f8033abc"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/sboms/auditwheel.cdx.json",
+      "bytes": 1244,
+      "sha256": "ec37c78a37927e9a358e08c30afb0f9052731229f8e78442cf7c7a5e51d1893f"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk-2.1.0.dist-info/sboms/bc-revo3-sdk.cyclonedx.json",
+      "bytes": 175429,
+      "sha256": "8005ec1a26207d62f9685508a2d9b28a91ae798e9349d0f5dc85192107386374"
+    },
+    {
+      "path": "runtime/python/bc_revo3_sdk.libs/libudev-1f47ab3b.so.1",
+      "bytes": 172880,
+      "sha256": "89feaa3d38e6be661023148cad9e8ad305b038431d273b68991a9acbca3c3ea2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/__init__.py",
+      "bytes": 2302,
+      "sha256": "07840d66a774b3376203f4f95cc2b07c8bfe9da70f94a3341cefa581c0203ca1"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/__init__.pyi",
+      "bytes": 629,
+      "sha256": "fdf997eb4d46816833d5573845862155dbe22d289d99f6367385b3cbba5cfb09"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/_bundled_modules.json",
+      "bytes": 1029,
+      "sha256": "f4ba0b76b1eb45baa56fd31c8dc235341c888e1b9d2f7cecd01d7ee2bd13aa18"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "0fd367666207a89c572c116027494874349a8c699c393593e52764bf3567b838"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "057b32d2c314e2a47ab7d3602511045b5ab79162ea4498be25f483d53d571961"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "b59af9d1a061861ab721669b8c7bbe49ebd4e4eb04717e62d05318c821605430"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "d77b7e870a8eb84cd5fd23038f1cde3e40e1e04347bec42cd32e7f1a1c50aa1a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "a81ae1594e83acc19fdf43016512e86995cd0c0d9882edb82ce0226c8e9b54ce"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/__init__.pyi",
+      "bytes": 170,
+      "sha256": "16122f5ead53b03bc96f58411e6897f60b5a9a753947a796ca0be0fe94f99b8c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/algorithm_errors.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 90568,
+      "sha256": "67ef9056f8bb7e3535babfff27fb2b510968fb58c4e21e9be40851efb3bc5662"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/algorithm_errors.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 94664,
+      "sha256": "9ace8d44b68f49d75cb580e80a4e60c661375ca9d5d18ecaca7688c3ad9b8414"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/algorithm_errors.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 94664,
+      "sha256": "37869268968ccfd590f1e5fbbd243beebdf9c85b5a92a6ab9b0c31b11082cd2c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/algorithm_errors.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 90536,
+      "sha256": "2f739e62bccb7e920db0b568d3fc3e480ecdccc29aff202d7a85c43811a64c31"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/algorithm_errors.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 94664,
+      "sha256": "58f1a5c8977429ecf5fdb07fe4abf6ab63550a3e15b3e8af35a1119fd395295a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/algorithm_errors.pyi",
+      "bytes": 584,
+      "sha256": "5e62a8cd6d5d4b553aa937cfc05d58a291cc7f728dd97bbd9ec8cce625ce171b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/exceptions.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 135624,
+      "sha256": "492bd4594255b4e4936b73c89ac279cc4ef4713c10a04408ec51e86cfb460943"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/exceptions.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 135624,
+      "sha256": "03640e8affa19db09dea95d5c58bffc39daa9816d7a196b6fd9c52bcd3a15fc5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/exceptions.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 135624,
+      "sha256": "730fd5ee4c49f8775348422a8a952856261564b500292a92a50d2405696513c3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/exceptions.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 139688,
+      "sha256": "7fb845f68419ef12d3be6c6bb16b1e028a47bc041f10cd3661cda04222b70f59"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/exceptions.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 135624,
+      "sha256": "98a30e4d5db02b7c6f371f6bb3c29f6a444b5a05703ad9493aaa06f2852107ab"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/exceptions.pyi",
+      "bytes": 6250,
+      "sha256": "c4f1f78b0fb169b6ead96c9e48df4a0aff91f1d02e584bffdf036bded2efeacd"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/logging.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 102952,
+      "sha256": "aa94b3677c69a31d4007915583309f26da84e43f22d2da55d52b896e5bceefc2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/logging.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 107048,
+      "sha256": "4caebfd25a1929b96c4b1e3899fcc1ed869f4c259056864389341862b28e6bf0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/logging.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 107048,
+      "sha256": "477d372657669021a37226bb792826846ca9e5c4ce6e13b6e053bdb80e1d8ece"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/logging.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 107016,
+      "sha256": "e8fb52acd46b2640946a6fa8dcc9c4df1e53687823e05134a6c3fae666941177"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/logging.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 102952,
+      "sha256": "548e3fc98b59e1305adadf25360be98387ae60c71b45ebe96e501d89fffe87c3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/logging.pyi",
+      "bytes": 675,
+      "sha256": "be3e4f128adcf72b992ff3c6504f8b2e65a14dc8370170a8b1b6f36bc80a587c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/utils.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 57704,
+      "sha256": "7b85aa3bd62f1be99b2ed3cd060f3fbc534c36a8916845d7a75649882bfc22ec"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/utils.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 57672,
+      "sha256": "5d0119583cc9bc0df8865232ec4feb57e4743b1c8148ea17e5ce6b2cb78e0530"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/utils.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 57672,
+      "sha256": "c81cfc01af715bdcd47d1e797676e4f82513bde7724e0e7262411ac0feaa9163"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/utils.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 53576,
+      "sha256": "ff8cd76224a748505955392b1d5f2199e9700170b785760e07a9688c0f13bbc2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/utils.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 57704,
+      "sha256": "936646a43414053ca025fd5467f241885a8252d6cea6d2f656e2f90214a586e8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/common/utils.pyi",
+      "bytes": 84,
+      "sha256": "4fa0de4b75eab5d2304f630684136a76dde1688d2067e379aa03239cdcbe9341"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 82440,
+      "sha256": "c426538bf447c99508e7b946eb18403b45f64f303435d0d7337cbc69a8094e35"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 86536,
+      "sha256": "8820976bb7aeb914ebac243b202780e5e72760e4fdd35ddf73aafe5a0ba3b62c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 86536,
+      "sha256": "93b2ad330438e314eaaa1686ab0669aaa82a578a124bd4b7aca226a41edb98c4"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 86504,
+      "sha256": "5b9b97b7fda20fc783f167082866e753d1f1784a5644fc8070ce969f6e681fa4"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 82440,
+      "sha256": "864fff61f3d606900a7f5cfd7b85efbf908ce4ee65630e6884239507e1e8c9e9"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/__init__.pyi",
+      "bytes": 622,
+      "sha256": "980f7c0c919cdaf275247ade36088fbc2c35c27949feb8104f511eabb0950280"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 53544,
+      "sha256": "d6f95cd1bb844990497f01367596c7810e055a676e53e695784275afa3c82e64"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 53544,
+      "sha256": "97acb31f79cb03467e809a99d5fd980f4c8fcf8d401aa831ab7285fd21db02fc"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 57640,
+      "sha256": "2779b156f71d5f1f829d057533d0f74a5841c9f7429decafdf1011e8ba1d11ef"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 57640,
+      "sha256": "b73d8e1d036cc7a970443179e79a848b57f7c586cdccf018bf1f112d7787ed07"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 53544,
+      "sha256": "a8052f2f3cfd3e27d84f210859ed45b73d6d00c9e22e3105095ca2f33ac1d5b8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/__init__.pyi",
+      "bytes": 262,
+      "sha256": "77554650882440f44ba32c687f6fe0b5448a15aee7c8f06f5a65b185b2feb271"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/find_device.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 511304,
+      "sha256": "f849acd76782b4bf4b5f33cc218e13a4d6f0c0c3533565e6506657c004490070"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/find_device.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 499016,
+      "sha256": "8d96390557aead784dd1f8647965ae50e3ff4d503d540178b43634a2a8664369"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/find_device.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 482632,
+      "sha256": "ce1dcc7a693131859603992e3ace1b08e84dd075831e29f8fc1fda03cbcdcaf0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/find_device.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 486728,
+      "sha256": "afaf40801a00291ec7bbfeadf81971a867df8d35cb17640b19c7b4cd21f47885"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/find_device.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 507208,
+      "sha256": "dbf65aa0592fdde62cfea223f74787eb5550abb18f5fa475aea37c617aa8a87c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/devices/findcams/find_device.pyi",
+      "bytes": 1773,
+      "sha256": "a52d500c27bc341e1cf42522be26ef6236d1404041217689fd103bd0e9b4712a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "a648a12c45284c786e68668c0cfb6e80aefc8a48595210fe7a34fa68dd698dbe"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "d9c65552cbc903dbf615af2320fba3d9fa39fe66019e60a572b28b64fbabd8ad"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "cc7133f226eda851dd154555fcf47d654251cb4c48f5526cfa46cc286079e373"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "284989cd7704de8d0382abee947e60bab0fb6d2da310ea5324b197e68012ed8c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "9e81bd863a4962412fd2262dea224d4bff201c4f2e65d789613838e01cf2c01c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/__init__.pyi",
+      "bytes": 928,
+      "sha256": "9e76d93994d68f55e47d01932c5361e5ae19470d033d6bf0a745e3a23939889f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "61002aad7cd9bfc05df9d6ddbf79b01a8ca6e033a02ad557c30e1d1ec5738115"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "8965a858bd754b7a192d7809f07a9c0fdb2c26550a3797f91cea04c8b61321e5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 35480,
+      "sha256": "cdd4213970eafc348656ccc105947e1affc43966651efc1d5dd95e01ace4b679"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 35480,
+      "sha256": "b9d43bb8bbf5aea2349209c0480a0d1eec726699f22585e3d1c314c2ed6226f2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "b5fc4cd745b2460b72b97d8204384948c31f110bb6a15ed0c92dc07d6a563530"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/__init__.pyi",
+      "bytes": 1566,
+      "sha256": "9f4d2349065c2b5d21bf19a061d00b192124777b3f547225fd842b28879fdcdb"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "a571de8c2b7a7a394fdf0bf057645e2cedd41fc9f751e0b3abe1589874dd9fa5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "2a93361518f14e89d877144e5bcca2c685785a75d0e76f86d34bbaae2165da95"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "8863794aa13d98f771c498cd77ab5d06d141551a24510d21ee6df6cd0f8fb86a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "3d8c044c19864c5e89705b74fa71279ca272fd63eddb98c497c937ebe6c4da47"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "f5063b5539f599acbf847ed2310be9daf1032752a30056a595ed74482bce0e2e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/__init__.pyi",
+      "bytes": 72,
+      "sha256": "2f35a894076cd17b637aa9a43449d0cd145d984632ec43148316525ea2c631e1"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/gf_backend.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 82312,
+      "sha256": "56473760162eb9060eaeed8e6062bf326e8446fa420ec4cdc89752bd35dad464"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/gf_backend.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 86440,
+      "sha256": "dbeacb5f1d11fc983e683848308528be1e8da7f1968107e72ac3c79fe497c69d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/gf_backend.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 90504,
+      "sha256": "faa19d4ac6e97c02d56888e4acb93155eb988524f929161e733272b8fddd2596"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/gf_backend.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 86408,
+      "sha256": "cbb367b4bd7def8054e8a25f1b6165e2251675f5706a410354f076219957a47e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/gf_backend.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 82344,
+      "sha256": "d029860ee03e22570e0a770307b9853393d431ca397b9d0339fc2028bb022f9e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/backend/gf_backend.pyi",
+      "bytes": 731,
+      "sha256": "8055a3f5517b74fda1422ef4633e915ce6e572a6b5cbb19603e1b591ae8d9211"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "02b557084c9b27cf83d7f7f53480f915b10d0d046c42fba6f71a0efb8c52433b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "cadf4603f4c13464e89f1e2259efec357c581d88d075c4073f40c5e33b22ec7f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "4e2a676fd91581cc33f8e893878c76efe75f68cda86cde712621c0c22316c8b2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "44d33ff666335af3bdc8aa7e6030b9d08cb3acfc90c18998805b71e9b1f78f9f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "feda95885de49f89d1cccd7a79af3572ee8c0ec842c105bdd87a147093e4fe98"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/__init__.pyi",
+      "bytes": 1401,
+      "sha256": "0f18da476a3fa43391f3e1a2a5751ee6447837941bd0e67b259d6b5458e874f2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/buffer.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 90632,
+      "sha256": "96f7669b5c5525186604116660d25a9882d44aa6ee8127dccd09ec046f12ef16"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/buffer.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 94760,
+      "sha256": "2ef93055854692608b9fffe09a6536da157d92f634ad3be13f9c235b6590c521"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/buffer.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 94728,
+      "sha256": "fe9bb5ce9cef693b826493c876ae420dd7421f02cc59701e36f30e2f67d6ddd6"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/buffer.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 94728,
+      "sha256": "8293338fb6a8eca81f570dd7bb472d615635877aa98ffe89b61d59eb8cbee88e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/buffer.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 90632,
+      "sha256": "2f28b2b6eef1b2658373c5f48a6a63728c2340ac0ba790d780d48e936fc00699"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/buffer.pyi",
+      "bytes": 517,
+      "sha256": "69f6de5f4ba663dd388f663de007a03a90f645df220e2ffb796dcc00f2da4836"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/gf_sensor_base.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 742248,
+      "sha256": "0652b02aa3f4fa1c7e19a8acf31d39844ec37e038ccf8665fa2226cb4b8df6c4"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/gf_sensor_base.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 734024,
+      "sha256": "014dfab7463d6a263299cca80af1803018a7acce4a12e2e3ffbc3ce774e41bf5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/gf_sensor_base.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 717640,
+      "sha256": "e8c2a4f6bd5bd5a46f5be9c28ebad0169e9cc053a5567ca744f318d3f377fb89"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/gf_sensor_base.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 721704,
+      "sha256": "04e01f463138b7ce0fd2e279e777cb77f5bd11cebc748c4fe85a8ea46163c8c3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/gf_sensor_base.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 742248,
+      "sha256": "3d793469d5b3c06978f271aed6b7689dd185e5e3f4ae044c0eb692d2ba3665a2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/gf_sensor_base.pyi",
+      "bytes": 6989,
+      "sha256": "4ffb6ae217ab9b62042bcfb136153132244a9b7f3958cb7435171f36bdecbfc8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/marker_tracker_adapter.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 320872,
+      "sha256": "262d45e45e803979e3968738c8230eb05663e29e66a1e55a7d84e0adeba45108"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/marker_tracker_adapter.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 316744,
+      "sha256": "07622014ddc52a24d6cb746124ae1a0969dd082c01729e1cd86c46f0f31a571d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/marker_tracker_adapter.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 300360,
+      "sha256": "5b36afb3cd35c0d23993dece0603671aac3b1b5b7243d1e3970a8eeb88b076fa"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/marker_tracker_adapter.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 300360,
+      "sha256": "e5767c06a7d61660107c086c7bd48311f8bc8c376d3dac2b0902722b92d97805"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/marker_tracker_adapter.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 320904,
+      "sha256": "1978558b031939ffdedc96d406774551d2a058fc538fa48705290ea60392e71b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/marker_tracker_adapter.pyi",
+      "bytes": 3733,
+      "sha256": "5e743dd3c8be7d6bb044ea523ce9aabd72eee19aa627dde097e84460c93e2ed4"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/profile.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "a751b9ea9550371bf50b88dceb8faa53f52dde4ff47c45b9b84699b3c677a84b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/profile.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "58f5e9c740cf67c4d17a0978c6497186cd9950a70065ec1d197d079a93f3842b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/profile.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "c5d7b5890ae15720f1059746f74006d943cb7887ff3e681e38dc541fb7b6f61c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/profile.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "84a0818ddf2c918f5a4ecf48904d23385913a96490cd03ff5a79df43d6dfdca5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/profile.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "151d13aeefc63d4409401b9507099ddc8e05060a0d3bc3377b0b2a7f9ca9bb11"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/base/profile.pyi",
+      "bytes": 3420,
+      "sha256": "58cbaa23c3b23b324cf2d29e9958b97c3bd09135f6b7bc6a53de6b41610c31f2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "d25c84a9c9f236f36ebc9006b2bedb0397ac0a4f5d3b5c8c427cf48449a825a0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "5fabe78817f3814121e41906ca7649c21261515fa171154253292dfc4142de5c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "5f139f7a450e760e4449f0e8a0205844546e9245b3c8376f94e6e5f30c37226e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "23db0e4c880923caaaf18f5b5c7e816c9c63252f0a19349edfa23c398738c23b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "89a6ce2f0a6928f0ab738fe33c16a597ac946289625448e0db53a1bad4452cc2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/__init__.pyi",
+      "bytes": 148,
+      "sha256": "75e63e9228065812f3f224ad2cce7e2d4b58cfc530f844173e972572f64a1d35"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/camera_params.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 65800,
+      "sha256": "06053f089a62b28f0e06930dbe2621b40ad06318a9592a4e2b9000860982fd08"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/camera_params.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 65800,
+      "sha256": "d56606a90b54f9b5414535906744198959d6cea322e5b50d0c609dab11160a61"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/camera_params.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 65800,
+      "sha256": "122e8b4f50dbaf36b28903f551ef31587b57ec23167014171b6cd7a98c878138"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/camera_params.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 65800,
+      "sha256": "211d6e4a21cee0436e9061685c2cf64c12be05bdfcf5c3333166b85a917ce111"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/camera_params.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 65800,
+      "sha256": "2cbcd17db853a259bf7ea96514fdbdf9437ab2cd16cffc76648afaae87f80a61"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/camera/camera_params.pyi",
+      "bytes": 430,
+      "sha256": "f3a6484be342adae816a100bff5b306c8018bc7b790bbe6af9a4d7750c11920c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "1b3b7158b0f2e1a964a3251793c7fdb12012f73bfd9fed04823a4073ff95e75e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "8746fc6812091562d9e60d826b61a6a2edb24717e6a235d8fea64bd0ecb8b7c3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "c5e9189af865972060d662f0e2b4eb0e8a3aca986ebe8109736bb9573de65f4a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "a32af1ebbc4fb8c2e8295dd56d9abde1492d73b52cfad643373254987ecc3036"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "4240a53ef2f0df6390807449a1743f30f66bab9ee6b48655cd7f0346cf5ae460"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/__init__.pyi",
+      "bytes": 68,
+      "sha256": "e86281bf724387e5cf10c9cafcbc24cf0962557295c6a9e9d08c51bdeaecb5fa"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/gf_config.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98760,
+      "sha256": "cf2497107b18a3a244ae66fe3745292cbb0b5ce7394ee4f9b87b3e24d60bf917"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/gf_config.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 98760,
+      "sha256": "5451366991885e8c424b0a6a40613ac916f4557c6f5eaa394333ea9629ba1e9c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/gf_config.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 106952,
+      "sha256": "0c18302d5c2ef140df2e5e3cd2f3e8a8b714228c4ca95556d3ea1570c4e42e61"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/gf_config.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 98760,
+      "sha256": "aa5f4a98abeab3153ce758c090c8eecff5133e634b2dde60f3051f651a01c735"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/gf_config.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98760,
+      "sha256": "755ab6c4c44a60a383f5c6bab3430b5079012c90ff08a483bdd769cd1ac66852"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/config/gf_config.pyi",
+      "bytes": 1385,
+      "sha256": "e3b83566f84aee9ed0b8e9ffd8baabcb56aec4b0bbf8dc7a22980f50dad4bf3f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf210.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 107144,
+      "sha256": "6747810a61ceff70706d254689e5db36aecb58f397b9dbb34ad7bf1b64a529ec"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf210.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 111240,
+      "sha256": "1d11dd2befa3485f190faa8a60586f45a67f502362ae952befe5a0fae4afeda7"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf210.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 115336,
+      "sha256": "dd20e2e2df787c4c057d323ee258aea6d64b61af7021c48ec045c91705c555e9"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf210.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 111208,
+      "sha256": "cf85a417d48b84bdde2b9e51f54233e76db5ed03ac0fe5d8366e3014719d6018"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf210.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 107144,
+      "sha256": "bf0556298491d9b4b3af1bb2151d2997e3d87da59aecede291424c9efdf89cfd"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf210.pyi",
+      "bytes": 1775,
+      "sha256": "d109429d602af9235a4b4753c381d536dbd95ba2407f4ed5837dbf377b5f9b32"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf220.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 107144,
+      "sha256": "f5fa61816e6ef190372fba8dc3f3a901247f6d6e5b9087c329ff26bee44ce542"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf220.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 111240,
+      "sha256": "9780907662848e76a978b6dcbdb52816af59f7e35d3cd13caac0fe7ea923151d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf220.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 115336,
+      "sha256": "71ed694ff755ec817fffdba15596c9eadecd4a712eb1f1b262a7fe3e168074a5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf220.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 111208,
+      "sha256": "6371ccbbe8240fc5d43abfb8c1d88c7373cff9bacd5d01c6a3713f2f6afc20af"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf220.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 107144,
+      "sha256": "ac6782704bf0db666680b875756cee270acee9489672b022d91a07199fb1ffdf"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf220.pyi",
+      "bytes": 1858,
+      "sha256": "ef3050a9b8e95121d8e9a376a380ac036875d7ab42e18b8782c5e0e329f52493"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf225.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98888,
+      "sha256": "03ed6ce53ebe8e6ba28ba03476e38e9df2fa94767c7e999073a96fe0d087c246"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf225.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 102984,
+      "sha256": "32457e56211c8a37ab64548b7ec2d7932904009c240a74ab5fb6dd0f808f8e9b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf225.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 107080,
+      "sha256": "fbcffbc127ef074bdb390e2780d639342ef4c3d3857b897c40395fd9f3c45354"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf225.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 102984,
+      "sha256": "effda89412cb62dc4e828cfbf70fd1f8a1fabaf683993083ca8d0fa91d3b2fdd"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf225.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "02011102a48481d6a66ff810ca18dee9bff60190f083fe8c5193c4ecf8c30e2d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf225.pyi",
+      "bytes": 1720,
+      "sha256": "130a4ba87ab4979142bd074e73378aa437bae3dd4ccf0f8d602558671232bd9e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515i.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "21f31f44aee15eb0d96176a099d5d73378418dd90307817fc632aa6126e86532"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515i.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "d30c6bded450e804d0b0938a52aa4460b79b1c2b2507635a48166623176f55f1"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515i.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "61b9d2d51524da0b081c8b4e6abdcdb1c7d8d9c025732678426898b7f6ad115e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515i.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 98888,
+      "sha256": "b581f24240cabd43ddfd98baa07f0be6af71bc76953c3118c7a9b2b307c2bcc8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515i.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "8fcb9b5db91b47a5acb69d158552031173148c8b75d111c0531cc5468f780fb1"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515i.pyi",
+      "bytes": 1643,
+      "sha256": "14f3640b14521a5d93444ded6d062baa6bcd864d29a2aeb964d457948e9772cc"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515t.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "1bcaf5c1d1577baa24d240ccc694f1aab0c0ab64d12637bf1320907f7486ea14"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515t.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "a4b3e2f86a0a680dd867b8e34bf0c35dc752353bbd978d809934f8f0ca82d7dd"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515t.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "f4bd01dd0ef48edee3dc9f792fd0d12230c4446ef496d9992b50e2f60760e958"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515t.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 98888,
+      "sha256": "140e21cb718bfae829454201f7eef5dabbcec30629ab2e390fe9c68d2c84eba7"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515t.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "603109c5ed327fda347d0f7b3816a0d5b336fbd23d61750eff2974cbd1d74a17"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gf515t.pyi",
+      "bytes": 1643,
+      "sha256": "fd354af246c5deafa9804378cd3ddbe5f59a3f3c81808edee2bf34753803b84f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbci.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "1bc707e33e6819fb68b6fb6ecc7d3428c268ba8e5cfcddaa625b7ab55f78da7f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbci.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "4f4aece02a72e22abe386f720d80ccfb5c02d2f3df09aa3e3e73ec530b48e6e5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbci.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "f64abbbc4fae04cc019cca01436b338a72d6aeebe42f74cd3318105eec890479"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbci.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 102984,
+      "sha256": "c9c294efe1dbcd78ee0e8f6348c13ae49248f0a0174413dd8436095501a117a0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbci.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "bdf550f4fb1e672bdf87a8e6d0b58ffa77095e65f7d8085f36695376bbbf56f8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbci.pyi",
+      "bytes": 1636,
+      "sha256": "02a1fa30a074caf0a35d7ef17951654154ecc77ae425477eed45a6547613c7a2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbct.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "ed43db1f3c92bef5656d1dee62e951b37869ae3b57cb02c848207354efdf2fa3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbct.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "8ef8f6fef733c6b81304d621d32411a176580c1c88989d47c9c33d255156660a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbct.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "dd109b76af57c0efada06fa03ed881c0db306c10d99e2cb0f6143bb673401587"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbct.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 102984,
+      "sha256": "57549a5679cfb9bc26c3b872bb2495488d33e16fd5780814a704a29e7c6ce82d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbct.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "3625abee07710ba3904a485c298fb378bd69b8d0f97c7e05e4c6d7b74ada4efc"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gfbct.pyi",
+      "bytes": 1636,
+      "sha256": "d0d59a2aa33e482cef79f5b285697ae5708b3392669e2526ee5153cc4b7f218a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgi.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "688955530249f2866dddb8661b9678a33db4c1d137a30395aa935c65fe61bd77"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgi.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "21dd6b39cd9e3eb684211e37a713ab980a7fc4fdfa95050bcf176edff48497e7"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgi.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "c87d231802fa5c4c8982a69a70a9868612b98906d961d90207169c9724282aa7"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgi.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 102984,
+      "sha256": "c67bb64e54c448c845d82ca38704de4b81d83e13251c1ac6fa2018a8d0e25e0a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgi.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "5b1c6f983d455220b7519339249e9e2ab409496b0ff34c7712d7964ff597a8f9"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgi.pyi",
+      "bytes": 1568,
+      "sha256": "f0f06b3e0993df0a7b20db45bbb4ffa6d967bb65e022c9f98402fdcdf286bbb0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgt.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "39093076eee70959a7fd4e19cd2aad10c23ee9c3e0c6c6443650324033a9f8c0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgt.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "d1310a9921a2c515f7e88fc049cd7671e4b2ae1676f84d38e0d84e1443ececd5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgt.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 103016,
+      "sha256": "946b18f10c225fdd1bbb82213e7ed90f9d2a4dded3a40bdaff4739adb854ab4d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgt.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 102984,
+      "sha256": "44272d55c6482c6616911f7b411f9a21da3cbb617b1dc8164eca68da68b9897f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgt.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 98920,
+      "sha256": "9e5b85e16dae0eba929737f3cf73c885c41aee64a11bebfdf2726bbcf8b9e339"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/gftgt.pyi",
+      "bytes": 1568,
+      "sha256": "468cc0be47284ed9599dfe09d8cffbf2be35f8487a4e4936aebe20c682dfb057"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "f04655d7610d9b51223f5005ee804da98ee5be0bcffdcb679636a1230177b7c3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "3f5220e5b66c2038b394ad6f6eeb255cfa6be71ce47766c8230b5084420a26cb"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "98b931a1644bc7d0030d8e244ea5766e32def196c3006ea89fda1643b3708de5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "6a6797a9283f54b8a1864db4cef0596b1e093a7eda153e85ea2c3d8113b2e86d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "a50497515fdf37cb91b322fcdc6c94024f4b6fe8f70426ccdd90109ab698b0a2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/__init__.pyi",
+      "bytes": 101,
+      "sha256": "507d56d79287147b8b8c43a18142fc153e5f55bf7ed05263ff34415fc86c3575"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/gf_image_processor.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 143848,
+      "sha256": "83ceee47c25001340037441df9b95928b86849504249c2109e135e64cc6ea043"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/gf_image_processor.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 143848,
+      "sha256": "8923671e9a64819439c064202909379ec450116a139a3523e83093403cdf9f93"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/gf_image_processor.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 143848,
+      "sha256": "bc58363ac1bbe4540f95df7f37824eb97bf29390a9434369dd45a89a2c910e61"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/gf_image_processor.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 147944,
+      "sha256": "e70470227611f8f70538050db8a982226cffb48570e4dfe004bd86381ab4b2b6"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/gf_image_processor.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 143848,
+      "sha256": "0bcb98bb6cb96236589de1f6cfd3bbcf8586b354d6bf84cb565facb87efb78be"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/image_processing/gf_image_processor.pyi",
+      "bytes": 1091,
+      "sha256": "116fc7ea01d23b1698d874f1503fd9a1a4fd13c73cb3db8ab12a9f73a0e05032"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "6f1bfaa82e26170c1d55585fad6926c70c58c5d85ec22074b044ecb45f36635a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "66682dd7c353483b6487f3ebe247e126e367633f3f63583ed26a08c0b94fe687"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "639792908ecca788c2f62dbde214754615dd995d7cda801b08b97fc38637f47f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "753dfe6dc21717e1c5b6a15e6222cc1beabdc23ea94d17ca3136d0b71c113d80"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "1bb05b0d4a2cdc4773ffd28a61c842a1adbca94174a4d25680f1aa3eb427b6c6"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/__init__.pyi",
+      "bytes": 109,
+      "sha256": "0c383d041681bd4739cbcae241e2fd67889f121bcafc7843fa7f577c28187aef"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/video_stream_manager.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 257256,
+      "sha256": "a481f5dfd86aaa964c6247ea72d2593dc161e1a244635f73e12264da4a4e19f8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/video_stream_manager.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 253128,
+      "sha256": "f0f3dfefc5ab43e9e02cfe9f65e19acfd24dd2aac5a78602a1888e4a64bfa552"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/video_stream_manager.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 244936,
+      "sha256": "257b315cf649d7dbaa662ae13184041e420f9c45024dc2b6d8d91461b66b6547"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/video_stream_manager.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 244904,
+      "sha256": "1ab09acda4fac954391f24844236efdc16c32f76a63e3f0e9485a36eb3b81d85"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/video_stream_manager.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 257256,
+      "sha256": "465d88cc3a6f8efa2936508dae382c5390daa15ff37b3e5cf9b1195d3a29602e"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/video/video_stream_manager.pyi",
+      "bytes": 1874,
+      "sha256": "81f47515eda85866ec6703de98577eb1240a06db0c9b5c79bb3bb171aa3c9072"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/vt_sensor.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 106856,
+      "sha256": "10ec9342b33755fb2f2b0cb7baf50a3e900ad051e1ae6d246608f9085974ac65"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/vt_sensor.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "2cd2f974ff3663c1e02f63d04b167ff2e234fc16277d415559ce26d30ddbdaf4"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/vt_sensor.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "2c64cdbe4826b7f3b822f59fe47b242ce421a2049fdd8a76328facd6dcf6c3f0"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/vt_sensor.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 110952,
+      "sha256": "cab747d83780b0c357d881daf7a76894db92a8890fb9a89a503ed1b0ba45fbbb"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/vt_sensor.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 106888,
+      "sha256": "de1d6e62436f08cec29f802d12054ed45210e7d3734df27280a26210683ec5a2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/core/vt_sensor.pyi",
+      "bytes": 1034,
+      "sha256": "cacb21aa4523016f8778a0efeb06afc9da2a3e972ec71aaf92e961ad8c13ad02"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/displacement_estimate/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "c520f19be7ab62d40dce0e5ae46f11ef041d71be13eb69bfb7fb096acd810e0c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/displacement_estimate/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "2d9596cd39d3b0ede8e41291e75c62930dcb66630798bdf95fad5b5e94e45f33"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/displacement_estimate/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "867ebdf86669a4f43da04e766790ab4a1839a45346e9079b0e4fcf1a590e3d36"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/displacement_estimate/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "6d7e8eb791762f001aad80d92d744555d61edc943bbb35651e67f8b828b01a22"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/displacement_estimate/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "a414f1efb9f277f40d6298e722ba227567e324219fe25ed4fbf3abc2d49dfcb5"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/displacement_estimate/__init__.pyi",
+      "bytes": 128,
+      "sha256": "4515dd20efba7a576d6742ed6946a15d481b37fe3282f5ec0a05435474ac2daa"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/force_estimate/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "eeafb456cd68fa480352aebf95838c3103fc2c1e734da9ebad14ea40333e9bce"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/force_estimate/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "6b081ebd0ad79a149b5a237418609f1395e40bfb56a883a7d96e2f076f55b1e3"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/force_estimate/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "3d7fbeeb197bdef831d84ad38d8d768896d6c919f475fd2308479799d5892d15"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/force_estimate/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "7ebd47e94d05485500bfe81f6086fce7dc33832aa6b615c9ce22832f10a86561"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/force_estimate/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "a2541fa046f29cf4978d4a2691a658170ac0958dc07a51e2f8ec0725e455a734"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/force_estimate/__init__.pyi",
+      "bytes": 218,
+      "sha256": "0a0653d1fe622ef33eb75055181b205f5bfbcf546dcc1d173bacce3ed97418fe"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/marker_tracking/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 35512,
+      "sha256": "f6ceff6b4aab7999d7baf3f7ba5715862a78bb72584418df3fe922e4c8d80936"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/marker_tracking/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 35480,
+      "sha256": "9cbdfd7efbd7b533f8660f79f16c35675ceb488674aceb4e0f928bbe0ab7a150"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/marker_tracking/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 31416,
+      "sha256": "f9c1a61988a5672ace10b65dfb4e5bb932f5381cde26c9b283a95baee365764f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/marker_tracking/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "162d94cab69a5f096086be616c37ff037a89c21b36b1818be4690850a2a7113d"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/marker_tracking/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 35512,
+      "sha256": "db297cd63bf888290e6c5b4427b1c37f6b39c43ef8dfb42a41cdaee7434260b2"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/marker_tracking/__init__.pyi",
+      "bytes": 365,
+      "sha256": "0b5ac0cf81da8b48a8b1b6a557fcc42aeb3b2533628cd2646b7de70386ba3ce9"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/reconstruct3d/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "46b5a8ffc5f72083d5cbbad8b73acace91bce4bb427f7af354957dae9f731815"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/reconstruct3d/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "749b8f9942b780c88854ab581f3eba4ea24d2d1ae6d838f64310288b1fbe0d65"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/reconstruct3d/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "ab6989c1c1a886153a03562d1bb636fa0b7d76270e20862fe5dfdd3abde40a83"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/reconstruct3d/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 27288,
+      "sha256": "dff3316f64c164f2b4f60f668d205585e21d06a64c9e3ea23500f8f3d7432bc1"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/reconstruct3d/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 27320,
+      "sha256": "e10135b0322a5bdf3555780beac91e8049848b33cfc118a4a1c4d644e81ca11f"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/reconstruct3d/__init__.pyi",
+      "bytes": 142,
+      "sha256": "c4815e9cc659e6837b45ed6e720db45595f2ed46ae05294abc61384dc26b1fef"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "842a0317ac80ecb4ed021f4f992b6d1394d3f808fb4b2b9e8d008e688491990b"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "52b3a7e29241bd887cc9c3dc10c1292e783f6d4326c241d1b00938077813f913"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "52578d5b9f4cb66aff9c6fe223a6a58475f97f6115d9470ba386b8de6b8999ec"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "2cc631f0a46b619e4cb35b21a4fca032f982fcc096cb5ecb038168f10a4011a8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "0ed76b7e8595005829de4c6742e6115e66f3992265510076170620df0810b470"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/image_transformation.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 53480,
+      "sha256": "8574259682203ecef6a37254d8c85393e27f87e8c4b0e20d4cacbd0b4fcd8e04"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/image_transformation.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 53480,
+      "sha256": "17d83057336a7b9142480e271175ad03d98c2ac218a9182a88b26cbe188708b6"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/image_transformation.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 57576,
+      "sha256": "c149d0ca293c5373acf5f90d0bd4dbfa603f24c28090bfe0d013399b40c5b04a"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/image_transformation.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 53480,
+      "sha256": "bfcdb10adf5ffed418b33dde13e50775720034797262a78fd065c509029b1685"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/image_transformation.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 53480,
+      "sha256": "e41b49234925eabbb04fff7f4759d1a2a56fc73f0fd1b2838b852b1f9b6e0003"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/image_transformation.pyi",
+      "bytes": 50,
+      "sha256": "19729160591c5627943d01b9ff48dfa36274d895fa570d5b4eeff74caf3655c4"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/pre_processing/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 31416,
+      "sha256": "2294423e670d8f7c1b540e3ef5c99987d9660439189e139d861f4915d17625dd"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/pre_processing/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "8aef66b49554adac3cf1ebe9d8bc5448422a0169b9ab69980fe8cc7e5a837205"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/pre_processing/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 31416,
+      "sha256": "3f40182ee3204e50e6dc9b954b4f786a37f76065c903ac3e597b97f636c70881"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/pre_processing/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 31384,
+      "sha256": "6a274f94bd7cb618a808e6389f70fa3f827a7da746767bdec357b584965491f7"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/pre_processing/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 31416,
+      "sha256": "6a5edd62e28bb7ac86247120f396560f290e0012eeb898b7f2ae40088fe430f8"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk/vts/utils/pre_processing/__init__.pyi",
+      "bytes": 947,
+      "sha256": "e09b38abcfb5d652e5471fa4f42aa12f8e6e80c5bdab14d59fe1464dacb72a88"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk-1.0.17.dist-info/INSTALLER",
+      "bytes": 4,
+      "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk-1.0.17.dist-info/METADATA",
+      "bytes": 4230,
+      "sha256": "5379b980954446e4344b46644acec71dc6ec3e721f3c71923f4de50dff0dfc1c"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk-1.0.17.dist-info/RECORD",
+      "bytes": 66378,
+      "sha256": "b53c292bbee581fc709b053abf1fa11b3ddf7f5c26363026eb4b2d358bd66f34"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk-1.0.17.dist-info/REQUESTED",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk-1.0.17.dist-info/WHEEL",
+      "bytes": 100,
+      "sha256": "88dc18415a7daffa2c2fce32e4175613f10422d7d90c236d6dbb37453d0a6666"
+    },
+    {
+      "path": "runtime/python/pyvitaisdk-1.0.17.dist-info/top_level.txt",
+      "bytes": 80,
+      "sha256": "f444072e67c8dd1a8c784933cdd75b112f47b45de42c9abd9ac295804880b3ea"
+    },
+    {
+      "path": "runtime/python/vitai_depth/__init__.py",
+      "bytes": 807,
+      "sha256": "8e578ae1219f7ade8fdad6faadbebfe8ae56449b75e0f9e0e8d3cce8b473fee1"
+    },
+    {
+      "path": "runtime/python/vitai_depth/__init__.pyi",
+      "bytes": 300,
+      "sha256": "cec13dc709c2d746b5cd6f9e8c9ccb32bf35ace9476aa4f763eb072a9ee8d523"
+    },
+    {
+      "path": "runtime/python/vitai_depth/exceptions.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "65090b6ecf6bbbea1bcfef7ca368a24d9bdb9963c0ca4d116e3efa27eccac2a5"
+    },
+    {
+      "path": "runtime/python/vitai_depth/exceptions.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "a5444a9fe4b972df73a7af3e142a0435c503cb870d28c2a5f1d3575afffb0f55"
+    },
+    {
+      "path": "runtime/python/vitai_depth/exceptions.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "9a8ce50201654e33d971a0e7a75538d9359a35acc24b18cf40bbf0e3cdbb3df9"
+    },
+    {
+      "path": "runtime/python/vitai_depth/exceptions.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 61672,
+      "sha256": "6bd6d4a7be48645f37271f5bfc92d609e00a0c452c15e4025ceb46640d4d63f6"
+    },
+    {
+      "path": "runtime/python/vitai_depth/exceptions.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "c1e385fd1e0589ea6b69a9225494b5ded82819edf615b9d9f9bb80e4f8c815b2"
+    },
+    {
+      "path": "runtime/python/vitai_depth/exceptions.pyi",
+      "bytes": 878,
+      "sha256": "f7346bca4d3d3a345069f09197ec652c6a31755709f64d011f34290954787dce"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "cbd6f487953072584857831aeeb9699352b84423855b75247b7cd464031ab00d"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "b4022ee903ee72b2296b5eaa1fdd94cb1e9a25067894bbcd8f6ed4d3e0685e5c"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "630172487f97577a7edf3385ccd52f8aad47ecd6646b73b4f19622b8429f8701"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "4a4721101acc5e56ca32e8d5ad86d8e5e3b05692dd2959e2eb28ac03d7c358a7"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "27b49fc08f292c84108e39c020e318fe39e7d0b23f6c8c8f38bcd7a9351a26cf"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/recon3d_mlp.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "4102fe40c11af53d9cf272995f5bd0225c8fdb0a1603ee8b1cb51b7065f674ea"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/recon3d_mlp.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "022c2a92a68c5b7ea2b7391376bea9c738fa78ddb2a9f5a8073b995d1fc6492e"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/recon3d_mlp.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "ebc8258a0e42c75ffc0f419db06bc6be3810bc1befc1dc4223a96a9294674e8a"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/recon3d_mlp.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "ba4170ab200422938f9a9ef1f36613464545599128b4365f967212b9bf042293"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/recon3d_mlp.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "7d66b42b652ad112678c333c1e94f104ac9da570e0f47be8b07e574e45fde421"
+    },
+    {
+      "path": "runtime/python/vitai_depth/mlps/recon3d_mlp.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_depth/reconstruct3d.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 370320,
+      "sha256": "0cdc52af5e202cd01aae970e8fd8fc7c5009f33ce2670eaa21f214c4837ecc49"
+    },
+    {
+      "path": "runtime/python/vitai_depth/reconstruct3d.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 366192,
+      "sha256": "87278381c819ac4d2ce379439ef08b1220dc676d9ad3bb3ed138ca0e539d0f50"
+    },
+    {
+      "path": "runtime/python/vitai_depth/reconstruct3d.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 349808,
+      "sha256": "d9a499c6f15217452694411970ed46a017811a0314a88ba8422543565e2cf620"
+    },
+    {
+      "path": "runtime/python/vitai_depth/reconstruct3d.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 353904,
+      "sha256": "c7946515c04827555c6cb920c924abc146b8821cc36bb43fd91eeb9caafce780"
+    },
+    {
+      "path": "runtime/python/vitai_depth/reconstruct3d.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 370320,
+      "sha256": "4667409ca352bca6f8cd086d38e4802bc4ca6b98c7857284e8648c4f72f0552a"
+    },
+    {
+      "path": "runtime/python/vitai_depth/reconstruct3d.pyi",
+      "bytes": 3937,
+      "sha256": "8fbd4b3aea5f474f974fc2846cc65b23895b17eb19f42010065e225a32e65279"
+    },
+    {
+      "path": "runtime/python/vitai_depth/resources.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 57704,
+      "sha256": "7a0d82523841c6b2ee119d69d3e807578f5632de7fcbcd8aa8581f01d44944dc"
+    },
+    {
+      "path": "runtime/python/vitai_depth/resources.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 57704,
+      "sha256": "5c6ed93a68a6fbb3be27d8bd159327d8324eb76ea052e807d918f33b486a6b08"
+    },
+    {
+      "path": "runtime/python/vitai_depth/resources.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 57704,
+      "sha256": "71fd52dbd2f31b8e4540b63b5d56d3c3c703e8e2907a60deb945783d36536ef7"
+    },
+    {
+      "path": "runtime/python/vitai_depth/resources.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 57704,
+      "sha256": "062c41a94df7b711789d8df3d668bcff7dd54c896d5d7a5cfa476fc293df9ee7"
+    },
+    {
+      "path": "runtime/python/vitai_depth/resources.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 57736,
+      "sha256": "c70084519516e16856b1e584b8ea8190f3bab0031678f0fdff01696424e15570"
+    },
+    {
+      "path": "runtime/python/vitai_depth/resources.pyi",
+      "bytes": 109,
+      "sha256": "18bd637dedcf5f2c10971c746ebed3f8bef518c280eb8619514ccffe8b3041a5"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "d0641454f237d526bb1923eb82aec9c1e00c7b9cea728fab6075cdc9641b7e46"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "6a04c633733a47daa53edfc8fddb9b3d8ad8b1be2b48b99a934aa751fc3b880c"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "6c4b9e323639b3f16edd13af7398ec99ac9b3ee1dbed7f26a028ecce0d39b05f"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "f8b7aea338efee5b285422f26701e6a367717e5c7a9bef55b0331cde0b5f7d6a"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "15e54584ce48c30b5f3f7e4742c0a40f525ad219cbd258b1f46b9f42216f882a"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/geom_utils.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 78248,
+      "sha256": "089167007fe17cdf9ff6d9a7401ec4f8f1dcd35b834f3254778a48fde3dbcf69"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/geom_utils.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 82344,
+      "sha256": "43d5763c256d0e800678e6cc9081079849329174a46b3a8fd882b489bc82f1c3"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/geom_utils.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 82344,
+      "sha256": "75fd540ff8f9e34e0b79f094efb6af15dc95ad938646932b119c0fb45c7f20eb"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/geom_utils.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 82344,
+      "sha256": "fd750a20315ad09f66c6cf7e0af2556b991da0bbcd8f8e92ddc8fdd741a45e42"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/geom_utils.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 78248,
+      "sha256": "672312310dbf1ca9385a52f11e953abcb52983c69ef248c4e1c1f705a44825ba"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/geom_utils.pyi",
+      "bytes": 536,
+      "sha256": "585fa0c5449e7908d55dd13fc1726c75935316f77e819a5e20654b13048cdf15"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/poisson.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 115048,
+      "sha256": "e656b87beac3624b1339727738aea2c56b391a6c83dd0027baca4b8ba8c181d4"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/poisson.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 119144,
+      "sha256": "1721c6bdf970a9d9602ee1dd8035b8470dcf9ae99337ed8ef259d3d2558bafd8"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/poisson.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 127336,
+      "sha256": "77991f5f235f0310844ef631d2cca185853a0a4d8f945d9cfcfedbf8f7b7cd0a"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/poisson.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 119144,
+      "sha256": "48fda5be724e01142e047d0eb5a69e920dfc7f8a92ac4dc0802902dabb912b94"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/poisson.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 115080,
+      "sha256": "1285478eeb50fb65c6bfe3cf5254c51ebfd4d1bef660efc4b6879ed165ce2df3"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/poisson.pyi",
+      "bytes": 113,
+      "sha256": "74736501cb18120e4d53ae308c91e3e1d4bb1c893c231339c4b679f425d9b3dd"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/prepost_mlp.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 69928,
+      "sha256": "0b748ad14eea24cc9de58465d25b15fb3424df2acc03a5c3620bc6368a3bea1a"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/prepost_mlp.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 69928,
+      "sha256": "ec93c8606fd76e282928bc395b5ab99f2007b7977a50d183d2a29592245ca6a6"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/prepost_mlp.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 74024,
+      "sha256": "fb2fc9e9a0a7347cf7b2695ebf20eac6180fa4d6ba6ccebb866e856eb19d3364"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/prepost_mlp.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 69928,
+      "sha256": "ef5409abd90861cc7824718364b70348640558aa4eeeb82cc6948d7bff646ec6"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/prepost_mlp.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 69928,
+      "sha256": "5920a325358ac9c962f48407e64285dc8ef665764f7765d3f4139462e7d41bd7"
+    },
+    {
+      "path": "runtime/python/vitai_depth/third_party/prepost_mlp.pyi",
+      "bytes": 143,
+      "sha256": "92a7395325efce060b15b98e3c4fc9994bc5ce8204e3792dbb568a278a8ef0a0"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf210/depth/best_210_320x180.onnx",
+      "bytes": 10936,
+      "sha256": "4e2feb4944de83eb1eab2efbac61eadf2d8967b14d408e65ba4dd21ab6d869bd"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf210/depth/best_210_320x180.rknn",
+      "bytes": 154294,
+      "sha256": "f5f6c4ea39fe8fe4edccdff44a4ae3aeab5b7d7f02f55da69a3573aadf5b3377"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf220/depth/best_220_200x300.onnx",
+      "bytes": 18772,
+      "sha256": "73c73831529f4a9a67f8359735e4d315315276e59b1c99de24ca11b16f2630f4"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf220/depth/best_220_200x300.rknn",
+      "bytes": 154294,
+      "sha256": "61ebc06ab49b9605ccb1a6d01c1fefb3ab8560ad1b05d325dfd74bac275b6aee"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf225/depth/best_225_240x240.onnx",
+      "bytes": 10835,
+      "sha256": "e2f5044c954bb60f26d71df4f3aa03c957a65fb2719432525be7d638bc3fe162"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf225/depth/best_225_240x240.rknn",
+      "bytes": 154550,
+      "sha256": "46be31db8f9698fbbda4b0bee817392364dc005ede41c7011291e6f7036d5cda"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf225/depth/best_225_240x240.trt",
+      "bytes": 51132,
+      "sha256": "78c1b16a48af3540dfc1c0877bb0c75b4271926ea7d8806fa08c37f61556ab17"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf515i/depth/best_515_240x240.onnx",
+      "bytes": 10936,
+      "sha256": "2cadb1ec913089a8e1d0e8813e216e1ba30003caa50addb94d1edaa8e762f872"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf515i/depth/best_515_240x240.rknn",
+      "bytes": 154294,
+      "sha256": "bc4078d7a5a009687d71050fb16bea052f389dc31b0dbb6ee0cac9ef20448963"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf515i/depth/best_515_240x240.trt",
+      "bytes": 50900,
+      "sha256": "892014344420e09cc4b374637b6d9508f32a8bc2df8b86cf6bf48407b5b8dcdf"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf515t/depth/best_515_240x240.onnx",
+      "bytes": 10936,
+      "sha256": "2cadb1ec913089a8e1d0e8813e216e1ba30003caa50addb94d1edaa8e762f872"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf515t/depth/best_515_240x240.rknn",
+      "bytes": 154294,
+      "sha256": "bc4078d7a5a009687d71050fb16bea052f389dc31b0dbb6ee0cac9ef20448963"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gf515t/depth/best_515_240x240.trt",
+      "bytes": 51692,
+      "sha256": "3c285258768de4e488dc6274339b43c8c2753365e0c8129be4090a6961adf70f"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfbci/depth/best_gfbci_100x75.onnx",
+      "bytes": 10932,
+      "sha256": "d3904944d2a0a1b3d46405816847dbb923dca6f521d63b54c3bfa738f77e6582"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfbci/depth/best_gfbci_100x75.rknn",
+      "bytes": 56244,
+      "sha256": "baa99900048defcbb521b840dd3104068f87c93c7188069c3fd29b41ff7c9234"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfbci/depth/best_gfbci_100x75.trt",
+      "bytes": 50388,
+      "sha256": "bb4b508d41ba0ca93556b49e57241bfc1271343d71e1d511a7f9b3dc74592e5c"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfbct/depth/best_gfbct_100x56.onnx",
+      "bytes": 10932,
+      "sha256": "1df2619e07deaa3e619770fb8a88690fe828dd3e9c141b5b7ad13529dc72aa99"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfbct/depth/best_gfbct_100x56.rknn",
+      "bytes": 48180,
+      "sha256": "c7bf9a5c6dfb4f3ee5d605f8156f81368396630d1ecfeb3759101ba6e2083cfb"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfbct/depth/best_gfbct_100x56.trt",
+      "bytes": 40740,
+      "sha256": "0489b54760d06009ff5e7a15b0b2103460f6f5b30fa21e32c55223c04e375f6c"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gftgi/depth/best.onnx",
+      "bytes": 10936,
+      "sha256": "43e9e34d2556d94bee82cee64b3e9989f50c4c39c61477727620453327bc76d2"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gftgt/depth/best.onnx",
+      "bytes": 10936,
+      "sha256": "8c1170c316dc92ef5b5d6ff4fd495330e8f69d3d74a470fa0c71703ff755abee"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfzwi/depth/best_gfzwi_100x75.onnx",
+      "bytes": 10932,
+      "sha256": "b461a43fcfd8dca30621519a8220be1defe43dfcc24ccfc5f690603282fc0d89"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfzwi/depth/best_gfzwi_100x75.rknn",
+      "bytes": 56244,
+      "sha256": "dec932c075db1f5032bb9218025319aa45cc249c02eb84729b6049556e9123a4"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfzwt/depth/best_gfzwt_100x75.onnx",
+      "bytes": 10932,
+      "sha256": "b461a43fcfd8dca30621519a8220be1defe43dfcc24ccfc5f690603282fc0d89"
+    },
+    {
+      "path": "runtime/python/vitai_depth/weights/gfzwt/depth/best_gfzwt_100x75.rknn",
+      "bytes": 56244,
+      "sha256": "dec932c075db1f5032bb9218025319aa45cc249c02eb84729b6049556e9123a4"
+    },
+    {
+      "path": "runtime/python/vitai_force/__init__.py",
+      "bytes": 910,
+      "sha256": "fead4a1895251f26b9bd230ec980d5b0270a9bd7ca71274f89dfba952558c33f"
+    },
+    {
+      "path": "runtime/python/vitai_force/__init__.pyi",
+      "bytes": 416,
+      "sha256": "f5a96174748f6ca6c3c47d704e5a5a3c04037f1b278424f38ece26eafa8e5b72"
+    },
+    {
+      "path": "runtime/python/vitai_force/crypto.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 86376,
+      "sha256": "8c894fc794db557e8a557a934b94337b61198a464c5a1ff1119c5fb4bbedf073"
+    },
+    {
+      "path": "runtime/python/vitai_force/crypto.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 98696,
+      "sha256": "0904468136b41bae6f2133847beb48c136fb927c94ad843f3fad42e8e3401906"
+    },
+    {
+      "path": "runtime/python/vitai_force/crypto.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 98664,
+      "sha256": "767093c00e330ba255e196d916bb13db2d2c73a7f93f28df161462af5421f4a7"
+    },
+    {
+      "path": "runtime/python/vitai_force/crypto.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 94568,
+      "sha256": "9b561546b135ebea8f30fe3710ec0624562c33ad43f9c526e855033344553c24"
+    },
+    {
+      "path": "runtime/python/vitai_force/crypto.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 86408,
+      "sha256": "81dd433ac87cff26451de7f3f406d3dc77422e01a1fbecfe5ea1d58fab105262"
+    },
+    {
+      "path": "runtime/python/vitai_force/crypto.pyi",
+      "bytes": 324,
+      "sha256": "29ef690a450f2f2248c04dc58021f69668c70a43e2fabd48876bce86310da1b4"
+    },
+    {
+      "path": "runtime/python/vitai_force/estimator.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 181296,
+      "sha256": "70b829d028fe8b80c193c919b5f40eaa48c9ed804ab87fdd937b15f650eba660"
+    },
+    {
+      "path": "runtime/python/vitai_force/estimator.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 181296,
+      "sha256": "2cacc1a9cbc2e55e665d64edbb8bbc666f918a16f259dd4cf5b572056b0fc639"
+    },
+    {
+      "path": "runtime/python/vitai_force/estimator.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 177200,
+      "sha256": "eb4bb5546a4319789040405631aa856eeec141e56a0275948a26f4eea81cd0d6"
+    },
+    {
+      "path": "runtime/python/vitai_force/estimator.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 177200,
+      "sha256": "490b3e38f5c169f54079389c8928d812aa949f86be584a734b1c929de84878ea"
+    },
+    {
+      "path": "runtime/python/vitai_force/estimator.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 181296,
+      "sha256": "e3675fed6ecb3c60d1b56a22e8ead4b4eab843f82c014d4bb391dbefb2a6b3c5"
+    },
+    {
+      "path": "runtime/python/vitai_force/estimator.pyi",
+      "bytes": 2094,
+      "sha256": "9232cbb307504b417659c4732c12b9c7e7c9da18b82ea3b41a56385e5c88ba47"
+    },
+    {
+      "path": "runtime/python/vitai_force/exceptions.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "b34718e7f5f8b1aba5daa67e9e56b34625426a7b3d8729edb26cb56897065808"
+    },
+    {
+      "path": "runtime/python/vitai_force/exceptions.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "d3abb8a55579bfd1644984ca9881306675fa07d8bf277b7a2405d0b638bff4a9"
+    },
+    {
+      "path": "runtime/python/vitai_force/exceptions.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "80d603d8e15cd90308d67ddcf1e353c1ff7ffa7ef0cfebee72fcee893f3481d7"
+    },
+    {
+      "path": "runtime/python/vitai_force/exceptions.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 57576,
+      "sha256": "4220cedfb116825ee459efd4397b98078ab43351cad4d2ba7e8ea668f8d484e6"
+    },
+    {
+      "path": "runtime/python/vitai_force/exceptions.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "98c6dd9b3a71f26590ca1a4ff161464a1a0384fe0c43ac5ca2613ddece85531e"
+    },
+    {
+      "path": "runtime/python/vitai_force/exceptions.pyi",
+      "bytes": 633,
+      "sha256": "23a9e5525464a6a17b547f0ca65c9d387750d192ea89218f8db2722c264e426b"
+    },
+    {
+      "path": "runtime/python/vitai_force/inference_mlp.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 222352,
+      "sha256": "92b60cb8e269a9d07477f8f39e3690e47bf36ddae239c3e7e8266ec0b44f8e88"
+    },
+    {
+      "path": "runtime/python/vitai_force/inference_mlp.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 222352,
+      "sha256": "835c128967bbc4b142ef881ba2e9480c308717cdb5ebb8e4916595c6396d5af1"
+    },
+    {
+      "path": "runtime/python/vitai_force/inference_mlp.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 218256,
+      "sha256": "24edfac189db2a3b85e47f3b5e934e830a1fef7f8bed7c7f160b49c54439cd01"
+    },
+    {
+      "path": "runtime/python/vitai_force/inference_mlp.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 218256,
+      "sha256": "4ec5951a26864393aff5d3f86685fbd0be39523aeba15ce5702224b88c5527e1"
+    },
+    {
+      "path": "runtime/python/vitai_force/inference_mlp.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 226448,
+      "sha256": "b5091ca0e15aeee1ab24822054ab939916b904a07c5d3761b7cec5dcc15d9a41"
+    },
+    {
+      "path": "runtime/python/vitai_force/inference_mlp.pyi",
+      "bytes": 2707,
+      "sha256": "9e8559ea31627702440b1bebc8f17851bbe6b15ea2b82b6a13d32519f5488037"
+    },
+    {
+      "path": "runtime/python/vitai_force/resources.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 53576,
+      "sha256": "2800c60a22d5b6ba884405f3bf5c40be467deb56d599a8efb8ce9b076d5d9b08"
+    },
+    {
+      "path": "runtime/python/vitai_force/resources.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 53576,
+      "sha256": "9b6c75443f2b11591af2c0fbd7b1162fa9609096098c542ab0188bf1b4aedb75"
+    },
+    {
+      "path": "runtime/python/vitai_force/resources.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 57672,
+      "sha256": "a9e330294e88964ff00f9fcd982b9d6e4a8e834da7eea81b90a2a99c1ca41944"
+    },
+    {
+      "path": "runtime/python/vitai_force/resources.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 53576,
+      "sha256": "d6d8193ec1472f93728b2769af71a7c7c415fb3c940782def4f6a5f9c7a22a72"
+    },
+    {
+      "path": "runtime/python/vitai_force/resources.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 53576,
+      "sha256": "ab2820438cbd71d9c3be800616eb809c28fa39d1bab152cb29a2f28e11b1dce2"
+    },
+    {
+      "path": "runtime/python/vitai_force/resources.pyi",
+      "bytes": 109,
+      "sha256": "c6ee14533291abe294339cd3b0b91cdd13bca2db1dda1995300518985ac18404"
+    },
+    {
+      "path": "runtime/python/vitai_force/utils.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 184776,
+      "sha256": "5f4786f3fa71ef9735e388649fa18d9c1bb66bec04caa2561859eba4b2068543"
+    },
+    {
+      "path": "runtime/python/vitai_force/utils.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 180680,
+      "sha256": "42b2a7f001f49773866fed9d07ef046df46a8f3f0e11e7605a83bd4458607f67"
+    },
+    {
+      "path": "runtime/python/vitai_force/utils.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 176584,
+      "sha256": "43def9f0ab964e16f05dc198d91fb1bfc53372ed1cfa8e7143cd5d80b1e0210c"
+    },
+    {
+      "path": "runtime/python/vitai_force/utils.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 172488,
+      "sha256": "66c7215de1c5e72bc8064fef34bda69a35ca06f2feca63a70b3f110f6b9072fc"
+    },
+    {
+      "path": "runtime/python/vitai_force/utils.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 184776,
+      "sha256": "f4e8fa3d5bce07ac5545222f9e88450dd8f46341ea1088162607f51fa4c539f6"
+    },
+    {
+      "path": "runtime/python/vitai_force/utils.pyi",
+      "bytes": 456,
+      "sha256": "5ef278fc73bd8109daec40472e5bc2f271b6b7c291d4005275636902e137e724"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf210/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "d4f1498918093ecda53ac3ec4ebeb50ff185497d790bbadccc370006065efbdb"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf210/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "4ef236aa1b948895086b4ceb96e5a321e3c8c931a4f27edba4038ab128e40666"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf210/force/normalization_params.json",
+      "bytes": 626,
+      "sha256": "3ca144e664547bddc8afe641988ff9d5cf3d2ccecaeefc22f55f74d34b8c8377"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf220/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "d4f1498918093ecda53ac3ec4ebeb50ff185497d790bbadccc370006065efbdb"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf220/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "4ef236aa1b948895086b4ceb96e5a321e3c8c931a4f27edba4038ab128e40666"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf220/force/normalization_params.json",
+      "bytes": 626,
+      "sha256": "3ca144e664547bddc8afe641988ff9d5cf3d2ccecaeefc22f55f74d34b8c8377"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf225/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "721cf25e067d3f47075d4b989957b0dabf3d47dc2c9e049ac1ab2b307c8d5a86"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf225/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "c10f38af56e666fc7e8cab048776cf19320b8f249ab9c58d727122c7085f8472"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf225/force/normalization_params.json",
+      "bytes": 627,
+      "sha256": "056a432f96dda0f8843342ec90846c935ab8e5a4aae8b91d034f2f9b1a3d4d50"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515i/force/model.onnx",
+      "bytes": 17711612,
+      "sha256": "b9d83de34be0de722446bd95b67df6dd49f9b9bd06f4e2abe1d54dca681f8554"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515i/force/model.rknn",
+      "bytes": 8923756,
+      "sha256": "2adf5ac9a8854218e04fbe1f2fed65396cb824c3d4ba98d83de894ddb1d3302c"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515i/force/model.trt",
+      "bytes": 4698900,
+      "sha256": "b6a16901c9e06c5f7aeaa2d89f5f98701ba05e2a3e6e4b09f9f166e599cdd373"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515i/force/normalization_params.json",
+      "bytes": 628,
+      "sha256": "80c4590e44b7b02df12accbf8f7b1ecbed817c21ffc90b335ab11c513b22635a"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515t/force/model.onnx",
+      "bytes": 17711612,
+      "sha256": "b9d83de34be0de722446bd95b67df6dd49f9b9bd06f4e2abe1d54dca681f8554"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515t/force/model.rknn",
+      "bytes": 8923756,
+      "sha256": "2adf5ac9a8854218e04fbe1f2fed65396cb824c3d4ba98d83de894ddb1d3302c"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515t/force/model.trt",
+      "bytes": 4698900,
+      "sha256": "b6a16901c9e06c5f7aeaa2d89f5f98701ba05e2a3e6e4b09f9f166e599cdd373"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gf515t/force/normalization_params.json",
+      "bytes": 628,
+      "sha256": "80c4590e44b7b02df12accbf8f7b1ecbed817c21ffc90b335ab11c513b22635a"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbci/force/calibration_params.json",
+      "bytes": 5306,
+      "sha256": "90b7ce772f21b57e3a6120be576813277401461452e82a5eec8fcef6a84e5b0a"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbci/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "c5d949a1e4524e58be67c85276b6aa3c6208350336fa9e0c42b3e26559056016"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbci/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "df9e2da63871b631a3fc3324580ee30e0b994df53a58b8ff92008b06b0355d6b"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbci/force/model.trt",
+      "bytes": 4697180,
+      "sha256": "060bd04112965f11cfad17401d416264399319325965b4ed68b112a2b725a287"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbci/force/normalization_params.json",
+      "bytes": 626,
+      "sha256": "9405c30df557bb3e97624aa920e2c39586a24275c33170b9ad6b0b0433450b57"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbct/force/calibration_params.json",
+      "bytes": 1571,
+      "sha256": "48aaac9b9373a0cdbd4bd1bd10e94d0f9e62174a22defa4f5c48e308cc0e92f6"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbct/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "2b8d5cd264e5aecf1bed97b5192bbfa8cf17a884b02145992e79d64954d4e9fa"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbct/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "fa83bcf6ca6f1727a3a703583843ae5fbca66283fcd1f7c32923bfd32053072a"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbct/force/model.trt",
+      "bytes": 4697180,
+      "sha256": "8d05476bf2d23d24e908533beaf0c62ff8c11ce655a834b458e2fbd7e16a4b68"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gfbct/force/normalization_params.json",
+      "bytes": 628,
+      "sha256": "d10b1bd65a8500b4e0b28f7c0b9f1a316da6fe6210a1f7acc64f6e304fdc8d59"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgi/force/calibration_params.json",
+      "bytes": 5306,
+      "sha256": "90b7ce772f21b57e3a6120be576813277401461452e82a5eec8fcef6a84e5b0a"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgi/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "c5d949a1e4524e58be67c85276b6aa3c6208350336fa9e0c42b3e26559056016"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgi/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "df9e2da63871b631a3fc3324580ee30e0b994df53a58b8ff92008b06b0355d6b"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgi/force/model.trt",
+      "bytes": 4697180,
+      "sha256": "060bd04112965f11cfad17401d416264399319325965b4ed68b112a2b725a287"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgi/force/normalization_params.json",
+      "bytes": 626,
+      "sha256": "9405c30df557bb3e97624aa920e2c39586a24275c33170b9ad6b0b0433450b57"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgt/force/calibration_params.json",
+      "bytes": 5306,
+      "sha256": "90b7ce772f21b57e3a6120be576813277401461452e82a5eec8fcef6a84e5b0a"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgt/force/model.onnx",
+      "bytes": 9314226,
+      "sha256": "c5d949a1e4524e58be67c85276b6aa3c6208350336fa9e0c42b3e26559056016"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgt/force/model.rknn",
+      "bytes": 4704876,
+      "sha256": "df9e2da63871b631a3fc3324580ee30e0b994df53a58b8ff92008b06b0355d6b"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgt/force/model.trt",
+      "bytes": 4697180,
+      "sha256": "060bd04112965f11cfad17401d416264399319325965b4ed68b112a2b725a287"
+    },
+    {
+      "path": "runtime/python/vitai_force/weights/gftgt/force/normalization_params.json",
+      "bytes": 626,
+      "sha256": "9405c30df557bb3e97624aa920e2c39586a24275c33170b9ad6b0b0433450b57"
+    },
+    {
+      "path": "runtime/python/vitai_marker/__init__.py",
+      "bytes": 992,
+      "sha256": "1686c1baa1186007bb297fafc1fc451f3de1fb66f3f23df55cb6dba0f691f791"
+    },
+    {
+      "path": "runtime/python/vitai_marker/__init__.pyi",
+      "bytes": 518,
+      "sha256": "caec7d606e4923a4061ae0322c5449883fa9eeefe16afe736e020a5178da3f51"
+    },
+    {
+      "path": "runtime/python/vitai_marker/adaptive_optical_flow.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 619464,
+      "sha256": "cd222f13058c90444d3156e94be2c6b02be9e13aef45bbc539e76ca1edd77b27"
+    },
+    {
+      "path": "runtime/python/vitai_marker/adaptive_optical_flow.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 631720,
+      "sha256": "708e3ac39f083e00cc521a64bfc70597992dd07a2a9b556444af80e3a13c9724"
+    },
+    {
+      "path": "runtime/python/vitai_marker/adaptive_optical_flow.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 611240,
+      "sha256": "2eb7704e54e0f0ffcd87fdf5bc759e72b1c52ed2791818baf768d0234856f10a"
+    },
+    {
+      "path": "runtime/python/vitai_marker/adaptive_optical_flow.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 615336,
+      "sha256": "a303fb3647e719fe915ec7d49b6af2e18192458e5dc1a3ba1577449e37e5c045"
+    },
+    {
+      "path": "runtime/python/vitai_marker/adaptive_optical_flow.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 619464,
+      "sha256": "fce05d649394564ae27b4fb67a34dd00d9636deb8d4e06a723677efdffe48c62"
+    },
+    {
+      "path": "runtime/python/vitai_marker/adaptive_optical_flow.pyi",
+      "bytes": 1818,
+      "sha256": "66772a1b851c1aef9495a7ff9ca11e325218971f8cb17816cdc648c55ba84327"
+    },
+    {
+      "path": "runtime/python/vitai_marker/dfs_tracking.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 337104,
+      "sha256": "70803ada66a4c73d895b74a5a7e07fa06be3383c8b4750c26a266b4ac42747ac"
+    },
+    {
+      "path": "runtime/python/vitai_marker/dfs_tracking.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 333008,
+      "sha256": "6917a7523b9cbe8a15bdc3f7417a38603c3f23b2b6bc0ff48a9f2aac8e867b21"
+    },
+    {
+      "path": "runtime/python/vitai_marker/dfs_tracking.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 328880,
+      "sha256": "c04432aee615a5468053559e9cba0688d20854772391579d215b0b06ff8d7331"
+    },
+    {
+      "path": "runtime/python/vitai_marker/dfs_tracking.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 328880,
+      "sha256": "3411d8b1f785416eb96406bbaa157e8593a84047aeb8a620468ce74c88dc123c"
+    },
+    {
+      "path": "runtime/python/vitai_marker/dfs_tracking.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 337104,
+      "sha256": "3040d89940c61e9742f379b0983374b372c6c33b494ebd4437b0b9d406746d4f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/dfs_tracking.pyi",
+      "bytes": 1950,
+      "sha256": "1ab507bb24099e04fdc1c461ba58c491006842c7f4bea899b340e349169746aa"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "f9aca9619412c5828f588730d19ed22831ba2c2b6d78bc40db83c375d5f2bcd7"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "e4d6544def9880fe8c1aca7206ae7119723bd7b608d81d4fa6044e828a587056"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "bc39b6ae88f3581974765a23b61123dc91f77da94a830534f9c33d4d1a73ce00"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "c83b526431f08d5514febf97b5b2b09be50573d1758dbd69615846871dfc9dbb"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23192,
+      "sha256": "76e1761097b62f372c073fa00a68a515ae06309bd9e6e5599d5c92cea584629d"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/__init__.pyi",
+      "bytes": 92,
+      "sha256": "8669153aafb1e304a82f53905bf6e464b5bf01b37b3e4dce1d06cff0c36952d2"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/bilinear_displace_estimator.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 201352,
+      "sha256": "818108af0ef50cb26f10d17f69d56048a4dc49c206860f3176f3434997ce26ad"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/bilinear_displace_estimator.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 201352,
+      "sha256": "781aceed830a582ecb150db97da8997e836c4cab43973fc656adae660778c5cf"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/bilinear_displace_estimator.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 197256,
+      "sha256": "1ed0c448237ae6cc952f0e877ba6011156c4e882146cabbf33f8c4b9f5128535"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/bilinear_displace_estimator.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 197256,
+      "sha256": "369098ca57bc8d620c90da0c653bd163b35f821c0d5cff8bc888230c6e7f7c05"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/bilinear_displace_estimator.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 201352,
+      "sha256": "6aacf92c5fc0457a40478c350992e761e90b81678620ab3e124e01722f2d773f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/bilinear_displace_estimator.pyi",
+      "bytes": 987,
+      "sha256": "2e24342cae76c6464c20c3fab4241b34f8947349c422d46640f000cfeedf6090"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/estimator_interface.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 65928,
+      "sha256": "c4bd636798046de2d3c28bc289cc8a3b18d6659ff492a401f6bd4bcb0338e4fe"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/estimator_interface.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 65928,
+      "sha256": "fa1c7a6f03595bf9b99c94f050de52bfb18a288ac42b93c7bee192f048dae661"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/estimator_interface.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 65928,
+      "sha256": "ec5b7118b0d8b14775e24fbf601f41a8c9cdff297557ba00b915be845de7c347"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/estimator_interface.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 65896,
+      "sha256": "0df30bb813adb0b65d52ab6b1afd425c6d4d6dde9b1b0205f0e40ddf5f559838"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/estimator_interface.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 65928,
+      "sha256": "794e0f3dd89f67863bad3cd1375b7b428081bb7f7dbd042f5632e1e7d75dfb09"
+    },
+    {
+      "path": "runtime/python/vitai_marker/displacement/estimator_interface.pyi",
+      "bytes": 517,
+      "sha256": "7e5f39cc6ca5e089fb4b86a1b06a2bc339c1074642d62b25cda7ce0dc2a12c54"
+    },
+    {
+      "path": "runtime/python/vitai_marker/exceptions.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "9cadd936be547307d9760f134691e45e0c7def0690c1f4988894b17e0bcc7ab5"
+    },
+    {
+      "path": "runtime/python/vitai_marker/exceptions.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "fa5bd0dcaf9ec488dfa442ea9ae39d059c21dc2090df91e86dfcf10c6b85a605"
+    },
+    {
+      "path": "runtime/python/vitai_marker/exceptions.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "498f011e7513e3ed6e9164e73125812dcec3b34885350adff21d8922184bd576"
+    },
+    {
+      "path": "runtime/python/vitai_marker/exceptions.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 57576,
+      "sha256": "c79279aa81d83d9339e5fe6f4e767bbb04364efb5d2c6c66a3d0d4e868a93de1"
+    },
+    {
+      "path": "runtime/python/vitai_marker/exceptions.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "15c27055ac78da6e31ce83287ddb2af800d287a8d072656b177a03bf53c4d6aa"
+    },
+    {
+      "path": "runtime/python/vitai_marker/exceptions.pyi",
+      "bytes": 730,
+      "sha256": "36c2c811da6f3e053fe6deca9332754bb9b9838d7df0cfa56db1a4aafef0212f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/marker.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 127464,
+      "sha256": "33b6dcfd2b11095b215d33e5d3b9a39dee18e5db380f5dbb86c633aa470fdc76"
+    },
+    {
+      "path": "runtime/python/vitai_marker/marker.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 123368,
+      "sha256": "341be6bb3127468d8e351a83e255f8f561fb9615eb87e03a76307b7a64df7e5f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/marker.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 127464,
+      "sha256": "e371e542d3791495fa9e1a1942769bc25c55b952effb5d1abb434023dfcf6111"
+    },
+    {
+      "path": "runtime/python/vitai_marker/marker.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 123368,
+      "sha256": "e23111874f7c0231c1ee8a06b7e44de818d8920ff0d31563be5d10de7b2db60d"
+    },
+    {
+      "path": "runtime/python/vitai_marker/marker.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 127496,
+      "sha256": "a811c83cb8bab9cfe6a3428979971d1d97cf1a2ced6e18164ce62b24a607bddd"
+    },
+    {
+      "path": "runtime/python/vitai_marker/marker.pyi",
+      "bytes": 269,
+      "sha256": "00c66fbf0e0b2e2424e0664ac5df13caf3c80a2e49a081fa5504317045cccf74"
+    },
+    {
+      "path": "runtime/python/vitai_marker/opticalflow_marker.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 472584,
+      "sha256": "5fb7400397dbf1d3066044b91e8d7b56484bb55270cdfcdb7ec8f00663074323"
+    },
+    {
+      "path": "runtime/python/vitai_marker/opticalflow_marker.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 464360,
+      "sha256": "e491c5c89576a86b0eb06dda7919673847c329fd7619ec1f28da935757f14a6b"
+    },
+    {
+      "path": "runtime/python/vitai_marker/opticalflow_marker.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 447976,
+      "sha256": "e0958da984cc6dccc05e6988e4d5ba776df3caa6f3caf497ff4445efaa510507"
+    },
+    {
+      "path": "runtime/python/vitai_marker/opticalflow_marker.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 447976,
+      "sha256": "86b3138194fed17de8fd1d19aa351347898f293490abdb78bd7cdfcaab119539"
+    },
+    {
+      "path": "runtime/python/vitai_marker/opticalflow_marker.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 472616,
+      "sha256": "380cc00f717c6eae5dabf53aac7f4cc7aa2d60ae9669ca42bd8c9a8dce2167f7"
+    },
+    {
+      "path": "runtime/python/vitai_marker/opticalflow_marker.pyi",
+      "bytes": 3557,
+      "sha256": "4d786d32b3de22836454e7b8eb47e057c759054c87d9fbae3409a37ae68f4791"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/__init__.py",
+      "bytes": 4354,
+      "sha256": "47eb1ab5e511d493c4780c06762c8bbf267dcaba240f32c7aff9af62fbd9654d"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/__init__.pyi",
+      "bytes": 511,
+      "sha256": "23581469f2ecba0f7f8cb44414d4262ad9c03ec24d45afec10eb906bb74e2361"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 74024,
+      "sha256": "050e6283e835f767df991578ad82c5b2991ee214ef7feeafb9c67fc0f44ec8fe"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 78120,
+      "sha256": "c28fae8f92aca0ba79e04fccdba94dc8bb1a3c73f2b959746c273aec9faf63da"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 78120,
+      "sha256": "b5b9d3ab3bab7a2f04450c3fdf80723cd37b5f7fe992777c24cf60b0ab76df1b"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 78120,
+      "sha256": "dd8b1ea01d635c7fd1b5958e402e0fb1d7632984025c76a1b8f27afe8b22c1b5"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 74024,
+      "sha256": "4064ebf4c77de413491d924683282483684728e29dc00547fb08e97ca1a3ed1f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/__init__.pyi",
+      "bytes": 151,
+      "sha256": "cab2538a3942386a26c5308c5344b1b44be883a3f3585947fc79ab2f93b93849"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "8da1069b311d022804b4e4d806cfb2c7ddd131b5ed047d068b4fe3a5da277ef1"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "a8cc7c4f5e2260cdc24bef5368f71e6f63d232aecbdd3f37bce4932a170ab093"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "fa3aad7f1054215a6b5dc33601ec9e78bfcbf26d7a35b308316aef049f960de9"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "1359f8f862953de38eeed446a1ab74229d8a0f479cbb2dab6ea003c6f0182123"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "cc1f6110e6c70cf9c7b60af0ca1cd193acde0ada34d1a2a69282cc688f5faf5f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/darwin/aarch64/libtracking.dylib",
+      "bytes": 71824,
+      "sha256": "ef6dbd56d8b39fea8e40ffe24546e3df2aaa3c39c029995322c84579a3527704"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "dc7bfa110033e2f3233a9b47afa462de27da43835281e58d41cfafe43c7da279"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "80aaa45fcf6444a288576545b1fa9918ad49c0d0069de0d63bccd7acc0d701b7"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "1ce539b3266078a903b38a7d21f2cff97911bf3ce643529881c8df955b2b5386"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "498efd8c9b551e309302e71880ac693792b26cb68c14de4d0bd3dc1094ac480a"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "df7dd891cb40fb0ab984151cf418f061aa0ab56c1f8fe738e6bce25bed227732"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "219236a8dcf8b1ee843eb6c420a8b318f0e0d56eaf1c3c42038e09d07682f13c"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "46d239aef6e6d3b66c13db39b88ed712b5d7a7fbc7ce3c0a7fe2632527d3bc28"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "94bbf211f256ecadfc39c2b080d2f8d3d416a40de8e8c5970002a9f008172944"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "dfa53a365260d98d0d94adb878172e61d3c9b860a3fde1bfdb6c3326931fa9af"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "7c27c50475c3e150740c74f8dc4badb8e88fa834d92b2d2cc38a4f80e2a28e84"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/aarch64/libtracking.so",
+      "bytes": 73104,
+      "sha256": "8851bc0b5fbd80d50e8acbd45f05451c4991740eb292b5fba9ed4f7335d16f19"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "471b867d224d23c95123cbbbbf2693ca56f780d4aec68c55bb9fa3d31ef0cdfc"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "82c0b46269c0ca28861ea24061a5ba746a416e06014183994dc569527212a993"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "212df64c3f46a9abb7972e595d6151c960417d9f749c2e3293be24c03936bb3f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "7e0097619abb2dbd162d5e3f89b6b24dce5b46f2b292ba1303c794fdbfda60ac"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "d820f39cb2c09a315e412e010acff05fb105c83a801e34eaab022308db6511f2"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/linux/x86_64/libtracking.so",
+      "bytes": 47352,
+      "sha256": "bbc4f2abe21aa741f6190b60e066e3a27e46b90514f19aff6d86f7bd6e17e26f"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/utils.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "e694e0592a1084caf81932c7e10cf951aa956b8ac88ea97f7a6e608b3061aa84"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/utils.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "8e27b24c9b874af1e417700f5e2d6a196b3ff4f90da8cbdebdab547dc4f16c48"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/utils.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "885af0f62ec28e2789d949b81acdfbca944fff6f662ce0ceb64525a4b70e6fa9"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/utils.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 61704,
+      "sha256": "2e3b5c2fefb7a75d5418156950b4b64b73cac92575e328e8b7df7d3314c4d1fb"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/utils.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 57608,
+      "sha256": "71fdc2412674319d67175b267f4f3e7f89f779a1b7d38c091e4a2ccfd352ca2e"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/utils.pyi",
+      "bytes": 61,
+      "sha256": "0a0ae8849b702ac8a4a468d73e59af82a8d2588044d7ad67ff30cccc1e3c7b45"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/__init__.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "075edd472076e4477d16cf733bbc217f2055368cac04fa0184e1bb19e7dcdb55"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/__init__.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "1bc633c2fbdb626337c86eae4deb24e264a614b7fc319bee00c12f912e5e3783"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/__init__.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "9da796a2f754831958d87d1650145929c5aa645420830efe60a16112443dd91e"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/__init__.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "df3ce62e61f447fbd1c9409173e79414fa0823e3598bb0db0110d8534533b14d"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/__init__.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 23128,
+      "sha256": "72f7bf17af9e8ec0fe6b8a3f093b5b9e54da51b212b36aff7eb1c77c918592d4"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/__init__.pyi",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runtime/python/vitai_marker/tracking/libs/win32/x86_64/libtracking.dll",
+      "bytes": 719989,
+      "sha256": "e6fd4e36f4bc9978230321b423c3eecbc0066f13f077b798e4ee82beacf5d99b"
+    },
+    {
+      "path": "runtime/python/vitai_marker/utils.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 115048,
+      "sha256": "285b8c786a3e9f1efc3e9db038cb5f8d1a01ceb2783e11abec0718de2a01c519"
+    },
+    {
+      "path": "runtime/python/vitai_marker/utils.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 119144,
+      "sha256": "9b5bc878306624248e45644e33d2c3001131a73e9eb11898d2bf6e0c369eb494"
+    },
+    {
+      "path": "runtime/python/vitai_marker/utils.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 127336,
+      "sha256": "277116bf422f7f22508a8e61b00175da7e53bbcb94c4af7817e0467b498ff3df"
+    },
+    {
+      "path": "runtime/python/vitai_marker/utils.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 115048,
+      "sha256": "afed0e67660523b3a5c8e3e5a49a72c5dc9ad53498a27af1b85c53868fefb8f3"
+    },
+    {
+      "path": "runtime/python/vitai_marker/utils.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 115048,
+      "sha256": "2cfe569c428fe2e416b7a0b23003bd93c23e3a31c67d59d7a8e2d9729e139b21"
+    },
+    {
+      "path": "runtime/python/vitai_marker/utils.pyi",
+      "bytes": 404,
+      "sha256": "922b1496286daf912d9527575feb73457118944ca3e0a43cd6b3e654b762f708"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/__init__.py",
+      "bytes": 609,
+      "sha256": "160c06aa3673ebba245663afd2d530f13357112ded3822965cf3272a346a3741"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/__init__.pyi",
+      "bytes": 635,
+      "sha256": "6482c7a976800740da6e56f3930bc2efc859ccab4bf918a14ccffa9885d09ba4"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/corner_detection.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 221640,
+      "sha256": "c7683f02041a68f5704a9823a667a81c4b31abcdcb61b7cbf48c7646c8e38e6d"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/corner_detection.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 209352,
+      "sha256": "5f88c8a42bf28863bb71110b8c0beedbfc57e19d29638b9c87afdf40858068a3"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/corner_detection.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 205256,
+      "sha256": "652ae8bdd4065358ac23e38b8bf6dfb6ff10b28526c5ab0854abb00fa9c4a889"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/corner_detection.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 201160,
+      "sha256": "0ffb727c2616bb27bd695cd762a7c9395b637784cba1b795e0c5ea2b73a50f00"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/corner_detection.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 217544,
+      "sha256": "7de110a9d7556e9c6ecdce7960e2da37720d1b5e2bfc2f7057de5f1da680f092"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/corner_detection.pyi",
+      "bytes": 250,
+      "sha256": "700118ff1c77b3f0faa766b0e2ba9edfd9e7ac8d2bc34316d701bd3b06365476"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/gf220_corner_detection.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 420264,
+      "sha256": "de7d685c0180d9b324b79c7a325ddeb7b32792260dcdfb3bfe171aa26d0a970c"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/gf220_corner_detection.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 420232,
+      "sha256": "43bed31d0cd8a9002fc3b2a2d2d33ab0f33a486d3beb2925ed9a33d5cf6887a0"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/gf220_corner_detection.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 403848,
+      "sha256": "80ac83fb8e49e58f882d006aa1ded86e2473f90197b9b66338099f0ddfba41ec"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/gf220_corner_detection.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 399720,
+      "sha256": "3debf2441064a08f183233574c79b3c12c46c30ee7dc424f90f6df341159bd98"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/gf220_corner_detection.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 416168,
+      "sha256": "d18f4d22957bca64e92e0cedf4577302d994c113010d1230affa84d525a414f7"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/gf220_corner_detection.pyi",
+      "bytes": 1310,
+      "sha256": "2df3e7efc83f280745f13cba87af1d461b8628d9f2ca8881b5c6c3585f8364cc"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/prespective_transformation.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 86376,
+      "sha256": "47fc3babecab7dc5d2e7d9a4f018cbf14105bcf771fe1f933f10d11a241b7426"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/prespective_transformation.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 86376,
+      "sha256": "2c0e10c8cdf2c8ed7928b552c541ed62062f42d95f97056c13839fb2196d3ad8"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/prespective_transformation.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 86376,
+      "sha256": "18014a36841687e9cd315b3196d77c78e4b550cf58d0cf8680d5fb70d39968be"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/prespective_transformation.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 86376,
+      "sha256": "2f7b885138d6f7ce8c7509518e370c7c9a0e918c46850e38f690a576adc23d50"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/prespective_transformation.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 86376,
+      "sha256": "f2218fc7738977d9c59f5012a7f7d1ad7b490e46bd2b824d8f3772b9464efe0d"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/prespective_transformation.pyi",
+      "bytes": 75,
+      "sha256": "a8085840830968fd565375266780afed54fecece2835a4ddfa6eea8964d192a2"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/resources.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 45224,
+      "sha256": "029f4d29eab0743b8ac777a06ef4353e7271d4f592bf3f16cff1c3721b62f445"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/resources.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 45224,
+      "sha256": "a66003f6c47c878b8ad89b86456810c7d6f4e4f596aded806090191a80620142"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/resources.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 45256,
+      "sha256": "d69007b2fc0e59f43f20cf4adc34197ba1193566b5fcf072c8c61ba737aa0c6c"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/resources.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 45224,
+      "sha256": "6ac02bab557bcee3d5f429d90056b8177764bf9374badf91880e7376a81c6229"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/resources.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 45256,
+      "sha256": "b49962519c0d008566aa6a4becdbd605c68e4e62eb15ad43d1661206b0f6731c"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/resources.pyi",
+      "bytes": 73,
+      "sha256": "f38380cd5f73013c9b7e713d1b7df283f5d64f6704ee92ac607481b6ec10c123"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/weights/yolo.onnx",
+      "bytes": 37911639,
+      "sha256": "b1a0e659484c3127aa1888b739ae31b705803513ae62c13e138a935b29d0e54c"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/yolo.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 168624,
+      "sha256": "0a28ed6963536d37c3fd573bdc844019b7c962dae8584b8d80d244474096afd9"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/yolo.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 164496,
+      "sha256": "16ac210547f0669aeb000568972a8d4100ed4caf1a213f67ea62f8f9f88ccf3e"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/yolo.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 160400,
+      "sha256": "0fe43f5a692e99ade6932eb8ed6881c639ce7e6c06bf799f17c51104bbec8641"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/yolo.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 160400,
+      "sha256": "3d356b73b1f142a7ab2fac21470fcd0b0e3ba393f34918cbdba42717b169b15c"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/yolo.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 168624,
+      "sha256": "540f4c95233a9edc9c4581366555f61512585a4eddc839ceb987961010428021"
+    },
+    {
+      "path": "runtime/python/vitai_pre_processing/yolo.pyi",
+      "bytes": 793,
+      "sha256": "e8489cc431c2e27fe1e2b7439b80e6a992fecdfff8709f47a3eb994c3bde9db8"
+    },
+    {
+      "path": "runtime/python/vitai_slip/__init__.py",
+      "bytes": 674,
+      "sha256": "b67d14c8e50186438c18628616daf06c464afd452878465992b940d8e0b3bef6"
+    },
+    {
+      "path": "runtime/python/vitai_slip/__init__.pyi",
+      "bytes": 136,
+      "sha256": "cf11154a72096ca1ccb8d531c51e6978e772bad56a60210b0137a10c68f54161"
+    },
+    {
+      "path": "runtime/python/vitai_slip/detector.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 78248,
+      "sha256": "8952a4e9703dba15fead1f0b7c583cd35e322fb3914aa903674ed2dcb2608dc5"
+    },
+    {
+      "path": "runtime/python/vitai_slip/detector.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 82344,
+      "sha256": "3ca47949cfd7150277f6035043ea635da7ee79184bbe191007d1802c7da61d20"
+    },
+    {
+      "path": "runtime/python/vitai_slip/detector.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 82312,
+      "sha256": "ac60ed44464175104227d5b484752281bee333e22dcecafa16623e3681281c17"
+    },
+    {
+      "path": "runtime/python/vitai_slip/detector.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 78216,
+      "sha256": "e45f71dbb68e80c767426e3253ba392a79a16cd2e3e6d01ea60b7527214b35b6"
+    },
+    {
+      "path": "runtime/python/vitai_slip/detector.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 78216,
+      "sha256": "732938aa966c4de2e687bb378bfbe93808029fb03423bb96b4c8ffa78ab334be"
+    },
+    {
+      "path": "runtime/python/vitai_slip/detector.pyi",
+      "bytes": 519,
+      "sha256": "8a308777f4d9e073afeb7c723a3ea78892bcdcba03b031e14aaa3620445300a1"
+    },
+    {
+      "path": "runtime/python/vitai_slip/profile.cpython-310-x86_64-linux-gnu.so",
+      "bytes": 27352,
+      "sha256": "12d9f6eda2e16f2506d236d9ccf89c72b60d21e92af3a543f9dcdf9346544fa3"
+    },
+    {
+      "path": "runtime/python/vitai_slip/profile.cpython-311-x86_64-linux-gnu.so",
+      "bytes": 27352,
+      "sha256": "0ab5ea01bdb06baf4c0eb74c3827077ce9ebb956afd56fcd523f57ecf9499bf0"
+    },
+    {
+      "path": "runtime/python/vitai_slip/profile.cpython-312-x86_64-linux-gnu.so",
+      "bytes": 27384,
+      "sha256": "76dc0c238d9c2cbbf68b511b185f91e73aef558e237d724ef26c7052d31e204f"
+    },
+    {
+      "path": "runtime/python/vitai_slip/profile.cpython-313-x86_64-linux-gnu.so",
+      "bytes": 27352,
+      "sha256": "0f797bf372e662d4db291485493eea2a50d5a25478fe1adb3989a950bf8584f4"
+    },
+    {
+      "path": "runtime/python/vitai_slip/profile.cpython-39-x86_64-linux-gnu.so",
+      "bytes": 27384,
+      "sha256": "f87604bf3fb111ed0b65cde52b60173464082b85f700d6978d9f564233a38a55"
+    },
+    {
+      "path": "runtime/python/vitai_slip/profile.pyi",
+      "bytes": 194,
+      "sha256": "d129703fb0d1c1ff3798e62087e772150b688d2f21f337adf536fc85df37d3a1"
+    }
+  ]
+}

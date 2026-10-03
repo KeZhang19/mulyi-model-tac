@@ -116,12 +116,17 @@ DV2pointcollection_electrode_ids.dxf
 DV2pointcollection_electrodes_pruned.dxf
 DV2pointcollection_electrodes_pruned_palm_ids.dxf
 
+# Model checkpoints and deployable inference weights stay local.
 checkpoints/*
-!checkpoints/dynamic_handover/
-!checkpoints/dynamic_handover/revotron_handover.pth
-!checkpoints/hora/
-!checkpoints/hora/revo3_right_ball_stage1_best.pth
-!checkpoints/hora/revo3_right_cylinder_stage1_best.pth
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.rknn
+*.trt
+*.engine
+*.tflite
 
 # Image generator: keep source code, ignore generated data/checkpoints.
 image_generator/*

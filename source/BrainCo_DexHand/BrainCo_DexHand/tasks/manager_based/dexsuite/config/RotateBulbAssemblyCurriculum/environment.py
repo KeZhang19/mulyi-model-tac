@@ -53,5 +53,18 @@ def make_curriculum_env(cfg, **kwargs):
     if cfg.bulb_curriculum.fixed_bulb:
         cfg.scene.lamp.spawn.func = spawn_fixed_curriculum_lamp
     cfg.sim.physx.gpu_collision_stack_size = collision_stack_bytes(
-        cfg.scene.num_envs, cfg.sim.physx.gpu_collision_stack_size)
+        cfg.scene.num_envs, max(cfg.sim.physx.gpu_collision_stack_size,
+                               min(cfg.scene.num_envs * 2**20, 15 * 2**28)))
+    # Horizontal hand/table contacts exceeded 590 MiB at 1024 environments.
+    # Keep 1 MiB/environment (1 GiB at 1024, capped at 3.75 GiB), preserving larger
+    # explicit reservations. This is PhysX's pinned host collision stack,
+    # distinct from device VRAM. Native logs must still be checked for overflow.
+    # Pair buffers are device allocations; scale with this worker's scene,
+    # never with the combined environment count of all distributed workers.
+    for name in ("gpu_found_lost_pairs_capacity", "gpu_found_lost_aggregate_pairs_capacity",
+                 "gpu_total_aggregate_pairs_capacity"):
+        setattr(cfg.sim.physx, name, max(getattr(cfg.sim.physx, name), cfg.scene.num_envs * 4096))
+    if cfg.scene.num_envs >= 4096:
+        cfg.sim.physx.gpu_max_rigid_contact_count = max(cfg.sim.physx.gpu_max_rigid_contact_count, 2**24)
+        cfg.sim.physx.gpu_max_rigid_patch_count = max(cfg.sim.physx.gpu_max_rigid_patch_count, 2**20)
     return AssemblyCurriculumEnv(cfg=cfg, **kwargs)
