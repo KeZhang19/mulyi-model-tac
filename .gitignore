@@ -56,6 +56,9 @@ events.out.tfevents.*
 nohup.out
 MUJOCO_LOG.TXT
 
+# Local simulation/CAD assets. Keep them on disk, but do not version them.
+/assets/
+
 # Local tests, diagnostics, and evaluation scripts.
 # Files already tracked by Git remain tracked.
 /tests/
