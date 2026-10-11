@@ -1,0 +1,6 @@
+# Preserve the previous local-only asset data policy after relocation.
+/d_peg_insertion/
+/rotate_bulb_custom/
+/rotate_bulb_randomized/
+/rotate_bulb_assembly_curriculum/
+/organization_verification.json

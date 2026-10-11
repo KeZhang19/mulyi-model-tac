@@ -1,0 +1,7 @@
+{
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_snapshot.json": "d19f9f82427c6f1c187c817ce979ed5ac5c8d6dd653984cd07985283ae7e15e2",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/rewards.py": "678cd21e33f74d4cc570eff65aba82288d5129f42a249c20ae06594560f31e2a",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/flexiv_rewards.py": "690a662341d34f0472062b79c7bf838ecdced07abc38b945393b2c1e5ad807e4",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/screwing.py": "2f14b6e6a605fd2f774ae122c0c68591c75d0bb565bd0d31699675135d75ebc8",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/insertion.py": "1beb95fafdfaee012c5865fa4f816d6e8c479e88167b2f88a29c93bd1c34459d"
+}

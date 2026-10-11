@@ -1,0 +1,20 @@
+{
+  "recorded_at": "2026-10-05T17:46:29.617242+08:00",
+  "cpu_regression": {
+    "tests": 16,
+    "passed": 16,
+    "script": "scripts/diagnostics/check_bulb_grasp_curriculum.py"
+  },
+  "native_simulation": {
+    "report": "local_smoke.json",
+    "num_envs": 4,
+    "steps": 300,
+    "passed": true
+  },
+  "gitnexus_env_cfg_impact": {
+    "risk": "LOW",
+    "direct": 3,
+    "processes": 0
+  },
+  "source_change_scope": "Deploy user-authored curriculum; no training source edits in deployment."
+}

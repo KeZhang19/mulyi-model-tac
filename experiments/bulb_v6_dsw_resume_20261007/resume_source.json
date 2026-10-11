@@ -1,0 +1,21 @@
+{
+  "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192/rank0/model_9500.pt",
+  "sha256": "a7c1862d74bf39a3fe9303a0b0085adf8c2806091e3d69b83a64e32fd693ad2b",
+  "source_version": 5,
+  "target_version": 6,
+  "iteration": 9500,
+  "optimizer_steps": [
+    190020
+  ],
+  "saved_optimizer_learning_rate": 2.1824998839292675e-05,
+  "all_model_tensors_finite": true,
+  "gravity_checkpoint_state": {
+    "trigger_iteration": null,
+    "last_success_rate": 0.0
+  },
+  "initial_adr_override": 0,
+  "additional_iterations": 20500,
+  "source_latest_log_iteration": 9510,
+  "chosen_reason": "Retain learned grasp/lift with matching three-stage free-body SDF physics, action, observation and control semantics; only stage-two dense success shaping changes. This is changed-reward continuation, not exact environment/RNG continuation.",
+  "older_v1_model_not_selected": "Different convex-hull bulb, 8-second two-stage goal and full-gravity/randomization state; greater semantic distance."
+}

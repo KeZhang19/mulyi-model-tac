@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-07",
+  "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+  "scope": "Local source/archived config/recorded trace analysis; no new remote or GPU run.",
+  "trace_source": "recordings/bulb_v5_20261007_1013/bulb_v5_model_8800.trace.json",
+  "trace_frames": 960,
+  "stage2_frames": 728,
+  "stage2_tilt_mean_deg": 69.64629618676155,
+  "stage2_tilt_min_deg": 39.11426544189453,
+  "stage2_tilt_le30_frames": 0,
+  "stage2_center_le1cm_frames": 642,
+  "best_center_sample": {
+    "frame": 416,
+    "time_s": 13.866666666666667,
+    "episode": 4,
+    "stage": 2,
+    "position_error_cm": 0.2717698458582163,
+    "thread_tilt_deg": 77.66221618652344,
+    "success": false,
+    "insertion_depth_m": -0.04306824877858162,
+    "insertion_radial_error_m": 0.2570444941520691,
+    "insertion_tilt_deg": 77.66221618652344,
+    "insertion_speed_m_s": 0.004567817784845829,
+    "insertion_angular_speed_rad_s": 0.29317015409469604,
+    "insertion_hold_s": 0.0,
+    "screw_turns": 0.0,
+    "screw_angular_turns": 0.0,
+    "screw_best_turns": 0.0,
+    "screw_depth_target_m": 0.02075233869254589,
+    "screw_helix_error_m": 0.04306824877858162,
+    "screw_hold_s": 0.0,
+    "stage3_elapsed_s": 0.0
+  },
+  "stage2_v5_success_reward_rate_mean_reconstructed": 8.351751237587553,
+  "episodes": [
+    {
+      "episode": 3,
+      "sampled_stage2_frames": 204,
+      "tilt_entry_deg": 92.87902069091797,
+      "tilt_min_deg": 86.58634948730469,
+      "tilt_last_deg": 86.75009155273438,
+      "min_position_error_cm": 0.5623721051961184,
+      "last_episode_truncated": false
+    },
+    {
+      "episode": 4,
+      "sampled_stage2_frames": 208,
+      "tilt_entry_deg": 88.74351501464844,
+      "tilt_min_deg": 75.30675506591797,
+      "tilt_last_deg": 75.30675506591797,
+      "min_position_error_cm": 0.2717698458582163,
+      "last_episode_truncated": false
+    },
+    {
+      "episode": 5,
+      "sampled_stage2_frames": 192,
+      "tilt_entry_deg": 54.05266189575195,
+      "tilt_min_deg": 52.2922477722168,
+      "tilt_last_deg": 60.496585845947266,
+      "min_position_error_cm": 0.6220762152224779,
+      "last_episode_truncated": false
+    },
+    {
+      "episode": 6,
+      "sampled_stage2_frames": 124,
+      "tilt_entry_deg": 72.04326629638672,
+      "tilt_min_deg": 39.11426544189453,
+      "tilt_last_deg": 39.15779113769531,
+      "min_position_error_cm": 0.4020360764116049,
+      "last_episode_truncated": true
+    }
+  ],
+  "limitations": [
+    "One seed42/model8800 recording, 5 completed episodes and a truncated sixth; not independent success-rate evaluation.",
+    "No fingertip forces, palm velocity, raw actions or joint margins in trace: contact-gate duty and regrasp costs cannot be measured.",
+    "Recorded large radial errors are extrapolated-axis metrics, not physical center displacement.",
+    "Reconstructed success reward rates use recorded pose errors; they are not TensorBoard episode scalars."
+  ],
+  "static_scenario": {
+    "assumptions": "Good fingertip contact C=1; only position_tracking, success, thread_down and bulb_down_orientation included. No time integration, contact loss, dynamics or policy-learning prediction.",
+    "start": {
+      "d_m": 0,
+      "tilt_deg": 75
+    },
+    "end": {
+      "d_m": 0.02,
+      "tilt_deg": 0
+    },
+    "v5_start": 17.842548571176916,
+    "v5_end": 15.943723792715975,
+    "v5_delta": -1.8988247784609413,
+    "v6_start": 12.56477079339914,
+    "v6_end": 15.943723792715975,
+    "v6_delta": 3.3789529993168355
+  },
+  "angle_multiplier_table": [
+    {
+      "tilt_deg": 180,
+      "multiplier": 0.2
+    },
+    {
+      "tilt_deg": 90,
+      "multiplier": 0.4
+    },
+    {
+      "tilt_deg": 75,
+      "multiplier": 0.47222222222222215
+    },
+    {
+      "tilt_deg": 60,
+      "multiplier": 0.5555555555555556
+    },
+    {
+      "tilt_deg": 30,
+      "multiplier": 0.7555555555555558
+    },
+    {
+      "tilt_deg": 5,
+      "multiplier": 0.9561728395061728
+    },
+    {
+      "tilt_deg": 0,
+      "multiplier": 1.0
+    }
+  ],
+  "source_sha256": {
+    "experiments/bulb_v5_dsw_2x8192_20261006/orientation_remote_env.yaml": "5f775105019249e15436a8dfdf3db5f1b9543f4234ff706d86a6db9310f2831f",
+    "recordings/bulb_v5_20261007_1013/bulb_v5_model_8800.trace.json": "362d766d902e28743c834d4268dc6c3576604d8d93162769bf8aff409a8ab64b",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py": "9e7118174d415321e073f4bee6812a394e6d1bedb54c46bb34d40417779d4948",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py": "ea752b84bd238c59d03c9ecd3ea2fe5b2a55e7dbdd2921ddf954cb5cab526683"
+  }
+}

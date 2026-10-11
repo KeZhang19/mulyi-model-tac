@@ -1,0 +1,5 @@
+{
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py": "bf41d2dcb28befbb462d22290acefaf942e795b3570c12d1e989a8dc2c83daa9",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py": "b964e26fd5f6ef37006aa2fedc2eab1b19b9cf2d8f185200cda9a751f54b7113",
+  "scripts/diagnostics/check_bulb_grasp_curriculum.py": "e697c09ecfb5e9aad3b417331602bbc7e73cdeb9e6656e1e4deb5799908bde84"
+}

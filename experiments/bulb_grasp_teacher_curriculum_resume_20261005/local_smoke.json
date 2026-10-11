@@ -1,0 +1,61 @@
+{
+  "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-Play-v0",
+  "checkpoint": "/home/liuxinyu/workspace/mulyi-model-tac/checkpoints/bulb_grasp_teacher_scratch_2x4096_20261004/model_10300.pt",
+  "passed": true,
+  "iteration": 10300,
+  "num_envs": 4,
+  "observation_shapes": {
+    "policy": [
+      4,
+      195
+    ],
+    "proprio": [
+      4,
+      745
+    ],
+    "perception": [
+      4,
+      960
+    ]
+  },
+  "joint_names": [
+    "joint1",
+    "joint2",
+    "joint3",
+    "joint4",
+    "joint5",
+    "joint6",
+    "joint7",
+    "right_index_MPR_joint",
+    "right_little_MPR_joint",
+    "right_middle_MPR_joint",
+    "right_ring_MPR_joint",
+    "right_thumb_CMP_joint",
+    "right_index_MCP_joint",
+    "right_little_MCP_joint",
+    "right_middle_MCP_joint",
+    "right_ring_MCP_joint",
+    "right_thumb_CMR_joint",
+    "right_index_PIP_joint",
+    "right_little_PIP_joint",
+    "right_middle_PIP_joint",
+    "right_ring_PIP_joint",
+    "right_thumb_MCP_joint",
+    "right_index_DIP_joint",
+    "right_little_DIP_joint",
+    "right_middle_DIP_joint",
+    "right_ring_DIP_joint",
+    "right_thumb_PIP_joint",
+    "right_thumb_DIP_joint"
+  ],
+  "action_dim": 28,
+  "control_dt": 0.03333333333333333,
+  "gravity_z": -9.8,
+  "robot_usd": "/home/liuxinyu/workspace/mulyi-model-tac/assets/rotate_bulb_custom/robot/usd/rizon4_training.usda",
+  "bulb_usd": "/home/liuxinyu/workspace/mulyi-model-tac/assets/bulb_grasp_teacher/bulb_grasp.usd",
+  "strict_checkpoint_load": true,
+  "steps": 300,
+  "completed_episodes": 5,
+  "elapsed_seconds": 20.14500897101243,
+  "note": "Finite-state/checkpoint compatibility check only; not a success-rate evaluation."
+}

@@ -1,0 +1,11 @@
+{
+  "python": "3.12.14",
+  "hostname": "brainco1-ThinkStation-P3-Tower-Gen-2",
+  "packages": {
+    "isaacsim": "6.0.1.0",
+    "torch": "2.11.0",
+    "rsl-rl-lib": "5.0.1",
+    "gymnasium": "1.2.1",
+    "warp-lang": "1.13.0"
+  }
+}

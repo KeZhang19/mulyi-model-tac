@@ -1,0 +1,28 @@
+{
+  "cpu_tests": 44,
+  "cpu_result": "passed",
+  "cpu_log": "cpu_checks.log",
+  "existing_curriculum_definitions_unchanged": [
+    "reset_socket_from_target_ranges",
+    "thread_down_error",
+    "BulbGraspCurriculumCommand",
+    "update_grasp_curriculum",
+    "grasp_screw_time_out",
+    "bulb_down_orientation_penalty",
+    "bulb_thread_down_reward",
+    "BulbGraspCurriculumDifficulty"
+  ],
+  "new_curriculum_definitions": [
+    "stage_two_position_orientation_reward"
+  ],
+  "protected_files_unchanged": {
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_snapshot.json": true,
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/rewards.py": true,
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/flexiv_rewards.py": true,
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/screwing.py": true,
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/insertion.py": true
+  },
+  "native_physics_verified": false,
+  "training_or_success_rate_verified": false,
+  "remote_modified": false
+}

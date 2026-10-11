@@ -1,0 +1,482 @@
+{
+  "time": "2026-10-11T13:26:49.434500+08:00",
+  "root": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007",
+  "selected_checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v8_mlp/2026-10-07_scratch_2x8192/rank0/model_900.pt",
+  "selected_sha256": "b761ac46f46831c5a244d4819863546aa2b0cbae990dd834dd8a03359b1f2bf9",
+  "saved_iteration": 900,
+  "optimizer_steps": [
+    18020
+  ],
+  "latest_checkpoint_sha256": "1fdc5b6706c82410a3130b14ccd9ccd83a2e06c2a1b47a4fd4a4494336e3b5c4",
+  "checkpoint_inventory": [
+    {
+      "name": "model_0.pt",
+      "bytes": 27414271,
+      "mtime_ns": 1791383961989965031
+    },
+    {
+      "name": "model_100.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791385459515578367
+    },
+    {
+      "name": "model_1000.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791399838736847841
+    },
+    {
+      "name": "model_1100.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791401340392319093
+    },
+    {
+      "name": "model_1200.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791402798771192295
+    },
+    {
+      "name": "model_1300.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791404214252727950
+    },
+    {
+      "name": "model_1400.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791405623121513471
+    },
+    {
+      "name": "model_1500.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791407031783591857
+    },
+    {
+      "name": "model_1600.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791408434983072201
+    },
+    {
+      "name": "model_1700.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791409816237572833
+    },
+    {
+      "name": "model_1800.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791411172976395638
+    },
+    {
+      "name": "model_1900.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791412520987209891
+    },
+    {
+      "name": "model_200.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791386876825840151
+    },
+    {
+      "name": "model_2000.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791413867935396596
+    },
+    {
+      "name": "model_2100.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791415214300384718
+    },
+    {
+      "name": "model_2200.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791416548508541620
+    },
+    {
+      "name": "model_2300.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791417862286158759
+    },
+    {
+      "name": "model_2400.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791419170354642941
+    },
+    {
+      "name": "model_2500.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791420483375664851
+    },
+    {
+      "name": "model_2600.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791421796808011492
+    },
+    {
+      "name": "model_2700.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791423108325435497
+    },
+    {
+      "name": "model_2800.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791424419072465811
+    },
+    {
+      "name": "model_2900.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791425717638970928
+    },
+    {
+      "name": "model_300.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791388284456574260
+    },
+    {
+      "name": "model_3000.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791427014272327859
+    },
+    {
+      "name": "model_3100.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791428310800269615
+    },
+    {
+      "name": "model_3200.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791429601595797542
+    },
+    {
+      "name": "model_3300.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791430886119949986
+    },
+    {
+      "name": "model_3400.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791432161609903997
+    },
+    {
+      "name": "model_3500.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791433436018320737
+    },
+    {
+      "name": "model_3600.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791434711504247707
+    },
+    {
+      "name": "model_3700.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791435975724416230
+    },
+    {
+      "name": "model_3800.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791437236129733504
+    },
+    {
+      "name": "model_3900.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791438504024012465
+    },
+    {
+      "name": "model_400.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791389706090086294
+    },
+    {
+      "name": "model_4000.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791439768482888929
+    },
+    {
+      "name": "model_4100.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791441040371130664
+    },
+    {
+      "name": "model_4200.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791442326582894246
+    },
+    {
+      "name": "model_4300.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791443620777305095
+    },
+    {
+      "name": "model_4400.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791444907241465851
+    },
+    {
+      "name": "model_4500.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791446189763026981
+    },
+    {
+      "name": "model_4600.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791447467157705557
+    },
+    {
+      "name": "model_4700.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791448774364395832
+    },
+    {
+      "name": "model_4800.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791450058163189749
+    },
+    {
+      "name": "model_4900.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791451318307324021
+    },
+    {
+      "name": "model_500.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791391182275311820
+    },
+    {
+      "name": "model_5000.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791452559874228851
+    },
+    {
+      "name": "model_5100.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791453791642269039
+    },
+    {
+      "name": "model_5200.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791455022532698299
+    },
+    {
+      "name": "model_5300.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791456253896395549
+    },
+    {
+      "name": "model_5400.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791457490689380556
+    },
+    {
+      "name": "model_5500.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791458729021195391
+    },
+    {
+      "name": "model_5600.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791459974266087471
+    },
+    {
+      "name": "model_5700.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791461210911851123
+    },
+    {
+      "name": "model_5800.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791462455412500485
+    },
+    {
+      "name": "model_5900.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791463714771874562
+    },
+    {
+      "name": "model_600.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791392971416283118
+    },
+    {
+      "name": "model_6000.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791464968701975809
+    },
+    {
+      "name": "model_6100.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791466219438338031
+    },
+    {
+      "name": "model_6200.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791467472995217049
+    },
+    {
+      "name": "model_6300.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791468725787609218
+    },
+    {
+      "name": "model_6400.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791469984114371003
+    },
+    {
+      "name": "model_6500.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791471226583737192
+    },
+    {
+      "name": "model_6600.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791472470977483811
+    },
+    {
+      "name": "model_6700.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791473717948783620
+    },
+    {
+      "name": "model_6800.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791474970350911047
+    },
+    {
+      "name": "model_6900.pt",
+      "bytes": 27414965,
+      "mtime_ns": 1791476225218790153
+    },
+    {
+      "name": "model_700.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791395021410723258
+    },
+    {
+      "name": "model_800.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791396683702840741
+    },
+    {
+      "name": "model_900.pt",
+      "bytes": 27414883,
+      "mtime_ns": 1791398283355567597
+    }
+  ],
+  "candidate_windows": [
+    {
+      "step": 0,
+      "stage1_success_mean100": 0.0024519232101738453,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 100,
+      "stage1_success_mean100": 0.0010687360932934097,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 200,
+      "stage1_success_mean100": 0.001300928356940858,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 300,
+      "stage1_success_mean100": 0.0014244653220521286,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 400,
+      "stage1_success_mean100": 0.0013489318551728501,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 500,
+      "stage1_success_mean100": 0.0012515730620361865,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 600,
+      "stage1_success_mean100": 0.002127650805050507,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 700,
+      "stage1_success_mean100": 0.014819864272139967,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 800,
+      "stage1_success_mean100": 0.02937382074072957,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 900,
+      "stage1_success_mean100": 0.1581099132820964,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1000,
+      "stage1_success_mean100": 0.3197898380458355,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1100,
+      "stage1_success_mean100": 0.4308362454175949,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1200,
+      "stage1_success_mean100": 0.5365906086564064,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1300,
+      "stage1_success_mean100": 0.6500113075971603,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1400,
+      "stage1_success_mean100": 0.679580551981926,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1500,
+      "stage1_success_mean100": 0.7135584926605225,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1600,
+      "stage1_success_mean100": 0.7024046128988266,
+      "stage2_success_mean100": 5.580357392318547e-06,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1700,
+      "stage1_success_mean100": 0.7402394562959671,
+      "stage2_success_mean100": 0.0,
+      "stage3_success_mean100": 0.0
+    },
+    {
+      "step": 1800,
+      "stage1_success_mean100": 0.7651499533653259,
+      "stage2_success_mean100": 1.5886422479525207e-05,
+      "stage3_success_mean100": 0.0
+    }
+  ],
+  "stage2_positive_updates_through900": 0,
+  "selection_reason": "Earliest saved checkpoint with last-100 stage1 mean >=10%, avoiding later extensive stage2 learning. Zero promotion does not prove zero stage2 exposure/bias.",
+  "metric_scope": "rank0 reset-batch means, not independent evaluation; rank1 has no event history."
+}

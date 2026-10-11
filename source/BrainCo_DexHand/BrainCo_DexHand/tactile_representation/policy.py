@@ -20,6 +20,7 @@ from .config import CrossModalTactileNetworkCfg
 from .tri_modal_config import TriModalCrossAutoencoderCfg
 from .models.network import RobustCrossModalTactileNetwork
 from .models.tri_modal_cross_autoencoder import TriModalCrossAutoencoder
+from .models.tactspace import TactSpaceCfg, TactSpaceRGBDepthMarker, representation_contract
 from .models.latent_alignment import ProjectionHead
 from .training.data import TactileNormalization
 
@@ -51,6 +52,8 @@ def load_tactile_checkpoint(path: str | Path) -> dict:
 
 
 def build_tactile_encoder(network_type: str, model_cfg: Mapping) -> nn.Module:
+    if network_type == "tactspace":
+        return TactSpaceRGBDepthMarker(TactSpaceCfg(**dict(model_cfg)))
     if network_type == "robust":
         return RobustCrossModalTactileNetwork(CrossModalTactileNetworkCfg(**dict(model_cfg)))
     if network_type == "tri_modal":
@@ -58,11 +61,72 @@ def build_tactile_encoder(network_type: str, model_cfg: Mapping) -> nn.Module:
     raise ValueError(f"Unsupported tactile network type: {network_type!r}")
 
 
+def checkpoint_model_type(source: Mapping, requested: str | None = None) -> str:
+    """Recognize metadata or known legacy state signatures, never arbitrary weights."""
+    aliases = {"tri_modal_cross_autoencoder": "tri_modal", "tri_modal": "tri_modal",
+               "robust": "robust", "tactspace": "tactspace"}
+    declared = source.get("network_type") or source.get("model_type")
+    if declared is not None:
+        if declared not in aliases:
+            raise ValueError(f"Unknown checkpoint network_type: {declared!r}")
+        actual = aliases[declared]
+    else:
+        state = source.get("model_state", {})
+        cfg = source.get("model_cfg", {})
+        if ("latent_projection.0.weight" in state and "cross_layers" in cfg
+                and any(k.startswith("cross_blocks.") for k in state)):
+            actual = "tri_modal"
+        elif ("fusion.tact_token" in state and "fusion_layers" in cfg and any(k.startswith("reliability_heads.") for k in state)):
+            actual = "robust"
+        else:
+            raise ValueError("Unrecognized legacy tactile checkpoint (missing model type/signature)")
+    if actual == "tactspace" and source.get("representation_contract") != representation_contract(TactSpaceCfg(**dict(source["model_cfg"]))):
+        raise ValueError("Missing or incompatible TactSpace representation contract")
+    if requested is not None and requested != actual:
+        raise ValueError(f"Checkpoint model type is {actual!r}, requested {requested!r}")
+    return actual
+
+
+def make_tactspace_policy_bundle(source: Mapping, *, domain="sim", source_checkpoint_sha256: str) -> dict:
+    checkpoint_model_type(source, "tactspace")
+    cfg = TactSpaceCfg(**dict(source["model_cfg"]))
+    contract = representation_contract(cfg)
+    if source.get("representation_contract") != contract:
+        raise ValueError("Missing or incompatible TactSpace representation contract")
+    if domain not in cfg.domains:
+        raise ValueError(f"No {domain} branch in checkpoint")
+    state = source["model_state"]
+    trained = state.get("trained_source_steps")
+    if trained is None or any(int(trained[cfg.domains.index(domain), ("rgb", "depth", "marker").index(m)]) <= 0
+                              for m in cfg.input_modalities):
+        raise ValueError(f"Cannot export untrained {domain} input branches")
+    return {
+        "format": BUNDLE_FORMAT, "schema_version": 1, "input_schema": INPUT_SCHEMA,
+        "domain": domain, "network_type": "tactspace", "alignment_id": None,
+        "feature_mode": "tactspace", "source_checkpoint_sha256": source_checkpoint_sha256,
+        "finger_order": list(FINGER_ORDER), "model_cfg": dict(source["model_cfg"]),
+        "normalization": asdict(TactileNormalization(**dict(source["normalization"]))),
+        "projection_cfg": {"input_dim": cfg.d_model, "projection_dim": cfg.d_model},
+        "encoder_state": {k: v.detach().cpu() for k, v in state.items()},
+        "projection_state": {}, "representation_contract": contract,
+    }
+
+
+def export_tactspace_policy_encoder_bundle(output, *, source, domain="sim", source_checkpoint_sha256):
+    bundle = make_tactspace_policy_bundle(source, domain=domain, source_checkpoint_sha256=source_checkpoint_sha256)
+    FrozenTactilePolicyEncoder(bundle, domain=domain)
+    output = Path(output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    torch.save(bundle, output)
+
+
 def export_policy_encoder_bundle(
     output: str | Path, *, alignment: Mapping, source: Mapping,
     domain: str, network_type: str, alignment_id: str,
 ) -> None:
     """Export the FINAL aligned tower, including its projection and metadata."""
+    if network_type == "tactspace":
+        raise ValueError("TactSpace exports its trained latent directly; projection alignment bundles are incompatible")
     if domain not in ("sim", "real"):
         raise ValueError("domain must be sim or real")
     args = alignment.get("args", {})
@@ -108,6 +172,7 @@ def export_unaligned_sim_policy_encoder_bundle(
 
 def make_unaligned_sim_policy_bundle(source: Mapping, *, source_checkpoint_sha256: str) -> dict:
     """Use the same pretrained feature definition for direct loading and export."""
+    checkpoint_model_type(source, "robust")
     latent_dim = int(source["model_cfg"]["d_model"])
     return {
         "format": BUNDLE_FORMAT, "schema_version": 1, "input_schema": INPUT_SCHEMA,
@@ -131,6 +196,8 @@ def load_sim_policy_encoder(checkpoint: str | Path, *, chunk_size: int = 32) -> 
     digest = file_sha256(checkpoint)
     if payload.get("format") == BUNDLE_FORMAT:
         bundle = payload
+    elif checkpoint_model_type(payload) == "tactspace":
+        bundle = make_tactspace_policy_bundle(payload, source_checkpoint_sha256=digest)
     else:
         bundle = make_unaligned_sim_policy_bundle(payload, source_checkpoint_sha256=digest)
     encoder = FrozenTactilePolicyEncoder(bundle, domain="sim", chunk_size=chunk_size)
@@ -162,7 +229,7 @@ class FrozenTactilePolicyEncoder(nn.Module):
         if self.domain not in ("sim", "real") or (domain is not None and self.domain != domain):
             raise ValueError(f"Expected {domain!r} tower, got {self.domain!r}")
         self.feature_mode = bundle.get("feature_mode", "aligned")
-        if self.feature_mode not in ("aligned", "unaligned_sim"):
+        if self.feature_mode not in ("aligned", "unaligned_sim", "tactspace"):
             raise ValueError(f"Unsupported tactile feature mode: {self.feature_mode!r}")
         self.alignment_id = bundle["alignment_id"]
         self.source_checkpoint_sha256 = bundle.get("source_checkpoint_sha256")
@@ -171,14 +238,26 @@ class FrozenTactilePolicyEncoder(nn.Module):
                 raise ValueError("Unaligned features are a simulation-only baseline, without an alignment ID")
             if not isinstance(self.source_checkpoint_sha256, str) or len(self.source_checkpoint_sha256) != 64:
                 raise ValueError("Unaligned simulation bundle must identify its pretrained source checkpoint")
+        elif self.feature_mode == "tactspace":
+            cfg = TactSpaceCfg(**bundle["model_cfg"])
+            if bundle["network_type"] != "tactspace" or bundle.get("representation_contract") != representation_contract(cfg):
+                raise ValueError("Invalid TactSpace representation contract")
+            if self.alignment_id is not None or not isinstance(self.source_checkpoint_sha256, str) or len(self.source_checkpoint_sha256) != 64:
+                raise ValueError("TactSpace bundle must identify its joint checkpoint")
+            make_tactspace_policy_bundle({"network_type": "tactspace", "model_cfg": bundle["model_cfg"],
+                "model_state": bundle["encoder_state"], "normalization": bundle["normalization"],
+                "representation_contract": bundle["representation_contract"]}, domain=self.domain,
+                source_checkpoint_sha256=self.source_checkpoint_sha256)
         elif not isinstance(self.alignment_id, str) or not self.alignment_id:
             raise ValueError("Policy encoder bundle must identify its alignment checkpoint")
         self.network_type = bundle["network_type"]
+        if self.network_type == "tactspace" and self.feature_mode != "tactspace":
+            raise ValueError("TactSpace requires its direct latent feature mode")
         self.normalization = TactileNormalization(**bundle["normalization"])
         self.encoder = build_tactile_encoder(self.network_type, bundle["model_cfg"])
         self.projection_dim = int(bundle["projection_cfg"]["projection_dim"])
         projection_input_dim = int(bundle["projection_cfg"]["input_dim"])
-        if self.feature_mode == "unaligned_sim":
+        if self.feature_mode in ("unaligned_sim", "tactspace"):
             if self.projection_dim != projection_input_dim:
                 raise ValueError("Unaligned simulation features must preserve the encoder latent dimension")
             self.projection = nn.Identity()
@@ -240,8 +319,12 @@ class FrozenTactilePolicyEncoder(nn.Module):
         }
 
     @torch.no_grad()
-    def forward(self, *, rgb: torch.Tensor, depth_m: torch.Tensor, marker: torch.Tensor,
-                marker_valid: torch.Tensor | None = None) -> torch.Tensor:
+    def forward(self, *, rgb: torch.Tensor | None = None, depth_m: torch.Tensor | None = None,
+                marker: torch.Tensor | None = None, marker_valid: torch.Tensor | None = None,
+                modality_valid: torch.Tensor | None = None) -> torch.Tensor:
+        if self.network_type == "tactspace":
+            return self._encode_tactspace(rgb=rgb, depth_m=depth_m, marker=marker,
+                                         marker_valid=marker_valid, modality_valid=modality_valid)
         if rgb.ndim != 5 or rgb.shape[1] != len(FINGER_ORDER):
             raise ValueError("Policy encoder expects RGB [batch,5,3,H,W] in FINGER_ORDER")
         inputs = self.preprocess(rgb=rgb, depth_m=depth_m, marker=marker, marker_valid=marker_valid)
@@ -251,6 +334,53 @@ class FrozenTactilePolicyEncoder(nn.Module):
             h = self.encoder.encode(**part)
             chunks.append(F.normalize(self.projection(h), dim=-1))
         return torch.cat(chunks).reshape(rgb.shape[0], len(FINGER_ORDER), self.projection_dim)
+
+    def _encode_tactspace(self, *, rgb, depth_m, marker, marker_valid, modality_valid):
+        # Same sensor-unit normalization as preprocess(), without fabricating missing observations.
+        n = self.normalization
+        raw = {"rgb": rgb, "depth": depth_m, "marker": marker}
+        raw = {k: v for k, v in raw.items() if v is not None and k in self.encoder.cfg.input_modalities}
+        if not raw:
+            raise ValueError("No enabled input modality supplied")
+        first = next(iter(raw.values()))
+        b = first.shape[0]
+        shapes = {"rgb": (3, n.image_height, n.image_width), "depth": (1, n.image_height, n.image_width),
+                  "marker": (n.marker_count, 5)}
+        valid = torch.ones(b, 5, 3, dtype=torch.bool, device=first.device) if modality_valid is None else modality_valid.bool()
+        if valid.shape != (b, 5, 3) or valid.device != first.device:
+            raise ValueError("modality_valid must be [B,5,3] on the input device")
+        inputs = {"modality_valid": valid.reshape(-1, 3)}
+        for name, value in raw.items():
+            if value.shape != (b, 5, *shapes[name]) or value.device != first.device:
+                raise ValueError(f"{name} must have [B,5,{shapes[name]}] shape and matching device")
+            if name == "marker":
+                points = value[..., 4] > .5 if marker_valid is None else marker_valid.bool()
+                if points.shape != (b, 5, n.marker_count) or points.device != first.device:
+                    raise ValueError("marker_valid shape/device mismatch")
+                points = points & torch.isfinite(value).all(-1)
+                value = value.float().clone()
+                value[..., 0] /= max(1, n.image_width - 1)
+                value[..., 1] /= max(1, n.image_height - 1)
+                value[..., 2:4] /= n.marker_motion_scale_px
+                value[..., 4] = points
+                value.masked_fill_(~points[..., None], 0.0)
+                inputs["marker_valid_mask"] = points.reshape(-1, n.marker_count)
+            elif name == "rgb":
+                active = valid[..., 0, None, None, None].expand_as(value)
+                if bool((active & ((value < 0) | (value > 255) | ~torch.isfinite(value))).any()):
+                    raise ValueError("Valid RGB must be finite sensor values in [0,255]")
+                value = value.float() / 255.0
+            else:
+                active = valid[..., 1, None, None, None].expand_as(value)
+                if bool((active & ~torch.isfinite(value)).any()):
+                    raise ValueError("Valid depth must be finite")
+                value = (value.float() / n.depth_scale_m).clamp(0.0, 1.0)
+            inputs[name] = value.reshape(-1, *shapes[name])
+        chunks = []
+        for start in range(0, b * 5, self.chunk_size):
+            part = {k: v[start:start + self.chunk_size] for k, v in inputs.items()}
+            chunks.append(self.encoder.encode(**part, domain=self.domain))
+        return torch.cat(chunks).reshape(b, 5, self.projection_dim)
 
     @torch.no_grad()
     def reconstruct(self, *, rgb: torch.Tensor, depth_m: torch.Tensor, marker: torch.Tensor,
@@ -263,7 +393,8 @@ class FrozenTactilePolicyEncoder(nn.Module):
             inputs["rgb_reference"] = rgb_reference.float().reshape_as(inputs["rgb"]) / 255.0
         chunks = {name: [] for name in ("rgb_recon", "depth_recon", "marker_recon")}
         for start in range(0, inputs["rgb"].shape[0], self.chunk_size):
-            output = self.encoder(**{k: v[start:start + self.chunk_size] for k, v in inputs.items()})
+            part = {k: v[start:start + self.chunk_size] for k, v in inputs.items()}
+            output = self.encoder(**part, **({"domain": self.domain} if self.network_type == "tactspace" else {}))
             for name in chunks:
                 chunks[name].append(output[name])
         return {name: torch.cat(values).reshape(*rgb.shape[:2], *values[0].shape[1:]) for name, values in chunks.items()}
@@ -280,6 +411,10 @@ class FrozenTactilePolicyEncoder(nn.Module):
         if self.feature_mode == "unaligned_sim":
             contract.update(feature="normalized_h", feature_mode=self.feature_mode,
                             source_checkpoint_sha256=self.source_checkpoint_sha256)
+        if self.feature_mode == "tactspace":
+            contract.update(feature="tactspace_latent", feature_mode="tactspace",
+                            source_checkpoint_sha256=self.source_checkpoint_sha256,
+                            representation_contract=representation_contract(self.encoder.cfg))
         return contract
 
     def validate_observation_contract(self, saved: Mapping, *, state_dim: int = 152, history_length: int = 4) -> None:

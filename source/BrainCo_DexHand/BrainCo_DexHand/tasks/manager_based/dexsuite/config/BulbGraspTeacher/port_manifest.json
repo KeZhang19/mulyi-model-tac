@@ -1,0 +1,96 @@
+{
+  "source_repository": "/home/liuxinyu/workspace/dextac-Depth-main/dextac-Depth",
+  "source_checkpoint": "model_22200.pt",
+  "source_checkpoint_sha256": "8156827a6cd461f1fd9935aa8e1a9764e8bf3d123c880df5d0008ff52bd3205a",
+  "source_env_yaml_sha256": "47124d62f56021aff23684fc9921ed06f0ce3a75ba9874faf8985ba8825dd21a",
+  "runtime_sources": [
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/observations.py",
+      "source_sha256": "2829e9cbbe36882294d6fb7122c48817f74f8232cf8c03df9969d14e6e6195f8",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/observations.py",
+      "exported_roots": [
+        "body_state_b",
+        "fingers_contact_force_b",
+        "object_point_cloud_b",
+        "object_quat_b",
+        "processed_last_action"
+      ]
+    },
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/utils.py",
+      "source_sha256": "77aa620ec63f45f9da8a75f210fc043568469988446caa84b736fd79daa01f72",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/utils.py",
+      "exported_roots": [
+        "randomize_v2_gravity_curriculum",
+        "sample_object_point_cloud",
+        "update_v2_gravity_curriculum_state"
+      ]
+    },
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/commands/pose_commands.py",
+      "source_sha256": "ef481e83948f3399c086b24385cace2745b4ab58703b38bcfe88ec171bd4be1c",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/commands/pose_commands.py",
+      "exported_roots": [
+        "ObjectUniformPoseCommand"
+      ]
+    },
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/rewards.py",
+      "source_sha256": "642a56bad96b0ebc5939b90fc1a16e079ee78ebb3efab6407b4ffb6be506229e",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/rewards.py",
+      "exported_roots": [
+        "action_l2_clamped",
+        "action_rate_l2_clamped",
+        "any_finger_contact",
+        "flexiv_carry_contact_quality",
+        "flexiv_carry_hold",
+        "flexiv_carry_relative_angular_velocity_l2",
+        "flexiv_carry_relative_linear_velocity_l2",
+        "flexiv_drop_after_lift",
+        "object_ee_distance",
+        "object_ee_distance_delta",
+        "palm_down_orientation_penalty",
+        "success_reward"
+      ]
+    },
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/flexiv/dexsuite_flexiv_env_cfg_grasp.py",
+      "source_sha256": "0ab2884c9d72e4800f07ce3dce2dfe37ae48f51ee3d445360977927a607c4f45",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/flexiv_rewards.py",
+      "exported_roots": [
+        "flexiv_hand_contacts",
+        "flexiv_position_command_error_tanh"
+      ]
+    },
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/terminations.py",
+      "source_sha256": "a54b01a31a93c1b832b31fcd306c2dd01475dfc21eca21573368b719d5ae2487",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/terminations.py",
+      "exported_roots": [
+        "abnormal_robot_state_with_diagnostics",
+        "non_finite_state",
+        "out_of_bound"
+      ]
+    },
+    {
+      "source": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/curriculums.py",
+      "source_sha256": "953f638526ab67703adb11202901caca8a16818f5462e912096cc48dc6560628",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/mdp/curriculums.py",
+      "exported_roots": [
+        "DifficultyScheduler",
+        "initial_final_interpolate_fn"
+      ]
+    },
+    {
+      "source": "/home/liuxinyu/workspace/dextac-Depth-main/dextac-Depth/rsl_rl/rsl_rl/runners/on_policy_runner.py",
+      "source_sha256": "fc43d757cc5720fbb94690867a36e2aaddb7145f7deb407b7d6dce6ff7de7682",
+      "destination": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_runner.py",
+      "note": "Exact source runner: gravity-trigger save/restore and iteration events required by this task."
+    }
+  ],
+  "snapshot": "teacher_snapshot.json",
+  "asset_policy": "Use destination assets/rotate_bulb_custom robot and derive the free bulb from destination assets/bulb/hiveboard_lamp/hiveboard_lamp_threaded.usd. No source model asset copied.",
+  "local_checkpoint": "checkpoints/bulb_grasp_teacher_20261004/model_22200.pt",
+  "generated_asset_metadata": "assets/bulb_grasp_teacher/metadata.json",
+  "generated_point_cloud_sha256": "90a74d04c55157e07efee277599649a952786816a45ffba01c4c3365499d7353"
+}

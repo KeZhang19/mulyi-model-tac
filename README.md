@@ -4,6 +4,10 @@
 [项目地图](docs/PROJECT_MAP.md)、[运行手册](docs/RUNBOOK.md) 与 [实验索引](EXPERIMENTS.md)。
 根 `AGENTS.md` 当前被 Git 忽略；跨检出时需确认该本地入口存在。
 
+实体模型与几何见 [assets/](assets/README.md)，抓姿、初始化模板和采样库见
+[task_data/](task_data/README.md)，标定资产与采集流程见 [calibration/](calibration/README.md)。
+任务 Python 配置仍在 `source/BrainCo_DexHand/BrainCo_DexHand/tasks/`；旧资产数据路径保留兼容链接。
+
 ## 触觉可视化观测
 
 训练后在服务器运行 play、选择相机、截图和录制 MP4，见 [Play 视频录制说明](docs/play_video.md)。
@@ -35,12 +39,15 @@ python scripts/rsl_rl/visualize_rl_tactile_obs.py \
 
 ## 数据采集
 
+标定与数据采集已统一归类到 [calibration/](calibration/README.md)，包含机械标定框架、真机SDK入口、
+仿真台架、压力拟合、Marker工具、资产及原始数据；旧入口保留兼容链接。
+
 从仓库根目录运行。该命令采集 index 指尖同步的 RGB、Depth 和 2D Marker Motion 数据，输出为压缩 NPZ 分片；数据集不会上传到 GitHub。
 
 ```bash
-python scripts/tactile_representation/collect_index_cross_modal.py \
+python calibration/collection/collect_index_cross_modal.py \
   --task BrainCo-Dexsuite-Revo3-Right-Lift-v0 \
-  --output datasets/revo3_index_sweep_parallel_v1 \
+  --output calibration/datasets/revo3_index_sweep_parallel_v1 \
   --sampling-mode sweep \
   --pressers square_4 cylinder_D4 \
   --num-envs 4 \
@@ -51,15 +58,15 @@ python scripts/tactile_representation/collect_index_cross_modal.py \
 采集完成后，建立 mmap 缓存以加速训练：
 
 ```bash
-python scripts/tactile_representation/prepare_mmap_cache.py \
-  --dataset datasets/revo3_index_sweep_parallel_v1
+python calibration/collection/prepare_mmap_cache.py \
+  --dataset calibration/datasets/revo3_index_sweep_parallel_v1
 ```
 
 ## 网络一：Robust Cross-Modal Tactile Network
 
 ```bash
 python scripts/tactile_representation/train_cross_modal.py \
-  --dataset datasets/revo3_index_sweep_parallel_v1 \
+  --dataset calibration/datasets/revo3_index_sweep_parallel_v1 \
   --output runs/revo3_cross_modal_new \
   --device cuda:0 \
   --epochs 1000 \
@@ -77,7 +84,7 @@ python scripts/tactile_representation/train_cross_modal.py \
 
 ```bash
 python scripts/tactile_representation/train_tri_modal_cross_autoencoder.py \
-  --dataset datasets/revo3_index_sweep_parallel_v1 \
+  --dataset calibration/datasets/revo3_index_sweep_parallel_v1 \
   --output runs/revo3_tri_modal_cross_new \
   --device cuda:0 \
   --epochs 1000 \
@@ -116,7 +123,7 @@ python scripts/tactile_representation/train_latent_alignment.py \
   --real-checkpoint runs/revo3_tri_modal_cross_v1/best.pt \
   --sim-model-type robust \
   --real-model-type tri_modal \
-  --dataset datasets/revo3_index_sweep_parallel_v1 \
+  --dataset calibration/datasets/revo3_index_sweep_parallel_v1 \
   --output runs/revo3_latent_alignment_cttp_v1 \
   --device cuda:0 \
   --dataset-backend mmap \
@@ -152,7 +159,7 @@ python scripts/tactile_representation/visualize_latent_matches.py \
   --alignment-checkpoint runs/revo3_latent_alignment_cttp_v1/best.pt \
   --sim-model-type robust \
   --real-model-type tri_modal \
-  --dataset datasets/revo3_index_sweep_parallel_v1 \
+  --dataset calibration/datasets/revo3_index_sweep_parallel_v1 \
   --split test \
   --direction sim-to-real \
   --device cuda:0 \
@@ -163,3 +170,6 @@ python scripts/tactile_representation/visualize_latent_matches.py \
 输出目录中的 `sim_to_real_correct.png` 和 `sim_to_real_incorrect.png` 分别展示正确 top-1 和高置信度错误匹配；`matches.json` 保存对应的 episode/frame key 和 cosine similarity。
 
 > 注意：可视化命令中的 `alignment-checkpoint` 需要先按上面的训练命令在本地生成；该 checkpoint 不随仓库上传。
+
+
+

@@ -1,0 +1,19 @@
+{
+  "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+  "rank": 0,
+  "world_size": 2,
+  "seed": 42,
+  "num_envs_per_rank": 4096,
+  "total_envs": 8192,
+  "cuda_visible_devices": "0",
+  "checkpoint": null,
+  "from_scratch": true,
+  "initial_adr_difficulty": 0.0,
+  "initial_gravity_z": -1.0,
+  "gradient_reductions": 1,
+  "verified": true,
+  "parameter_sha256_by_rank": [
+    "f7c0b78479fc36458e229e7188ad09b48f4c695bcc0118b6d5833186b3d1f02e",
+    "f7c0b78479fc36458e229e7188ad09b48f4c695bcc0118b6d5833186b3d1f02e"
+  ]
+}

@@ -5,6 +5,7 @@ import torch
 from isaaclab.managers import ManagerTermBase
 
 from ..RotateBulbCustom import assembly
+from ..RotateBulbCustom.assembly_env_cfg import assembly_hand_shell_distance
 from ..RotateBulbCustom.assembly_reward_adapter import AssemblyRewardAdapter
 
 
@@ -22,6 +23,43 @@ def grasp_distance(env):
     pair = .5 * (distance[:, 0] + distance[:, 1:].amin(-1))
     palm = (robot.data.body_pos_w[:, env._floor_palm_id] - shell).norm(dim=-1)
     return .8 * pair + .2 * (palm - .06).clamp_min(0)
+
+
+class FloorBestReachReward(ManagerTermBase):
+    """Dextac historical-minimum distance credit, normalized per control step.
+
+    Adapted from dextac-Depth's object_ee_distance_delta: use the farthest of
+    the five fingertips, targeting the bulb shell instead of its screw root.
+    The first valid reward sample seeds each episode, so reset geometry earns
+    no credit. Retreat/recovery cannot repay an old distance record.
+
+    Return a rate for RewardManager's dt multiplication. With std=.4 and
+    weight=40, a new closest distance 1 cm nearer earns exactly one point.
+    """
+
+    def __init__(self, cfg, env):
+        super().__init__(cfg, env)
+        self.closest = torch.zeros(env.num_envs, device=env.device)
+        self.valid = torch.zeros(env.num_envs, dtype=torch.bool, device=env.device)
+
+    def reset(self, env_ids=None):
+        ids = slice(None) if env_ids is None else env_ids
+        self.valid[ids] = False
+
+    def __call__(self, env, std: float = .4):
+        if not math.isfinite(std) or std <= 0:
+            raise ValueError("Historical reach std must be positive and finite")
+        distance = assembly_hand_shell_distance(env)
+        finite = torch.isfinite(distance)
+        baseline = torch.where(self.valid, self.closest, distance)
+        progress = torch.where(finite & self.valid, (baseline - distance).clamp_min(0.), 0.)
+        self.closest.copy_(torch.where(finite, torch.minimum(baseline, distance), self.closest))
+        self.valid.copy_(finite)
+        active = ~env._bulb_assembly_state.lifted
+        for name in ("non_finite", "object_out_of_bound", "bulb_dropped", "lost_grasp", "curriculum_reset_failed"):
+            if name in env.termination_manager.active_terms:
+                active &= ~env.termination_manager.get_term(name)
+        return progress / (std * env.step_dt) * active
 
 
 class FloorReachReward(ManagerTermBase):

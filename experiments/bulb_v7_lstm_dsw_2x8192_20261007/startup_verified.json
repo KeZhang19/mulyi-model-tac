@@ -1,0 +1,191 @@
+{
+  "verified_at": "2026-10-07T17:29:31.014310+08:00",
+  "passed": true,
+  "checks": {
+    "rank0_task": true,
+    "rank0_lstm": true,
+    "rank0_ddp": true,
+    "rank0_capacities": true,
+    "rank1_task": true,
+    "rank1_lstm": true,
+    "rank1_ddp": true,
+    "rank1_capacities": true,
+    "optimizer_updated": true,
+    "optimizer_finite": true,
+    "model_finite": true,
+    "actor_critic_lstm_checkpoint": true,
+    "normalizers_observed_samples": true,
+    "old_checkpoint_preserved": true,
+    "no_fatal_or_capacity_errors": true,
+    "no_error_lines": true,
+    "two_native_logs_scanned": true
+  },
+  "iterations_observed": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "optimizer_steps": [
+    20
+  ],
+  "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/logs/rsl_rl/bulb_grasp_teacher_v7_lstm/2026-10-07_scratch_2x8192/rank0/model_0.pt",
+  "checkpoint_sha256": "d47f5abef319d3fa911fb5a03e6af69682094d984f9d0137c3c86fdc563abb47",
+  "contracts": [
+    {
+      "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+      "rank": 0,
+      "world_size": 2,
+      "seed": 42,
+      "num_envs_per_rank": 8192,
+      "total_envs": 16384,
+      "cuda_visible_devices": "0",
+      "checkpoint": null,
+      "from_scratch": true,
+      "policy_class": "BulbGraspTeacherLSTM",
+      "observation_history_length": 1,
+      "initial_adr_difficulty": 0.0,
+      "initial_gravity_z": -1.0,
+      "physx_capacities_per_rank": {
+        "gpu_max_rigid_contact_count": 16777216,
+        "gpu_max_rigid_patch_count": 3000000,
+        "gpu_found_lost_pairs_capacity": 4194304,
+        "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+        "gpu_total_aggregate_pairs_capacity": 4194304,
+        "gpu_heap_capacity": 134217728,
+        "gpu_temp_buffer_capacity": 33554432,
+        "gpu_collision_stack_size": 4026531840
+      }
+    },
+    {
+      "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+      "rank": 1,
+      "world_size": 2,
+      "seed": 43,
+      "num_envs_per_rank": 8192,
+      "total_envs": 16384,
+      "cuda_visible_devices": "1",
+      "checkpoint": null,
+      "from_scratch": true,
+      "policy_class": "BulbGraspTeacherLSTM",
+      "observation_history_length": 1,
+      "initial_adr_difficulty": 0.0,
+      "initial_gravity_z": -1.0,
+      "physx_capacities_per_rank": {
+        "gpu_max_rigid_contact_count": 16777216,
+        "gpu_max_rigid_patch_count": 3000000,
+        "gpu_found_lost_pairs_capacity": 4194304,
+        "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+        "gpu_total_aggregate_pairs_capacity": 4194304,
+        "gpu_heap_capacity": 134217728,
+        "gpu_temp_buffer_capacity": 33554432,
+        "gpu_collision_stack_size": 4026531840
+      }
+    }
+  ],
+  "distributed": [
+    {
+      "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+      "rank": 0,
+      "world_size": 2,
+      "seed": 42,
+      "num_envs_per_rank": 8192,
+      "total_envs": 16384,
+      "cuda_visible_devices": "0",
+      "checkpoint": null,
+      "from_scratch": true,
+      "policy_class": "BulbGraspTeacherLSTM",
+      "observation_history_length": 1,
+      "initial_adr_difficulty": 0.0,
+      "initial_gravity_z": -1.0,
+      "physx_capacities_per_rank": {
+        "gpu_max_rigid_contact_count": 16777216,
+        "gpu_max_rigid_patch_count": 3000000,
+        "gpu_found_lost_pairs_capacity": 4194304,
+        "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+        "gpu_total_aggregate_pairs_capacity": 4194304,
+        "gpu_heap_capacity": 134217728,
+        "gpu_temp_buffer_capacity": 33554432,
+        "gpu_collision_stack_size": 4026531840
+      },
+      "gradient_reductions": 1,
+      "verified": true,
+      "parameter_sha256_by_rank": [
+        "6d2638dc865d3cfb9d4feb615390d13bcfecfad5ec282370c6577636c4225073",
+        "6d2638dc865d3cfb9d4feb615390d13bcfecfad5ec282370c6577636c4225073"
+      ]
+    },
+    {
+      "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+      "rank": 1,
+      "world_size": 2,
+      "seed": 43,
+      "num_envs_per_rank": 8192,
+      "total_envs": 16384,
+      "cuda_visible_devices": "1",
+      "checkpoint": null,
+      "from_scratch": true,
+      "policy_class": "BulbGraspTeacherLSTM",
+      "observation_history_length": 1,
+      "initial_adr_difficulty": 0.0,
+      "initial_gravity_z": -1.0,
+      "physx_capacities_per_rank": {
+        "gpu_max_rigid_contact_count": 16777216,
+        "gpu_max_rigid_patch_count": 3000000,
+        "gpu_found_lost_pairs_capacity": 4194304,
+        "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+        "gpu_total_aggregate_pairs_capacity": 4194304,
+        "gpu_heap_capacity": 134217728,
+        "gpu_temp_buffer_capacity": 33554432,
+        "gpu_collision_stack_size": 4026531840
+      },
+      "gradient_reductions": 1,
+      "verified": true,
+      "parameter_sha256_by_rank": [
+        "6d2638dc865d3cfb9d4feb615390d13bcfecfad5ec282370c6577636c4225073",
+        "6d2638dc865d3cfb9d4feb615390d13bcfecfad5ec282370c6577636c4225073"
+      ]
+    }
+  ],
+  "gpu": "0, NVIDIA GeForce RTX 4090, 46068 MiB, 39705 MiB, 0 %\n1, NVIDIA GeForce RTX 4090, 46068 MiB, 43499 MiB, 96 %\n",
+  "gpu_processes": "14259, /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python, 39641 MiB\n14259, /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python, 39641 MiB\n14260, /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python, 43460 MiB\n14260, /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python, 43460 MiB\n",
+  "log_scan": {
+    "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/experiments/bulb_v7_lstm_dsw_2x8192_20261007/train.log": {
+      "bytes": 75816510,
+      "fatal_or_capacity_matches": [],
+      "error_lines": []
+    },
+    "/tmp/bulb-grasp-teacher-sso6HH/rank0/logs/Kit/Isaac-Sim/5.1/kit_20261007_092222.log": {
+      "bytes": 44196320,
+      "fatal_or_capacity_matches": [],
+      "error_lines": []
+    },
+    "/tmp/bulb-grasp-teacher-sso6HH/rank1/logs/Kit/Isaac-Sim/5.1/kit_20261007_092242.log": {
+      "bytes": 44196082,
+      "fatal_or_capacity_matches": [],
+      "error_lines": []
+    }
+  },
+  "recent_stage_metrics": [
+    "Curriculum/adr: 0.0000",
+    "Metrics/object_pose/stage1_success: 0.0016",
+    "Metrics/object_pose/stage2_success: 0.0000",
+    "Metrics/object_pose/stage3_success: 0.0000",
+    "Curriculum/adr: 0.0000",
+    "Metrics/object_pose/stage1_success: 0.0004",
+    "Metrics/object_pose/stage2_success: 0.0000",
+    "Metrics/object_pose/stage3_success: 0.0000",
+    "Curriculum/adr: 0.0000",
+    "Metrics/object_pose/stage1_success: 0.0022",
+    "Metrics/object_pose/stage2_success: 0.0000",
+    "Metrics/object_pose/stage3_success: 0.0000"
+  ],
+  "limitations": "Startup and initial capacity only; no independent task-success evaluation."
+}

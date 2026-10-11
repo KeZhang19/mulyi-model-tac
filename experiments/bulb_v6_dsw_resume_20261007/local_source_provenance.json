@@ -1,0 +1,9 @@
+{
+  "base_commit": "167fc3c79fbf0c882fe85e3e3d8bb3f7d180f77e",
+  "branch": "main",
+  "working_tree_has_preexisting_changes": true,
+  "changed_training_entry_sha256": "9490a2fe7922c1136d222b7fccb9d01fadc7d5820cdb4c6a6b94b87feb61614e",
+  "gitnexus_training_entry_risk": "UNKNOWN; verified train shell -> split_gpu runpy -> train entry references",
+  "task_reward_prior_checks": "experiments/bulb_stage2_reward_20261007/verification.json",
+  "authorization_scope": "Sync and run full bulb v6 task on dsw-wpmt7kzoh4b53jpmov with 2x8192 environments; select continuation and buffer settings."
+}

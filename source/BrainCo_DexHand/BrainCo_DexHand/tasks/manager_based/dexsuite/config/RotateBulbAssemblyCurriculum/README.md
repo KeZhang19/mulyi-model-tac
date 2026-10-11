@@ -61,6 +61,34 @@ NCCL共同训练一个策略。`distributed.py`只在PPO更新边界合并回合
 距离和路径来自实际状态；坐标不按 2π 折返。其余抓持／抬起／对准／旋入信用来自原物理奖励账本。
 实际奖励看 `Episode_Reward/*`；旧账本 reach 的诊断值不代表新接近项。
 
+2026-10-04新增 **仅Stage0** 的 `reach_best_progress`，移植本机
+`dextac-Depth-main/dextac-Depth/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/mdp/rewards.py:object_ee_distance_delta`。
+它奖励历史最小距离的新纪录，使用五个指尖到灯泡壳体中心（灯泡局部+X 4cm）的**最大距离**D，
+与原接近项的加权距离d不同。最终单步信用为 `100 * max(D_best - D, 0)`；
+然后更新D_best。不需要先接触，回退/重走旧距离不重复给分；每个reset后的首个有效奖励样本只初始化。
+掉落/失握/越界/非有限状态/恢复失败的终止步以及已标记抬起后不给该项，保持原成功和reset规则。
+
+原参考项为`weight=200, std=0.4`，返回`delta/std`再被RewardManager乘dt；
+这里返回`delta/(std*dt)`，配置`weight=40, std=0.4`，即每新增靠近1cm给+1分，
+改善3–5cm给+3～5分，不随控制频率改变。原项若在30Hz下，每cm约+0.1667分，新项为其6倍。
+Stage0初态最远指尖约7.39cm；该项总分受首次有效距离约束，并非每步持续发大额奖励。
+保留原持续接近/有符号进度、动作幅度−0.02、动作变化−0.01、臂路程−0.08、偏离−0.5项。
+作为量级参考，第一关节单向走30°产生约−0.0419路程分；不是实际下降所需运动或所有负奖励的估计。
+严格抓持完成仍为+8分；当前系数是有单位依据的初始候选，尚无训练收益证据。
+
+新项在 `configure_assembly_rewards` 清理旧奖励之后注册；Stage1–4、独立Custom装配/旋出不启用。
+修改了课程源码哈希，旧课程checkpoint的严格契约检查会拒绝直接恢复；旧录像需匹配旧冻结源码。
+实际日志看`Episode_Reward/reach_best_progress`（按原RewardManager口径归一化，不等于逐回合原始积分）。
+
+同日按用户要求，Stage0另启用dextac的 `any_finger_contact`：任意一指对灯泡的过滤接触力
+严格>1N即奖励0.7分/秒（30Hz每步约0.02333分，5秒最多3.5分）。多指同时接触也只计一次，
+不要求拇指参与、低速、位姿稳定或保持时间；与源实现一样，不另设阶段内失败/抬起门控。
+复用已有`assembly_any_finger_contact`，只读取灯泡过滤力，不用碰桌/灯座的总接触力；
+原父配置虽有此项，但此前被课程账本替换清掉，现在在替换之后仅为Stage0重新注册。
+原账本双侧接触质量可给>0.1N的弱双侧接触部分分数，单指接触不触发该项；严格双侧保持/稳定成功仍要求>1N。
+当前保留原双侧稳定奖励、历史接近+1分/cm及全部动作惩罚；没有另加参考中的good_contact +2分/秒。
+这使单指探索先有反馈，不能据奖励已启用认定学会稳定抓持。检查入口现为11项CPU检查，无新训练结论。
+
 验证入口：`scripts/diagnostics/check_bulb_floor_contract.py`（CPU）、
 `scripts/diagnostics/probe_bulb_floor.py`（原生、有限步数）、
 `scripts/rsl_rl/train_bulb_curriculum.py`（训练＋独立晋级评测）。

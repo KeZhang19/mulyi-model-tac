@@ -1,0 +1,438 @@
+{
+  "schema": 1,
+  "date": "2026-10-04",
+  "purpose": "Separate task data from physical assets; preserve legacy paths and runtime source hashes.",
+  "moves": [
+    {
+      "old": "assets/d_peg_insertion/pregrasp.json",
+      "new": "task_data/d_peg_insertion/pregrasp.json",
+      "compatibility_link": "../../task_data/d_peg_insertion/pregrasp.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 3985,
+          "sha256": "7efff3afb4bb302304d1f70f42dae99f028aa5dc8c3631a3fc0f2e71e4e91be4"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/pregrasp_clearance_candidate.json",
+      "new": "task_data/d_peg_insertion/pregrasp_clearance_candidate.json",
+      "compatibility_link": "../../task_data/d_peg_insertion/pregrasp_clearance_candidate.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 3940,
+          "sha256": "bf236e8a9e8c8a1ff2608ab029126f85475473b2030c7cc2cd40c2493e0619d3"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/pregrasp_flexiv.json",
+      "new": "task_data/d_peg_insertion/pregrasp_flexiv.json",
+      "compatibility_link": "../../task_data/d_peg_insertion/pregrasp_flexiv.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 5456,
+          "sha256": "e4f4c347321145b874d760740bcbb5bb67a8407b76a18f1a081f98828355f360"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/pregrasp_gravity_raw.json",
+      "new": "task_data/d_peg_insertion/pregrasp_gravity_raw.json",
+      "compatibility_link": "../../task_data/d_peg_insertion/pregrasp_gravity_raw.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 3835,
+          "sha256": "1d58bf2439e7f928746068ff55ab52badd86559462d6004bd6b7a0ae501e4106"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/pregrasp_recentered.json",
+      "new": "task_data/d_peg_insertion/pregrasp_recentered.json",
+      "compatibility_link": "../../task_data/d_peg_insertion/pregrasp_recentered.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 3931,
+          "sha256": "0bee966a18b3f006369a7a1e54ddf585a1598e3f3d94f8af3fb94eeca86cbfdd"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/pregrasp_seed.json",
+      "new": "task_data/d_peg_insertion/pregrasp_seed.json",
+      "compatibility_link": "../../task_data/d_peg_insertion/pregrasp_seed.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 3476,
+          "sha256": "720b6f71866535df63f967ec7a64bc1fa49e5eb319df6d5e6b20c83e486f31db"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/flexiv_grasp_reference",
+      "new": "task_data/d_peg_insertion/flexiv_grasp_reference",
+      "compatibility_link": "../../task_data/d_peg_insertion/flexiv_grasp_reference",
+      "files": [
+        {
+          "relative": "20260913_142053_9886dc87/EDITOR_README_CN.md",
+          "bytes": 8863,
+          "sha256": "fbd103f0c130c25d1b404fba85b08540a522735e431f7863ccf7487e5a2b4c67"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/README_CN.md",
+          "bytes": 2484,
+          "sha256": "3bc4b8b0fe8a8bc7c573c37910a43b2eb6e5897d1d236c662700523050a78a2e"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/editor_diagnostics.json",
+          "bytes": 3777,
+          "sha256": "abdb48c9b7139b5f02a2fcde203e2d6de57290c8674bfb3aaf4149be28be7739"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/editor_preload_source.json",
+          "bytes": 3964,
+          "sha256": "4c7b7b0cac988cdc70deeee082484ee3e0567a6c164850bec808782231173429"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/full_runtime.json",
+          "bytes": 13658,
+          "sha256": "775b4dec97548f5ac31e4b058cbe57fa60287431578f28d6a5de5e864f3d0584"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/geometry_runtime.json",
+          "bytes": 11520,
+          "sha256": "81eabff5c2c1e6e37940702d6dd9c11880a6c9f5ebca79119cadcc00e3f0a1d0"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/previous_pregrasp_flexiv.json",
+          "bytes": 3442,
+          "sha256": "c2ab66d89e5be0c4e36bb418d2eeaaf7e5a8aeb32222630e66bb5c489d52047a"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/provenance.json",
+          "bytes": 1000,
+          "sha256": "c148f87b136b457634d423271f3ac0d4e28fd2e31abba7b5894d3f4feccffdf5"
+        },
+        {
+          "relative": "20260913_142053_9886dc87/simulation_state.json",
+          "bytes": 213120,
+          "sha256": "f6af7f07f4fb08449f0291e7e434952ec24f5e6e95d5280ba274588f3f7fe1af"
+        },
+        {
+          "relative": "20260913_143755_1688f22c/EDITOR_README_CN.md",
+          "bytes": 8869,
+          "sha256": "d5feefb2dfb54a3789a67f369c76a5462045a29c93b665e2692ca06885c4b7da"
+        },
+        {
+          "relative": "20260913_143755_1688f22c/import_rejection.json",
+          "bytes": 739,
+          "sha256": "7df6987b3a6d916947bc720661eab134b800f9e1e98c158ae9f6a88d9b9ac1d9"
+        },
+        {
+          "relative": "20260913_143755_1688f22c/previous_pregrasp_flexiv.json",
+          "bytes": 3964,
+          "sha256": "4c7b7b0cac988cdc70deeee082484ee3e0567a6c164850bec808782231173429"
+        },
+        {
+          "relative": "20260913_143755_1688f22c/provenance.json",
+          "bytes": 1014,
+          "sha256": "9dbf9f34beb4ccfa2b7f06907ccc34f4b1d5a034b141fa854a529204c4c2499b"
+        },
+        {
+          "relative": "20260913_143755_1688f22c/simulation_state.json",
+          "bytes": 213121,
+          "sha256": "551f1ec7a703c8aae3890770344680b6c6b2b0e975be67628fcff851e0d3195f"
+        }
+      ]
+    },
+    {
+      "old": "assets/d_peg_insertion/validation",
+      "new": "task_data/d_peg_insertion/validation",
+      "compatibility_link": "../../task_data/d_peg_insertion/validation",
+      "files": [
+        {
+          "relative": "clearance_candidate.json",
+          "bytes": 20622,
+          "sha256": "e6fd3b6f8c10cf4c37966b18db3cf807b7b006e054fce0326bccbc0a88ac8ffd"
+        },
+        {
+          "relative": "clearance_final.json",
+          "bytes": 19545,
+          "sha256": "bb7a43311df20cff50fc6b3e69ae164045fbb16fecb92b8589f4dfd155739514"
+        },
+        {
+          "relative": "depth_success_model_800_20260919/episodes_seed_20260919.jsonl",
+          "bytes": 6625,
+          "sha256": "3dba8d72eef6663f93538ad0f432f588669ed7960dcfca714672c09a76408f52"
+        },
+        {
+          "relative": "depth_success_model_800_20260919/manifest.json",
+          "bytes": 928,
+          "sha256": "ab6989bae7f927357d0b51166842d02304d55f4bbddedf950573e5bcf9352aa3"
+        },
+        {
+          "relative": "depth_success_model_800_20260919/report.json",
+          "bytes": 2103,
+          "sha256": "8843cde2881fd94b497fb8b09d339fa501999ffb08c20239dbbdb3cdc6fcd205"
+        },
+        {
+          "relative": "depth_success_resume_20260919/resume_manifest.json",
+          "bytes": 3378,
+          "sha256": "6763910f48acbd8b4fa4008a603cd69fa477b20aafc7baf461b15a1a010470af"
+        },
+        {
+          "relative": "depth_success_resume_20260919/resume_verification.json",
+          "bytes": 3795,
+          "sha256": "ba16afb689272e337448ae3796b87446dd20eadc5c8fa4f980b11e9cbd845643"
+        },
+        {
+          "relative": "depth_success_resume_20260919/source_preflight.json",
+          "bytes": 2509,
+          "sha256": "502023a178fd2dc9ab06d7270e688d194c6e33dc29e952ce8074a37988559341"
+        },
+        {
+          "relative": "depth_success_resume_20260919/tensorboard_verification.json",
+          "bytes": 666,
+          "sha256": "17b3f59cf35ab61ca2ebd5640ff960f8d1b6e83110dc12a85287283a03f6b128"
+        },
+        {
+          "relative": "flexiv_preload_runtime_0p5s.json",
+          "bytes": 13584,
+          "sha256": "b5ca847b7a0bcabb17b9035a4d531d5351d8c9b26b235d3ad8a46417b1645cef"
+        },
+        {
+          "relative": "insertion_goal_scene.glb",
+          "bytes": 21167580,
+          "sha256": "7f064981b81bcf9dafb1fcf11a52d6e980874c62ab0b20bc3c93b7858db08c3a"
+        },
+        {
+          "relative": "insertion_goal_scene.png",
+          "bytes": 361671,
+          "sha256": "366ca51cd1a6950adf2e3ca693a46958c4445ec6d22a21f51f4bf16b821a62a5"
+        },
+        {
+          "relative": "local_tactile_signals.json",
+          "bytes": 6228,
+          "sha256": "bf83373b546b60dd1f183a91b7c8b6835e191705b5706077219d27e7adc67b0e"
+        },
+        {
+          "relative": "local_training_summary.json",
+          "bytes": 8637,
+          "sha256": "d85cf26fe50a01d51b638ee0c2343db7aed6db19255968302e14cc518aaf8a24"
+        },
+        {
+          "relative": "pregrasp.json",
+          "bytes": 28159,
+          "sha256": "5715c11d9e18e3cc54b25be6a5d2f349b79e01d80e969f13215c4723087479f7"
+        },
+        {
+          "relative": "pregrasp_final.json",
+          "bytes": 25255,
+          "sha256": "7acfefcc7db56dba288f408caddd7d4e404141abfd9030edebf8a67fbb86ba52"
+        },
+        {
+          "relative": "pregrasp_restored.json",
+          "bytes": 24936,
+          "sha256": "ce51337bc559ea1809642aed2c1d8d4c28f96f1f7423bf691bc7203cfa45c7f3"
+        },
+        {
+          "relative": "pregrasp_tuned.json",
+          "bytes": 25243,
+          "sha256": "091a86a214cda1b6812d4586cc6e7a083504dc9d7dd738b570c37b77c862ff5a"
+        },
+        {
+          "relative": "server_distributed_training.json",
+          "bytes": 909,
+          "sha256": "29c347d3a9ebf82078cea9054b0f2c9df852e475521c6d1f0c66af5302fd1985"
+        },
+        {
+          "relative": "server_insertion_physics.json",
+          "bytes": 98323,
+          "sha256": "a37b498cc3886aa7fd7f8fd398e14af372991be0e5482671a0ab73c59ba05d48"
+        },
+        {
+          "relative": "server_pregrasp.json",
+          "bytes": 25254,
+          "sha256": "2a6214a1a3dbece0fc9ba4957ad0bb3cbe5ce06c63cb30006fff4e6486f9e346"
+        },
+        {
+          "relative": "server_sync.json",
+          "bytes": 259,
+          "sha256": "07be443b7f14e53cf7389bbab506eadee60ca1c5aceb8beede11f9f43fd842bc"
+        },
+        {
+          "relative": "server_tactile_signals.json",
+          "bytes": 6265,
+          "sha256": "461b415c5804a5f51d3cc9ce3e4dc8e3f749066d3fcaf0d97e7b203f5c090ee2"
+        },
+        {
+          "relative": "server_training_launch.json",
+          "bytes": 658,
+          "sha256": "7c80ae198a4a865656b27b558565da248f8dc08219e4721d1cb83b3c624f1f0e"
+        },
+        {
+          "relative": "server_training_summary.json",
+          "bytes": 8847,
+          "sha256": "0cd0338e0258b10fde8b9e27e69fcb0e0f941eff71f22043c30e67d7c1d6ed4d"
+        },
+        {
+          "relative": "v2_formal_training_audit.json",
+          "bytes": 16093,
+          "sha256": "b622066581e96b816d54a651a11f952f2a1071907b22c601c1daa38e8cc4fa05"
+        },
+        {
+          "relative": "v2_local.json",
+          "bytes": 8834,
+          "sha256": "49f723863788780570e9c81f2b62dddd0b14c78d0544eb6c6f8bb1fc0a199417"
+        },
+        {
+          "relative": "v2_server_capacity.json",
+          "bytes": 10073,
+          "sha256": "d6581672f756beeb1d2c2b5d24c7249fcb2fd212ffabf4bcbd230130073ac060"
+        },
+        {
+          "relative": "v2_server_initial_training_launch.json",
+          "bytes": 727,
+          "sha256": "bf2bc8b7ebd4386a80cedbe9e15dc6703d779528430fefc3bf8e44e45fa972b5"
+        },
+        {
+          "relative": "v2_server_training_launch.json",
+          "bytes": 750,
+          "sha256": "bfba2b30876ae517ebec5038057b7e59ce77f4f77c97dce6b5e7d772411847b9"
+        }
+      ]
+    },
+    {
+      "old": "assets/rotate_bulb_custom/grasp_reference",
+      "new": "task_data/rotate_bulb_custom/grasp_reference",
+      "compatibility_link": "../../task_data/rotate_bulb_custom/grasp_reference",
+      "files": [
+        {
+          "relative": "README_CN.md",
+          "bytes": 2005,
+          "sha256": "3d421a066210ce9f62df965e9eea2c7c0dbfbdffc2b64c7a9fbd532a5dd0680a"
+        },
+        {
+          "relative": "dexonomy_20260920/README.md",
+          "bytes": 3276,
+          "sha256": "b58e02c5a8c1075bf6abd80ef16885abc65c990b8ef4298893f5b5c96fa59314"
+        },
+        {
+          "relative": "dexonomy_20260920/integration.patch",
+          "bytes": 10794,
+          "sha256": "92fc2a8050088fa618709aff5f2766606dce40fe7a8cb15c72111673ec7396f7"
+        },
+        {
+          "relative": "dexonomy_20260920/optimization_report.json",
+          "bytes": 34562,
+          "sha256": "cfd413431071c607dde749714585e7867ea6012001e37209427ec5b892488a82"
+        },
+        {
+          "relative": "dexonomy_20260920/provenance.json",
+          "bytes": 703,
+          "sha256": "5169d99b79356f90de2009fff07da801ee58bcb70b02cc8b6c7f79ef3d57ec58"
+        },
+        {
+          "relative": "dexonomy_20260920/runtime_validation.json",
+          "bytes": 120486,
+          "sha256": "38e95bbdf6d401133b617821ca8b0d9bbcc165387cee6ad2be0fab3384ca2c4c"
+        },
+        {
+          "relative": "dexonomy_20260920/runtime_validation.log",
+          "bytes": 30621,
+          "sha256": "a129053bb4a99f003313834452315dbf0d07433a516fa1ca492c5000820e2763"
+        },
+        {
+          "relative": "dexonomy_20260920/simulation_state.json",
+          "bytes": 316013,
+          "sha256": "e0e1f2cc303618d5198ae3fed00606d550827ead6b0d15d1b78c5fa5b18ef246"
+        },
+        {
+          "relative": "dexonomy_20260920/validation_summary.json",
+          "bytes": 2378,
+          "sha256": "2ecbd1694c6a3893959030d28e13ea726eab5e4540e252c5ebddf1d08b98e28b"
+        },
+        {
+          "relative": "provenance.json",
+          "bytes": 416,
+          "sha256": "6f594381f0ead31aa03a029381348d915a10b4816e072a5c9b93bcde408023c5"
+        },
+        {
+          "relative": "runtime_validation.json",
+          "bytes": 81195,
+          "sha256": "04225cf00f1ebcf2ca3521627f84fe0727a9fe746af223ffd873380042d0f892"
+        },
+        {
+          "relative": "simulation_state.json",
+          "bytes": 277023,
+          "sha256": "fc337d0ea3d3f7ff38ef56ebdef82f127eb18213a6964f6db9ac0afbc45f5d53"
+        }
+      ]
+    },
+    {
+      "old": "assets/rotate_bulb_randomized/workspace_bank_high_z_v2.json",
+      "new": "task_data/rotate_bulb_randomized/workspace_bank_high_z_v2.json",
+      "compatibility_link": "../../task_data/rotate_bulb_randomized/workspace_bank_high_z_v2.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 1580609,
+          "sha256": "1cc388f22d73219e30ae6fc5da4a024468229e3f50fcd3ed243132935af2b9c6"
+        }
+      ]
+    },
+    {
+      "old": "assets/rotate_bulb_randomized/workspace_bank_joint1_zero_v1.json",
+      "new": "task_data/rotate_bulb_randomized/workspace_bank_joint1_zero_v1.json",
+      "compatibility_link": "../../task_data/rotate_bulb_randomized/workspace_bank_joint1_zero_v1.json",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 1581169,
+          "sha256": "3b5a7951a356fe649aa8e9b1f4b4f3b07eef8f09e90bb7fed357e89111f82e9c"
+        }
+      ]
+    },
+    {
+      "old": "assets/rotate_bulb_assembly_curriculum",
+      "new": "task_data/rotate_bulb_assembly_curriculum",
+      "compatibility_link": "../task_data/rotate_bulb_assembly_curriculum",
+      "files": [
+        {
+          "relative": "README.md",
+          "bytes": 1014,
+          "sha256": "7a6818e0526a7d30b6eb5cf863b72019ac45c4389ab4310c7fff56d64dd8f0d2"
+        },
+        {
+          "relative": "floor_pregrasp_v2.json",
+          "bytes": 347427,
+          "sha256": "ac414a1ba31ee458e012ae3fac0b0ed3bc4f479e2834dea73af55f8fe9cbba40"
+        },
+        {
+          "relative": "pregrasp.json",
+          "bytes": 4288,
+          "sha256": "8805a7a42eb1564220b0b79a446e23f95ab0c1e4e8d207a9a0d27f44b31dc485"
+        }
+      ]
+    },
+    {
+      "old": "assets/bulb/ROTATE_BULB_REWARDS.md",
+      "new": "docs/tasks/rotate_bulb_rewards.md",
+      "compatibility_link": "../../docs/tasks/rotate_bulb_rewards.md",
+      "files": [
+        {
+          "relative": ".",
+          "bytes": 7711,
+          "sha256": "817c7c803052e948d42d753b39db9b04d38dbeb715cc7d9f7daf8b751ddaabe7"
+        }
+      ]
+    }
+  ]
+}

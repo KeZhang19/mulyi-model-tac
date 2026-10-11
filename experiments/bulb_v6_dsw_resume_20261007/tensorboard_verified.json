@@ -1,0 +1,13 @@
+{
+  "url": "http://127.0.0.1:6006/#scalars",
+  "http_status": 200,
+  "runs": [
+    "Bulb_v6_2x8192/."
+  ],
+  "tags_count": {
+    "Bulb_v6_2x8192/.": 138
+  },
+  "checked_at_unix": 1791356627.7423618,
+  "tensorboard_pid": 7639,
+  "tunnel_pid": 163906
+}

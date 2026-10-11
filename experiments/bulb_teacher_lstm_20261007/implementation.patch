@@ -1,0 +1,420 @@
+--- a/scripts/rsl_rl/train_bulb_grasp_teacher.py
++++ b/scripts/rsl_rl/train_bulb_grasp_teacher.py
+@@ -13,6 +13,7 @@
+ from isaaclab.app import AppLauncher
+ parser = argparse.ArgumentParser(description=__doc__)
+ parser.add_argument('--checkpoint', type=Path, default=None, help='Omit for a fresh run; supply for full-state resume.')
++parser.add_argument('--lstm', action='store_true', help='Use 1 observation frame and a single 256-unit LSTM before each actor/critic MLP.')
+ parser.add_argument('--num_envs', type=int, default=8192)
+ parser.add_argument('--max_iterations', type=int, required=True, help='Additional PPO iterations.')
+ parser.add_argument('--seed', type=int, default=42)
+@@ -37,6 +38,9 @@
+     parser.error(f'Expected {args.expected_world_size} ranks, got {world_size}')
+ if world_size > 1 and not args.distributed:
+     parser.error('torchrun launches require --distributed')
++if args.lstm:
++    # Pin the tested recurrent PPO implementation for both single- and multi-GPU entry points.
++    sys.path.insert(0, str(ROOT / 'runtime/bulb_grasp_teacher'))
+ app = AppLauncher(args).app
+ import gymnasium as gym
+ from isaaclab.utils.io import dump_yaml
+@@ -70,6 +74,9 @@
+     elif args.checkpoint is None:
+         cfg.curriculum.adr.params['init_difficulty'] = 0.0
+     agent = load_cfg_from_registry(TASK, 'rsl_rl_cfg_entry_point')
++    if args.lstm:
++        from BrainCo_DexHand.tasks.manager_based.dexsuite.config.BulbGraspTeacher.policy import configure_bulb_teacher_lstm
++        configure_bulb_teacher_lstm(cfg, agent)
+     agent.seed = cfg.seed
+     agent.device = args.device
+     agent.max_iterations = args.max_iterations
+@@ -93,6 +100,8 @@
+         'cuda_visible_devices': os.environ.get('CUDA_VISIBLE_DEVICES'),
+         'checkpoint': str(args.checkpoint) if args.checkpoint else None,
+         'from_scratch': args.checkpoint is None,
++        'policy_class': agent.policy.class_name,
++        'observation_history_length': cfg.observations.policy.history_length,
+         'initial_adr_difficulty': cfg.curriculum.adr.params['init_difficulty'],
+         'initial_gravity_z': cfg.v2_gravity_curriculum.initial_gravity_z,
+         'physx_capacities_per_rank': {
+--- a/scripts/rsl_rl/play_bulb_grasp_teacher.py
++++ b/scripts/rsl_rl/play_bulb_grasp_teacher.py
+@@ -11,7 +11,8 @@
+ from isaaclab.app import AppLauncher
+ 
+ parser = argparse.ArgumentParser(description=__doc__)
+-parser.add_argument('--checkpoint', type=Path, default=ROOT / 'checkpoints/bulb_grasp_teacher_20261004/model_22200.pt')
++parser.add_argument('--checkpoint', type=Path, default=None)
++parser.add_argument('--lstm', action='store_true', help='Replay a single-frame LSTM teacher; requires an explicit LSTM --checkpoint.')
+ parser.add_argument('--num_envs', type=int, default=16)
+ parser.add_argument('--steps', type=int, default=0, help='0: run until the viewer is closed.')
+ parser.add_argument('--seed', type=int, default=42)
+@@ -23,6 +24,12 @@
+ parser.add_argument('--camera-lookat', type=float, nargs=3, default=(-0.22, 0.08, 1.00))
+ AppLauncher.add_app_launcher_args(parser)
+ args = parser.parse_args()
++if args.lstm and args.checkpoint is None:
++    parser.error('--lstm requires --checkpoint pointing to a model trained with --lstm')
++if args.checkpoint is None:
++    args.checkpoint = ROOT / 'checkpoints/bulb_grasp_teacher_20261004/model_22200.pt'
++if args.lstm:
++    sys.path.insert(0, str(ROOT / 'runtime/bulb_grasp_teacher'))
+ if args.video is not None:
+     if args.num_envs != 1 or args.steps <= 0:
+         parser.error('--video requires --num_envs 1 and positive --steps')
+@@ -46,6 +53,12 @@
+ video_trace = []
+ try:
+     cfg = load_cfg_from_registry(TASK, 'env_cfg_entry_point')
++    agent_cfg = load_cfg_from_registry(TASK, 'rsl_rl_cfg_entry_point')
++    if args.lstm:
++        from BrainCo_DexHand.tasks.manager_based.dexsuite.config.BulbGraspTeacher.policy import (
++            BulbGraspTeacherLSTM, configure_bulb_teacher_lstm,
++        )
++        configure_bulb_teacher_lstm(cfg, agent_cfg)
+     cfg.scene.num_envs = args.num_envs
+     report['curriculum_version'] = getattr(cfg, 'bulb_grasp_curriculum_version', 0)
+     if report['curriculum_version'] >= 5:
+@@ -81,14 +94,15 @@
+     if 'training_iteration' in base.event_manager.available_modes:
+         base.event_manager.apply(mode='training_iteration')
+     obs, _ = env.reset()
+-    expected = {'policy': 195, 'proprio': 745, 'perception': 960}
++    history = cfg.observations.policy.history_length
++    expected = {name: width * history for name, width in {'policy': 39, 'proprio': 149, 'perception': 192}.items()}
+     for group, width in expected.items():
+         assert obs[group].shape == (args.num_envs, width), (group, obs[group].shape)
+     assert base.action_manager.total_action_dim == 28
+-    agent_cfg = load_cfg_from_registry(TASK, 'rsl_rl_cfg_entry_point')
+     policy_kwargs = agent_cfg.policy.to_dict()
+     policy_kwargs.pop('class_name', None)
+-    policy = ActorCritic(obs, agent_cfg.obs_groups, 28, **policy_kwargs).to(base.device)
++    policy_class = BulbGraspTeacherLSTM if args.lstm else ActorCritic
++    policy = policy_class(obs, agent_cfg.obs_groups, 28, **policy_kwargs).to(base.device)
+     policy.load_state_dict(checkpoint['model_state_dict'], strict=True)
+     policy.eval()
+     if args.video is not None:
+@@ -111,6 +125,8 @@
+                            'camera_lookat': args.camera_lookat, 'continuous_unfiltered': True}
+     report.update({'iteration': iteration, 'num_envs': args.num_envs,
+                    'observation_shapes': {k: list(obs[k].shape) for k in expected},
++                   'policy_class': agent_cfg.policy.class_name,
++                   'observation_history_length': history,
+                    'joint_names': list(base.scene['robot'].joint_names),
+                    'action_dim': 28, 'control_dt': base.step_dt, 'gravity_z': gravity,
+                    'robot_usd': cfg.scene.robot.spawn.usd_path,
+@@ -168,6 +184,7 @@
+             actions = policy.act_inference(obs)
+             assert actions.shape == (args.num_envs, 28) and torch.isfinite(actions).all()
+             obs, reward, terminated, truncated, _ = env.step(actions)
++            policy.reset(terminated | truncated)
+             assert torch.isfinite(reward).all()
+             if args.video is not None and bool((terminated | truncated).any()):
+                 terminal_episodes.append({'episode': completed + 1, 'step': steps + 1,
+--- a/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_runner.py
++++ b/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_runner.py
+@@ -27,6 +27,7 @@
+     resolve_symmetry_config,
+ )
+ from rsl_rl.utils import resolve_obs_groups, store_code_state
++from .policy import BulbGraspTeacherLSTM
+ 
+ 
+ class OnPolicyRunner:
+--- a/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/policy.py
++++ b/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/policy.py
+@@ -0,0 +1,50 @@
++"""Optional single-frame LSTM teacher; leaves the frozen MLP defaults intact."""
++import torch
++
++from rsl_rl.modules import ActorCriticRecurrent
++
++
++def configure_bulb_teacher_lstm(env_cfg, agent_cfg):
++    """Apply the explicit --lstm mode before constructing the environment/runner."""
++    for group in vars(env_cfg.observations).values():
++        if hasattr(group, "history_length"):
++            group.history_length = 1
++    policy = agent_cfg.policy
++    policy.class_name = "BulbGraspTeacherLSTM"
++    policy.rnn_type = "lstm"
++    policy.rnn_hidden_dim = 256
++    policy.rnn_num_layers = 1
++
++
++class BulbGraspTeacherLSTM(ActorCriticRecurrent):
++    """RSL recurrent PPO with the teacher's noise bounds and bootstrap semantics."""
++
++    def __init__(self, *args, min_noise_std=0.05, max_noise_std=0.5, **kwargs):
++        # This task uses a learned, observation-independent std per action.
++        if kwargs.get("state_dependent_std", False) or kwargs.get("noise_std_type", "scalar") != "scalar":
++            raise ValueError("BulbGraspTeacherLSTM requires state-independent scalar noise.")
++        if not 0 < min_noise_std <= max_noise_std:
++            raise ValueError("Expected 0 < min_noise_std <= max_noise_std.")
++        super().__init__(*args, **kwargs)
++        self.min_noise_std = min_noise_std
++        self.max_noise_std = max_noise_std
++
++    def update_distribution(self, obs):
++        # The upstream recurrent class does not implement the teacher's bounds.
++        with torch.no_grad():
++            self.std.clamp_(self.min_noise_std, self.max_noise_std)
++        super().update_distribution(obs)
++
++    def evaluate(self, obs, masks=None, hidden_states=None):
++        if isinstance(masks, str) and masks == "compute_returns":
++            # The task's PPO fork uses this sentinel for the rollout bootstrap.
++            # Peek at V(s_T) without consuming s_T twice in the persistent memory.
++            obs = self.critic_obs_normalizer(self.get_critic_obs(obs))
++            output, _ = self.memory_c.rnn(obs.unsqueeze(0), self.memory_c.hidden_states)
++            return self.critic(output.squeeze(0))
++        return super().evaluate(obs, masks=masks, hidden_states=hidden_states)
++
++    def load_state_dict(self, state_dict, strict=True):
++        if "memory_a.rnn.weight_ih_l0" not in state_dict:
++            raise ValueError("--lstm requires an LSTM checkpoint; start a fresh run instead of loading a 5-frame MLP.")
++        return super().load_state_dict(state_dict, strict=strict)
+--- a/scripts/diagnostics/check_bulb_teacher_lstm.py
++++ b/scripts/diagnostics/check_bulb_teacher_lstm.py
+@@ -0,0 +1,241 @@
++#!/usr/bin/env python3
++"""CPU checks for the optional teacher LSTM, including real recurrent PPO updates.
++
++No Kit, GPU, scene, remote host or existing checkpoint is used.
++"""
++import contextlib
++import copy
++import importlib.util
++import inspect
++import io
++import json
++from pathlib import Path
++import runpy
++import sys
++from types import ModuleType, SimpleNamespace as NS
++import unittest
++from unittest.mock import patch
++
++ROOT = Path(__file__).resolve().parents[2]
++TASK = ROOT / "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher"
++sys.path.insert(0, str(ROOT / "runtime/bulb_grasp_teacher"))
++
++import torch
++from tensordict import TensorDict
++from rsl_rl.algorithms import PPO
++from rsl_rl.modules import ActorCritic
++
++
++def load(name, path):
++    spec = importlib.util.spec_from_file_location(name, path)
++    value = importlib.util.module_from_spec(spec)
++    sys.modules[name] = value
++    spec.loader.exec_module(value)
++    return value
++
++
++package = ModuleType("bulb_lstm_check")
++package.__path__ = [str(TASK)]
++sys.modules[package.__name__] = package
++policy_module = load("bulb_lstm_check.policy", TASK / "policy.py")
++runner_module = load("bulb_lstm_check.teacher_runner", TASK / "teacher_runner.py")
++
++
++def config_node(value):
++    if isinstance(value, list):
++        return [config_node(item) for item in value]
++    if isinstance(value, dict):
++        if "$type" in value:
++            return NS(**{key: config_node(item) for key, item in value["fields"].items()})
++        return {key: config_node(item) for key, item in value.items()}
++    return value
++
++
++def configs():
++    env = config_node(json.loads((TASK / "teacher_snapshot.json").read_text()))
++    values = json.loads((TASK / "agent_snapshot.json").read_text())
++    agent = NS(**{**values, "policy": NS(**values["policy"])})
++    return env, agent
++
++
++def observations(n=8, history=1):
++    return TensorDict({name: torch.randn(n, width * history)
++                       for name, width in {"policy": 39, "proprio": 149, "perception": 192}.items()}, [n])
++
++
++def make_policy(obs=None):
++    env, agent = configs()
++    policy_module.configure_bulb_teacher_lstm(env, agent)
++    kwargs = vars(agent.policy).copy()
++    kwargs.pop("class_name")
++    with contextlib.redirect_stdout(io.StringIO()):
++        policy = policy_module.BulbGraspTeacherLSTM(
++            observations() if obs is None else obs, agent.obs_groups, 28, **kwargs)
++    return policy
++
++
++class LSTMChecks(unittest.TestCase):
++    def setUp(self):
++        torch.manual_seed(17)
++
++    def test_opt_in_config_preserves_other_settings(self):
++        env, agent = configs()
++        before_env, before_agent = copy.deepcopy(env), copy.deepcopy(agent)
++        self.assertEqual([env.observations.policy.history_length,
++                          env.observations.proprio.history_length,
++                          env.observations.perception.history_length], [5, 5, 5])
++        self.assertEqual(agent.policy.class_name, "ActorCritic")
++        policy_module.configure_bulb_teacher_lstm(env, agent)
++        for group in vars(before_env.observations).values():
++            group.history_length = 1
++        self.assertEqual(vars(env), vars(before_env))
++        expected = vars(before_agent.policy) | dict(class_name="BulbGraspTeacherLSTM", rnn_type="lstm",
++                                                   rnn_hidden_dim=256, rnn_num_layers=1)
++        self.assertEqual(vars(agent.policy), expected)
++        self.assertEqual(agent.obs_groups, before_agent.obs_groups)
++        self.assertEqual(agent.algorithm, before_agent.algorithm)
++
++    def test_forward_memory_and_partial_episode_reset(self):
++        policy = make_policy().eval()
++        obs = observations()
++        self.assertEqual(policy.memory_a.rnn.input_size, 380)
++        self.assertEqual(policy.memory_c.rnn.input_size, 380)
++        self.assertEqual(policy.memory_a.rnn.num_layers, 1)
++        self.assertEqual(policy.memory_a.rnn.hidden_size, 256)
++        with torch.inference_mode():
++            first = policy.act_inference(obs)
++            second = policy.act_inference(obs)
++            policy.evaluate(obs)
++            self.assertEqual(first.shape, (8, 28))
++            self.assertFalse(torch.allclose(first, second))
++            states = [[x.clone() for x in state] for state in policy.get_hidden_states()]
++            done = torch.tensor([True, False, False, True, False, False, False, False])
++            policy.reset(done)
++            for state, previous in zip(policy.get_hidden_states(), states):
++                for current, saved in zip(state, previous):
++                    self.assertEqual(torch.count_nonzero(current[:, done]).item(), 0)
++                    torch.testing.assert_close(current[:, ~done], saved[:, ~done])
++            reset_action = policy.act_inference(obs)
++            torch.testing.assert_close(reset_action[done], first[done])
++            policy.reset()
++            torch.testing.assert_close(policy.act_inference(obs), first)
++
++    def test_bootstrap_does_not_advance_critic_memory(self):
++        policy = make_policy()
++        obs = observations()
++        with torch.inference_mode():
++            policy.evaluate(obs)
++            saved = tuple(x.clone() for x in policy.memory_c.hidden_states)
++            value = policy.evaluate(obs, masks="compute_returns")
++            for current, old in zip(policy.memory_c.hidden_states, saved):
++                torch.testing.assert_close(current, old)
++            torch.testing.assert_close(value, policy.evaluate(obs))
++
++    def test_noise_bounds(self):
++        policy = make_policy()
++        with torch.inference_mode():
++            policy.std[:14] = -1
++            policy.std[14:] = 2
++            policy.act(observations())
++            torch.testing.assert_close(policy.action_std[:, :14], torch.full((8, 14), .05))
++            torch.testing.assert_close(policy.action_std[:, 14:], torch.full((8, 14), .5))
++
++    def test_strict_checkpoint_roundtrip_and_mlp_rejection(self):
++        policy = make_policy()
++        obs = observations()
++        policy.update_normalization(obs)
++        buffer = io.BytesIO()
++        torch.save(policy.state_dict(), buffer)
++        buffer.seek(0)
++        restored = make_policy().eval()
++        restored.load_state_dict(torch.load(buffer, weights_only=True), strict=True)
++        policy.eval()
++        with torch.inference_mode():
++            torch.testing.assert_close(policy.act_inference(obs), restored.act_inference(obs))
++        _, agent = configs()
++        kwargs = vars(agent.policy).copy()
++        kwargs.pop("class_name")
++        with contextlib.redirect_stdout(io.StringIO()):
++            mlp = ActorCritic(observations(history=5), agent.obs_groups, 28, **kwargs)
++        with self.assertRaisesRegex(ValueError, "start a fresh run"):
++            restored.load_state_dict(mlp.state_dict())
++        with self.assertRaises(RuntimeError):
++            mlp.load_state_dict(restored.state_dict())
++
++    def test_real_runner_factory_and_two_ppo_updates(self):
++        # Execute the real runner factory and PPO/storage with asynchronous episode ends.
++        # Only the environment observations/rewards/dones are synthetic.
++        _, agent = configs()
++        env_cfg, _ = configs()
++        policy_module.configure_bulb_teacher_lstm(env_cfg, agent)
++        runner = runner_module.OnPolicyRunner.__new__(runner_module.OnPolicyRunner)
++        runner.cfg = vars(agent)
++        runner.policy_cfg = vars(agent.policy)
++        runner.alg_cfg = agent.algorithm.copy()
++        if "share_cnn_encoders" not in inspect.signature(PPO).parameters:
++            self.assertIs(runner.alg_cfg.pop("share_cnn_encoders"), False)
++        runner.env = NS(num_envs=8, num_actions=28)
++        runner.device = "cpu"
++        runner.multi_gpu_cfg = None
++        runner.num_steps_per_env = 32
++        obs = observations()
++        with contextlib.redirect_stdout(io.StringIO()):
++            ppo = runner._construct_algorithm(obs)
++        self.assertIsInstance(ppo.policy, policy_module.BulbGraspTeacherLSTM)
++        before = {k: v.detach().clone() for k, v in ppo.policy.named_parameters()}
++        for update in range(2):
++            with torch.inference_mode():
++                for step in range(32):
++                    actions = ppo.act(obs)
++                    self.assertEqual(actions.shape, (8, 28))
++                    obs = observations()
++                    dones = (torch.arange(8) + step + 1) % 7 == 0
++                    ppo.process_env_step(obs, torch.randn(8), dones,
++                                         {"time_outs": dones & (torch.arange(8) % 2 == 0)})
++                ppo.compute_returns(obs)
++            losses = ppo.update()
++            for value in losses.values():
++                if value is not None:
++                    self.assertTrue(torch.isfinite(torch.as_tensor(value)).all())
++        for name in ("memory_a.rnn.weight_ih_l0", "memory_c.rnn.weight_ih_l0", "actor.0.weight", "critic.0.weight"):
++            value = dict(ppo.policy.named_parameters())[name]
++            self.assertFalse(torch.equal(value, before[name]), name)
++            self.assertTrue(torch.isfinite(value.grad).all(), name)
++        self.assertEqual(int(next(iter(ppo.optimizer.state.values()))["step"]), 40)
++
++    def test_cli_flag_before_kit_and_play_checkpoint_requirement(self):
++        # Stop at AppLauncher construction, before Kit can be started.
++        class LaunchIntercept(Exception):
++            pass
++
++        class Launcher:
++            @staticmethod
++            def add_app_launcher_args(parser):
++                parser.add_argument("--device", default="cpu")
++
++            def __init__(self, args):
++                raise LaunchIntercept(args)
++
++        app = ModuleType("isaaclab.app")
++        app.AppLauncher = Launcher
++        for script, arguments in (
++            ("train_bulb_grasp_teacher.py", ["--max_iterations", "1", "--lstm"]),
++            ("play_bulb_grasp_teacher.py", ["--lstm", "--checkpoint", "lstm.pt"]),
++            ("play_bulb_grasp_teacher.py", []),
++        ):
++            with patch.dict(sys.modules, {"isaaclab.app": app}), patch.object(sys, "argv", [script, *arguments]), \
++                 patch.object(sys, "path", sys.path.copy()):
++                with self.assertRaises(LaunchIntercept) as caught:
++                    runpy.run_path(str(ROOT / "scripts/rsl_rl" / script), run_name="__main__")
++                self.assertEqual(caught.exception.args[0].lstm, "--lstm" in arguments)
++        with patch.dict(sys.modules, {"isaaclab.app": app}), \
++             patch.object(sys, "argv", ["play", "--lstm"]), patch.object(sys, "path", sys.path.copy()), \
++             contextlib.redirect_stderr(io.StringIO()):
++            with self.assertRaises(SystemExit) as caught:
++                runpy.run_path(str(ROOT / "scripts/rsl_rl/play_bulb_grasp_teacher.py"), run_name="__main__")
++            self.assertEqual(caught.exception.code, 2)
++
++
++if __name__ == "__main__":
++    torch.set_num_threads(1)
++    unittest.main(verbosity=2)

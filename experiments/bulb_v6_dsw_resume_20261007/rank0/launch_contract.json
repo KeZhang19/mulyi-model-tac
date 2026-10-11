@@ -1,0 +1,23 @@
+{
+  "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+  "rank": 0,
+  "world_size": 2,
+  "seed": 42,
+  "num_envs_per_rank": 8192,
+  "total_envs": 16384,
+  "cuda_visible_devices": "0",
+  "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192/rank0/model_9500.pt",
+  "from_scratch": false,
+  "initial_adr_difficulty": 0.0,
+  "initial_gravity_z": -1.0,
+  "physx_capacities_per_rank": {
+    "gpu_max_rigid_contact_count": 16777216,
+    "gpu_max_rigid_patch_count": 3000000,
+    "gpu_found_lost_pairs_capacity": 4194304,
+    "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+    "gpu_total_aggregate_pairs_capacity": 4194304,
+    "gpu_heap_capacity": 134217728,
+    "gpu_temp_buffer_capacity": 33554432,
+    "gpu_collision_stack_size": 4026531840
+  }
+}

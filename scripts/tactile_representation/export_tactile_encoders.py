@@ -27,6 +27,8 @@ from train_latent_alignment import (  # noqa: E402
 )
 from BrainCo_DexHand.tactile_representation.policy import (  # noqa: E402
     export_policy_encoder_bundle,
+    export_tactspace_policy_encoder_bundle,
+    checkpoint_model_type,
     export_unaligned_sim_policy_encoder_bundle,
     file_sha256,
     load_tactile_checkpoint,
@@ -41,8 +43,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
                         help="Export frozen simulation features with identity projection for a sim-only PPO baseline.")
     parser.add_argument("--alignment-checkpoint", type=Path, default=None,
                         help="Export final aligned encoders plus projection heads as policy bundles.")
-    parser.add_argument("--sim-model-type", choices=MODEL_TYPES, default="robust")
-    parser.add_argument("--real-model-type", choices=MODEL_TYPES, default="tri_modal")
+    parser.add_argument("--sim-model-type", choices=MODEL_TYPES, default=None)
+    parser.add_argument("--real-model-type", choices=MODEL_TYPES, default=None)
     parser.add_argument(
         "--output-dir", type=Path, default=Path("runs/revo3_encoder_exports")
     )
@@ -53,8 +55,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     args = parser.parse_args(argv)
     if args.unaligned_sim:
-        if args.alignment_checkpoint is not None or args.sim_model_type != "robust":
-            parser.error("--unaligned-sim requires a robust simulation encoder and no --alignment-checkpoint")
+        if args.alignment_checkpoint is not None or args.sim_model_type not in (None, "robust", "tactspace"):
+            parser.error("--unaligned-sim requires a robust or tactspace simulation encoder and no --alignment-checkpoint")
     elif args.real_checkpoint is None:
         parser.error("--real-checkpoint is required unless --unaligned-sim is used")
     return args
@@ -70,6 +72,21 @@ def _check_output(path: Path, overwrite: bool) -> None:
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
+    sim_source = load_tactile_checkpoint(args.sim_checkpoint)
+    args.sim_model_type = checkpoint_model_type(sim_source, args.sim_model_type)
+    if args.sim_model_type == "tactspace":
+        if not args.unaligned_sim or args.alignment_checkpoint is not None:
+            raise ValueError("Export joint TactSpace latent with --unaligned-sim; no CLIP projection checkpoint is used")
+        output = args.output_dir / "sim_policy_encoder_tactspace.pt"
+        _check_output(output, args.overwrite)
+        export_tactspace_policy_encoder_bundle(output, source=sim_source,
+            source_checkpoint_sha256=file_sha256(args.sim_checkpoint))
+        print(f"saved_tactspace_sim_policy_encoder={output}")
+        return
+    if args.real_checkpoint is not None:
+        args.real_model_type = checkpoint_model_type(load_tactile_checkpoint(args.real_checkpoint), args.real_model_type)
+        if args.real_model_type == "tactspace":
+            raise ValueError("Real TactSpace export requires a verified jointly trained real branch; legacy two-tower export is incompatible")
     if args.unaligned_sim:
         output = args.output_dir / "sim_policy_encoder_unaligned.pt"
         _check_output(output, args.overwrite)

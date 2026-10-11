@@ -1,0 +1,54 @@
+{
+  "time": "2026-10-11T14:42:49.390725+08:00",
+  "stopped": true,
+  "processes_before": [
+    {
+      "pid": 4515,
+      "start_ticks": "389651",
+      "cwd": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007",
+      "cmd": "/home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python -m torch.distributed.run --standalone --nnodes=1 --nproc_per_node=2 scripts/rsl_rl/bulb_grasp_teacher_split_gpu.py --distributed --expected_world_size 2 --num_envs 4096 --max_iterations 29100 --seed 42 --device cuda:0 --headless --log_dir /home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v9_mlp/2026-10-11_resume_model900_2x8192 --num_envs 8192 --initial_adr_difficulty 0 --physx_buffer_scale 2 --physx_collision_stack_size 4026531840 --checkpoint /home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v8_mlp/2026-10-07_scratch_2x8192/rank0/model_900.pt --migrate-v8-tip-command "
+    },
+    {
+      "pid": 4531,
+      "start_ticks": "390061",
+      "cwd": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007",
+      "cmd": "/home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python -u scripts/rsl_rl/bulb_grasp_teacher_split_gpu.py --distributed --expected_world_size 2 --num_envs 4096 --max_iterations 29100 --seed 42 --device cuda:0 --headless --log_dir /home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v9_mlp/2026-10-11_resume_model900_2x8192 --num_envs 8192 --initial_adr_difficulty 0 --physx_buffer_scale 2 --physx_collision_stack_size 4026531840 --checkpoint /home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v8_mlp/2026-10-07_scratch_2x8192/rank0/model_900.pt --migrate-v8-tip-command "
+    },
+    {
+      "pid": 4532,
+      "start_ticks": "390061",
+      "cwd": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007",
+      "cmd": "/home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python -u scripts/rsl_rl/bulb_grasp_teacher_split_gpu.py --distributed --expected_world_size 2 --num_envs 4096 --max_iterations 29100 --seed 42 --device cuda:0 --headless --log_dir /home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v9_mlp/2026-10-11_resume_model900_2x8192 --num_envs 8192 --initial_adr_difficulty 0 --physx_buffer_scale 2 --physx_collision_stack_size 4026531840 --checkpoint /home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v8_mlp/2026-10-07_scratch_2x8192/rank0/model_900.pt --migrate-v8-tip-command "
+    }
+  ],
+  "last_logged_iteration_before_stop": 1156,
+  "selected_checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v9_mlp/2026-10-11_resume_model900_2x8192/rank0/model_1100.pt",
+  "selected_iteration": 1100,
+  "selected_sha256": "31956553a6b6b84a32d758c02af8afed23cda951b7b9045c830a5d72afed6e92",
+  "optimizer_steps": [
+    22040
+  ],
+  "checkpoint_inventory": [
+    {
+      "name": "model_900.pt",
+      "bytes": 27415011,
+      "mtime_ns": 1791697022800761111,
+      "sha256": "54a43ab5c4b0e94720454f2f83a9df1b0c383a06ded81b42e4a7455746d5f5fb"
+    },
+    {
+      "name": "model_1000.pt",
+      "bytes": 27415093,
+      "mtime_ns": 1791698579590875199,
+      "sha256": "e1935c11e452945766358ce3693624413accb4ac8a244cae2bcb4ec91875eb1f"
+    },
+    {
+      "name": "model_1100.pt",
+      "bytes": 27415093,
+      "mtime_ns": 1791700105950314775,
+      "sha256": "31956553a6b6b84a32d758c02af8afed23cda951b7b9045c830a5d72afed6e92"
+    }
+  ],
+  "iterations_additional": 28900,
+  "target_iteration": 30000,
+  "note": "Latest saved v9 full-state resume; unsaved tail is not restored. Task migration v9->v10, not identical-MDP continuation."
+}

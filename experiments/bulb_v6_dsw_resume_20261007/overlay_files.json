@@ -1,0 +1,17 @@
+[
+  "docs/STATUS.md",
+  "docs/PROJECT_MAP.md",
+  "docs/RUNBOOK.md",
+  "EXPERIMENTS.md",
+  "scripts/rsl_rl/train_bulb_grasp_teacher.py",
+  "scripts/diagnostics/check_bulb_grasp_curriculum.py",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md",
+  "experiments/bulb_stage2_reward_20261007/verification.json",
+  "experiments/bulb_stage2_reward_20261007/reward_settings.json",
+  "experiments/bulb_stage2_reward_20261007/protected_sha256.json",
+  "experiments/bulb_stage2_reward_20261007/analysis.json",
+  "experiments/bulb_stage2_reward_20261007/source_delta.patch",
+  "experiments/bulb_stage2_reward_20261007/cpu_checks.log"
+]

@@ -2,13 +2,15 @@
 from isaaclab.managers import RewardTermCfg, TerminationTermCfg
 from isaaclab.utils import configclass
 
-from ..RotateBulbCustom.assembly_env_cfg import DexsuiteRevo3BulbAssemblyEnvCfg, DexsuiteRevo3BulbAssemblyRewardCfg
+from ..RotateBulbCustom.assembly_env_cfg import (
+    DexsuiteRevo3BulbAssemblyEnvCfg, DexsuiteRevo3BulbAssemblyRewardCfg, assembly_any_finger_contact,
+)
 from ..RotateBulbCustom.agents.rsl_rl_ppo_cfg import DexsuiteRevo3RotateBulbPPORunnerCfg
 from ..RotateBulbCustom.assembly_reward_adapter import configure_assembly_rewards
 from .core import CurriculumSettings, EPISODE_SECONDS
 from .insertion import CurriculumInsertionReward
 from . import runtime
-from .rewards import CurriculumRewardAdapter, FloorReachReward, arm_path_cost, base_excursion_cost
+from .rewards import CurriculumRewardAdapter, FloorBestReachReward, FloorReachReward, arm_path_cost, base_excursion_cost
 
 
 @configclass
@@ -67,8 +69,16 @@ def configure_curriculum(cfg):
     if cfg.OLD_REWARD:
         raise ValueError("Curriculum v2 requires the physical assembly reward ledger")
     cfg.rewards.contact_stability.func = CurriculumRewardAdapter
-    # Continuous proximity plus signed approach/retreat replaces first-record
-    # only reach credit. Grasp/lift/hover/thread bonuses keep their predicates.
+    # Keep continuous proximity plus signed approach/retreat in every stage.
+    # Grasp/lift/hover/thread bonuses keep their physical predicates.
     cfg.rewards.reach_progress = RewardTermCfg(func=FloorReachReward, weight=1.)
+    if s.stage == 0:
+        # Historical distance credit is already divided by dt: 40/.4 = 100
+        # points/m, hence +1 per new cm. Keep the arm/hand penalties below.
+        cfg.rewards.reach_best_progress = RewardTermCfg(func=FloorBestReachReward, weight=40., params={"std": .4})
+        # Dextac's initial-contact shaping, registered after the ledger clears
+        # inherited terms. A rate: +.7/s for any bulb-filtered finger >1 N.
+        cfg.rewards.any_finger_contact = RewardTermCfg(
+            func=assembly_any_finger_contact, weight=.7, params={"threshold": 1.0})
     cfg.rewards.arm_path = RewardTermCfg(func=arm_path_cost, weight=-.08)
     cfg.rewards.base_excursion = RewardTermCfg(func=base_excursion_cost, weight=-.5)

@@ -1,0 +1,486 @@
+--- before/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py
++++ source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py
+@@ -1,4 +1,4 @@
+-"""Episode-local grasp above a randomized socket -> lower and point the thread down.
++"""Episode-local grasp above a socket -> shallow tip entry -> three screw turns.
+ 
+ The frozen teacher MDP remains the source of all original rewards and resets.
+ This module owns the new command, outcome and orientation reward only.
+@@ -8,7 +8,7 @@
+ import math
+ 
+ import torch
+-from isaaclab.utils.math import combine_frame_transforms, quat_apply, subtract_frame_transforms
++from isaaclab.utils.math import combine_frame_transforms, quat_apply, quat_apply_inverse, subtract_frame_transforms
+ 
+ from .flexiv_rewards import flexiv_hand_contacts
+ from .insertion import insertion_errors, insertion_target
+@@ -68,7 +68,7 @@
+         self.final_bonus_paid = torch.zeros_like(self.stage_three)
+         self.final_bonus_credit = torch.zeros(self.num_envs, device=self.device)
+         self.screw = ScrewInsertionState(self.num_envs, self.device, self.scales, cfg)
+-        self.insertion_hold_steps = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
++        # The shallow-entry stage has no hold gate; only final screwing uses it.
+         self.required_hold_steps = math.ceil(cfg.insertion_hold_s / env.step_dt)
+         self.metrics["stage"] = torch.ones(self.num_envs, device=self.device)
+         self.metrics["stage1_success"] = torch.zeros(self.num_envs, device=self.device)
+@@ -76,7 +76,7 @@
+         self.metrics["thread_down_error_deg"] = torch.zeros(self.num_envs, device=self.device)
+         for name in ("insertion_depth_m", "insertion_radial_error_m", "insertion_tilt_deg",
+                      "insertion_speed_m_s", "insertion_angular_speed_rad_s", "insertion_hold_s",
+-                     "insertion_candidate"):
++                     "insertion_candidate", "insertion_tip_radial_error_m"):
+             self.metrics[name] = torch.zeros(self.num_envs, device=self.device)
+         for name in ("stage3_success", "screw_turns", "screw_angular_turns", "screw_best_turns",
+                      "screw_depth_target_m", "screw_helix_error_m", "screw_hold_s", "stage3_elapsed_s"):
+@@ -96,7 +96,6 @@
+         self.final_bonus_paid[ids] = False
+         self.final_bonus_credit[ids] = 0
+         self.screw.reset(ids)
+-        self.insertion_hold_steps[ids] = 0
+         return super().reset(ids)
+ 
+     def _socket_target_pose_b(self, height_m):
+@@ -114,7 +113,14 @@
+         )
+ 
+     def _set_stage_two_target(self):
+-        pos_w, quat_w = insertion_target(self.socket, self.scales, self.cfg)
++        # Keep the measured axial phase: shallow entry must not command screwing.
++        pos_w, quat_w = insertion_target(
++            self.socket, self.scales, self.cfg, phase=socket_twist_phase(self.object, self.socket))
++        tip_offset = torch.tensor(self.cfg.bulb_tip_offset_m, device=self.device) * self.scales[:, None]
++        tip_goal_w = pos_w + quat_apply(quat_w, tip_offset)
++        # Encode the tip goal as a center command using the CURRENT attitude.
++        # Both unchanged position reward kernels now measure actual tip error.
++        pos_w = tip_goal_w - quat_apply(self.object.data.root_quat_w, tip_offset)
+         pos_b, quat_b = subtract_frame_transforms(
+             self.robot.data.root_pos_w, self.robot.data.root_quat_w, pos_w, quat_w
+         )
+@@ -147,12 +153,8 @@
+         self._update_metrics()
+         # Exactly once per control step. command.compute() also measures metrics,
+         # but must not count a second sample or change terminal outcome on reset.
+-        valid = self.metrics["insertion_candidate"].bool() & ~self.stage_three
+-        self.insertion_hold_steps[:] = torch.where(valid, self.insertion_hold_steps + 1, 0).clamp(
+-            max=self.required_hold_steps
+-        )
+         was_three = self.stage_three.clone()
+-        entered = valid & (self.insertion_hold_steps >= self.required_hold_steps)
++        entered = self.metrics["insertion_candidate"].bool() & ~self.stage_three
+         # stage_three latches until reset, so only the first valid entry pays.
+         self.stage_two_bonus_credit[:] = entered.float()
+         phase = socket_twist_phase(self.object, self.socket)
+@@ -183,13 +185,18 @@
+         depth, radial, insertion_tilt, speed, angular_speed = insertion_errors(
+             self.object, self.socket, self.scales, self.cfg
+         )
++        tip_offset = torch.tensor(self.cfg.bulb_tip_offset_m, device=self.device) * self.scales[:, None]
++        tip_w = self.object.data.root_pos_w + quat_apply(self.object.data.root_quat_w, tip_offset)
++        tip_s = quat_apply_inverse(self.socket.data.root_quat_w, tip_w - self.socket.data.root_pos_w)
++        tip_radial = torch.linalg.vector_norm(tip_s[:, 1:], dim=-1)
++        # Stage two checks the tip entering the opening, not the full shaft axis
++        # at the lip (that would implicitly restore a much tighter tilt limit).
+         insertion_position_ok = ((depth >= self.cfg.insertion_depth_range_m[0])
+                                  & (depth <= self.cfg.insertion_depth_range_m[1])
+-                                 & (radial <= self.cfg.insertion_radial_tolerance_m))
++                                 & (tip_radial <= self.cfg.insertion_radial_tolerance_m))
++        shallow_orientation_ok = insertion_tilt < math.radians(self.cfg.shallow_insertion_tilt_tolerance_deg)
+         orientation_ok = insertion_tilt <= math.radians(self.cfg.insertion_tilt_tolerance_deg)
+-        candidate = (self.stage_two & insertion_position_ok & orientation_ok
+-                     & (speed <= self.cfg.insertion_speed_limit_m_s)
+-                     & (angular_speed <= self.cfg.insertion_angular_speed_limit_rad_s))
++        candidate = self.stage_two & insertion_position_ok & shallow_orientation_ok
+         final_depth = self.screw.entry_depth + self.cfg.screw_target_turns * self.cfg.thread_pitch_m * self.scales
+         self._screw_candidate = (
+             self.stage_three & self.screw.valid & (self.screw.net_turns >= self.cfg.screw_target_turns - 1e-5)
+@@ -206,7 +213,8 @@
+             ((depth - final_depth).abs() <= self.cfg.screw_final_depth_tolerance_m * self.scales)
+             & (radial <= self.cfg.insertion_radial_tolerance_m), position_reached)
+         self.metrics["position_success"][:] = position_reached.float()
+-        self.metrics["orientation_success"][:] = orientation_ok.float()
++        self.metrics["orientation_success"][:] = torch.where(
++            self.stage_two & ~self.stage_three, shallow_orientation_ok, orientation_ok).float()
+         self.metrics["success"][:] = success.float()
+         self.metrics["stage"][:] = 1.0 + self.stage_two.float() + self.stage_three.float()
+         self.metrics["stage1_success"][:] = self.stage_two.float()
+@@ -215,11 +223,12 @@
+         self.metrics["thread_down_error_deg"][:] = torch.rad2deg(tilt)
+         self.metrics["insertion_depth_m"][:] = depth
+         self.metrics["insertion_radial_error_m"][:] = radial
++        self.metrics["insertion_tip_radial_error_m"][:] = tip_radial
+         self.metrics["insertion_tilt_deg"][:] = torch.rad2deg(insertion_tilt)
+         self.metrics["insertion_speed_m_s"][:] = speed
+         self.metrics["insertion_angular_speed_rad_s"][:] = angular_speed
+         self.metrics["insertion_candidate"][:] = candidate.float()
+-        self.metrics["insertion_hold_s"][:] = self.insertion_hold_steps * self._env.step_dt
++        self.metrics["insertion_hold_s"][:] = 0.0  # Legacy metric; no stage-two hold requirement.
+         self.metrics["screw_turns"][:] = self.screw.turns
+         self.metrics["screw_angular_turns"][:] = self.screw.net_turns
+         self.metrics["screw_best_turns"][:] = self.screw.best
+@@ -272,7 +281,7 @@
+ 
+ 
+ def stage_two_success_bonus(env):
+-    """Pay once on stable shallow-insertion promotion; suppress physical failures."""
++    """Pay once on shallow tip-entry promotion; suppress physical failures."""
+     credit = env.command_manager.get_term("object_pose").stage_two_bonus_credit
+     if getattr(env, "termination_manager", None) is not None:
+         credit = torch.where(env.termination_manager.terminated, 0., credit)
+--- before/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py
++++ source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py
+@@ -1,4 +1,4 @@
+-"""V2-test bulb teacher extended with a two-stage grasp/carry curriculum.
++"""V2-test bulb teacher extended with a three-stage grasp/insert/screw curriculum.
+ 
+ The typed snapshot preserves the running teacher's complete manager configuration,
+ including term order, history order, noise, rewards, resets and physical settings.
+@@ -120,6 +120,8 @@
+         command.insertion_depth_m = .0055
+         command.insertion_depth_range_m = (.005, .006)
+         command.insertion_radial_tolerance_m = .0005
++        command.shallow_insertion_tilt_tolerance_deg = 30.0  # Strict <; no speed/hold gate.
++        # These stability tolerances now apply only to final stage-three success.
+         command.insertion_tilt_tolerance_deg = 5.0
+         command.insertion_speed_limit_m_s = .02
+         command.insertion_angular_speed_limit_rad_s = .5
+@@ -167,7 +169,7 @@
+         self.terminations.time_out.func = grasp_screw_time_out
+         self.curriculum.adr.func = BulbGraspCurriculumDifficulty
+         self.episode_length_s = command.stage12_duration_s + command.stage3_duration_s
+-        self.bulb_grasp_curriculum_version = 7
++        self.bulb_grasp_curriculum_version = 8
+ 
+ 
+ @configclass
+--- before/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md
++++ source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md
+@@ -3,6 +3,33 @@
+ 独立任务 `BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0`，
+ 回放任务 `BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-Play-v0`。
+ 来源是 dextac-Depth 的 Stable v2-test 灯泡教师；不继承装配任务的369维观测或tanh动作。
++
++## 2026-10-07：v8 第二阶段改为螺纹端点浅插（当前本地默认）
++
++按本次用户要求，第二阶段的位置目标按灯泡**当前姿态**换算中心位置，使原
++`position_tracking`和`success`位置核的距离等于实际螺纹端点到孔内浅插目标的距离。
++端点沿用`insertion_geometry.json:bulb_tip_offset_m`，即螺纹最前端截面的轴心，
++不是倾斜后整颗灯泡网格的世界最低顶点；轴向目标仍为口沿下5.5 mm。
++目标朝向沿用当前轴向相位，只引导朝下，不再要求源CAD的预设旋入相位。
++
++阶段二→三现在只要求：端点深度5–6 mm、端点径向偏差≤0.5 mm、螺纹轴倾角**严格<30°**。
++满足的第一个控制步即晋级，不检查线速度/角速度，不要求连续0.2 s。
++口沿处的整根轴线对中不再作为第二阶段门槛；否则其0.5 mm容差会隐含更紧的倾角约束。
++实际螺纹碰撞保持，穿过侧壁/倾斜插入是否物理可达仍由仿真决定。
++这里只将浅插定义为无需旋转的晋级条件，没有新增“零接触/尚未啮合”的物理检测或保证。
++
++两项位置奖励的核、权重、接触门控、朝向软系数及晋级一次+10均保持；第一阶段保持。
++第三阶段从实际浅插深度/相位重新计圈，原三圈、螺距、≤5°、低速、0.2 s保持和一次+20均保持。
++`shallow_insertion_tilt_tolerance_deg=30`只供二阶段；旧`insertion_tilt_tolerance_deg`、
++`insertion_speed_limit_m_s`、`insertion_angular_speed_limit_rad_s`、`insertion_hold_s`现仅供三阶段最终验收。
++观测宽度、动作、物理、资产、随机化、8+6 s时间预算不变；目标含义和晋级协议已变化，MDP版本升为8。
++旧checkpoint可作为继续学习的候选，但用本代码评测不再属于原v7协议。
++
++`insertion_tip_radial_error_m`新增记录二阶段端点偏差；旧`insertion_radial_error_m`
++仍为端点/口沿轴线最大偏差，供三阶段使用。旧`insertion_hold_s`指标恒0，回放HUD按v8显示新条件。
++CPU课程检查52/52通过，包含真实数学/命令生命周期和USD资产回归；场景张量为替身，未运行物理轨迹。
++未同步/重启远端，10月7日已有v7 LSTM部署仍是原版本。下方v5/v6/v7描述保留为历史。
++[本次差异、检查和边界](../../../../../../../../experiments/bulb_stage2_tip_entry_20261007/README.md)。
+ 
+ ## 2026-10-07：可选单帧 LSTM
+ 
+--- before/scripts/diagnostics/check_bulb_grasp_curriculum.py
++++ scripts/diagnostics/check_bulb_grasp_curriculum.py
+@@ -136,6 +136,7 @@
+              stage1_height_m=.15, position_tolerance_m=.05,
+              insertion_depth_m=.0055, insertion_depth_range_m=(.005, .006),
+              insertion_radial_tolerance_m=.0005, insertion_tilt_tolerance_deg=5.,
++             shallow_insertion_tilt_tolerance_deg=30.,
+              insertion_speed_limit_m_s=.02, insertion_angular_speed_limit_rad_s=.5,
+              insertion_hold_s=.2)
+     cfg.__dict__.update(screw_target_turns=3., screw_final_depth_tolerance_m=.001,
+@@ -186,6 +187,17 @@
+         c.advance()
+ 
+ 
++def shallow_tip_goal(c):
++    offset = torch.zeros_like(c.socket.data.root_pos_w)
++    offset[:, 0] = c.cfg.socket_mouth_x_m * c.scales - c.cfg.insertion_depth_m
++    return c.socket.data.root_pos_w + math_utils.quat_apply(c.socket.data.root_quat_w, offset)
++
++
++def commanded_tip(env, c):
++    offset = torch.tensor(c.cfg.bulb_tip_offset_m) * c.scales[:, None]
++    return c.pose_command_w[:, :3] + math_utils.quat_apply(env.scene["object"].data.root_quat_w, offset)
++
++
+ def place_screwed(env, c, turns, depth_turns=None):
+     turns = torch.as_tensor(turns, dtype=torch.float32).expand(env.num_envs)
+     axial = turns if depth_turns is None else torch.as_tensor(depth_turns, dtype=torch.float32).expand(env.num_envs)
+@@ -206,13 +218,88 @@
+ 
+ 
+ class CurriculumChecks(unittest.TestCase):
++    def test_shallow_entry_ignores_speed_and_hold_but_has_strict_thirty_degree_boundary(self):
++        from unittest.mock import patch
++        env, c = fixture()
++        c.stage_two[:] = True
++        place_inserted(env, c, tilts=[0., 29.9, 30.1, 90.])
++        env.scene["object"].data.root_lin_vel_w[:] = 2.
++        env.scene["object"].data.root_ang_vel_w[:] = 5.
++        c.advance()
++        self.assertEqual(c.stage_three.tolist(), [True, True, False, False])
++        torch.testing.assert_close(c.stage_two_bonus_credit, torch.tensor([1., 1., 0., 0.]))
++        self.assertFalse(c.metrics["success"].any())
++        self.assertFalse(c.screw.net_turns.any())
++        # Test the exact comparison boundary separately from quaternion roundoff.
++        c.reset()
++        c.stage_two[:] = True
++        place_inserted(env, c)
++        angle = torch.tensor([0., math.pi / 6 - 1e-6, math.pi / 6, math.pi / 6 + 1e-6])
++        with patch.object(curriculum, "insertion_errors", return_value=(
++                torch.full((4,), .0055), torch.zeros(4), angle, torch.full((4,), 2.), torch.full((4,), 5.))):
++            c.advance()
++        self.assertEqual(c.stage_three.tolist(), [True, True, False, False])
++
++    def test_position_rewards_track_real_tip_not_upright_center(self):
++        env, c = fixture()
++        c.stage_two[:] = True
++        c.scales[:] = torch.tensor([.8, .9, 1., 1.2])
++        place_inserted(env, c, depths=[.004] * 4, tilts=[0., 29., 60., 90.],
++                       radial=[0., .001, .01, .02])
++        before = env.scene["object"].data.root_pos_w.clone()
++        c.advance()  # Outside the shallow depth band, so all remain in stage two.
++        self.assertFalse(c.stage_three.any())
++        torch.testing.assert_close(env.scene["object"].data.root_pos_w, before)
++        d = torch.sqrt(torch.tensor([0., .001, .01, .02]).square() + .0015 ** 2)
++        torch.testing.assert_close(c.metrics["position_error"], d, atol=2e-6, rtol=0)
++        track = sys.modules["bulb_check.flexiv_rewards"].flexiv_position_command_error_tanh
++        args = (env, "object_pose", NS(name="robot"), NS(name="object"), .1)
++        torch.testing.assert_close(track(env, .2, "object_pose", NS(name="robot"), NS(name="object")),
++                                   1 - torch.tanh(d / .2), atol=2e-5, rtol=0)
++        factor = .2 + .8 * (1 - torch.tensor([0., 29., 60., 90.]) / 180).square()
++        torch.testing.assert_close(curriculum.stage_two_position_orientation_reward(*args),
++                                   (1 - torch.tanh(d / .1)).square() * factor, atol=3e-5, rtol=0)
++        torch.testing.assert_close(commanded_tip(env, c), shallow_tip_goal(c), atol=2e-6, rtol=0)
++
++    def test_shallow_target_preserves_axial_phase_and_does_not_bank_screw_turns(self):
++        env, c = fixture()
++        c.stage_two[:] = True
++        screw = sys.modules["bulb_check.screwing"]
++        place_inserted(env, c, depths=[.004] * 4, tilts=[15.] * 4)
++        for phase in (0., 1., 2., 3., 4.):
++            spin = math_utils.quat_from_euler_xyz(torch.full((4,), phase), torch.zeros(4), torch.zeros(4))
++            env.scene["object"].data.root_quat_w[:] = math_utils.quat_mul(tilt_quat([15.] * 4), spin)
++            c.advance()
++            target = NS(data=NS(root_quat_w=c.pose_command_w[:, 3:]))
++            difference = screw.socket_twist_phase(target, c.socket) - screw.socket_twist_phase(env.scene["object"], c.socket)
++            torch.testing.assert_close(torch.atan2(difference.sin(), difference.cos()), torch.zeros(4), atol=2e-6, rtol=0)
++            self.assertFalse(c.stage_three.any())
++            self.assertFalse(c.screw.net_turns.any())
++            self.assertFalse(c.screw.force_credit.any())
++
++    def test_final_screw_success_keeps_original_stability_gates(self):
++        from unittest.mock import patch
++        env, c = fixture()
++        c.stage_two[:] = True
++        place_inserted(env, c)
++        c.advance()
++        screw_three_turns(env, c)
++        self.assertTrue(c.metrics["success"].all())
++        depth = c.screw.entry_depth + 3 * c.cfg.thread_pitch_m * c.scales
++        with patch.object(curriculum, "insertion_errors", return_value=(
++                depth, torch.zeros(4), torch.deg2rad(torch.tensor([0., 6., 0., 0.])),
++                torch.tensor([0., 0., .021, 0.]), torch.tensor([0., 0., 0., .51]))):
++            c._update_metrics()
++        self.assertEqual(c.metrics["success"].tolist(), [1., 0., 0., 0.])
++        c.screw_hold_steps[:] = c.required_hold_steps - 1
++        c._update_metrics()
++        self.assertFalse(c.metrics["success"].any())
++
+     def test_stage_two_bonus_requires_hold_and_pays_once_even_after_reentry(self):
+-        env, c = fixture()
+-        c.stage_two[:] = True
+-        place_inserted(env, c)
+-        for _ in range(c.required_hold_steps - 1):
+-            c.advance()
+-            self.assertFalse(curriculum.stage_two_success_bonus(env).any())
++        """V8 removes the former hold requirement; the bonus remains one-shot."""
++        env, c = fixture()
++        c.stage_two[:] = True
++        place_inserted(env, c)
+         c.advance()
+         torch.testing.assert_close(10 * curriculum.stage_two_success_bonus(env) * env.step_dt,
+                                    torch.full((4,), 10.))
+@@ -229,7 +316,7 @@
+         env, c = fixture()
+         c.stage_two[:] = True
+         place_inserted(env, c)
+-        hold(c)
++        c.advance()
+         env.termination_manager = NS(terminated=torch.tensor([True, False, False, False]))
+         torch.testing.assert_close(10 * curriculum.stage_two_success_bonus(env) * env.step_dt,
+                                    torch.tensor([0., 10., 10., 10.]))
+@@ -240,7 +327,7 @@
+         c.stage_two[:] = True
+         env.termination_manager.terminated.zero_()
+         place_inserted(env, c)
+-        hold(c)
++        c.advance()
+         torch.testing.assert_close(10 * curriculum.stage_two_success_bonus(env) * env.step_dt,
+                                    torch.tensor([10., 0., 10., 0.]))
+ 
+@@ -251,7 +338,7 @@
+             c.required_hold_steps = math.ceil(c.cfg.insertion_hold_s / dt)
+             c.stage_two[:] = True
+             place_inserted(env, c)
+-            hold(c)
++            c.advance()
+             torch.testing.assert_close(10 * curriculum.stage_two_success_bonus(env) * dt,
+                                        torch.full((4,), 10.))
+ 
+@@ -405,11 +492,10 @@
+         env, c = fixture()
+         c.stage_two[:] = True
+         place_inserted(env, c)
+-        for _ in range(5):
+-            c.advance()
+         env.episode_length_buf[:] = 240  # Final 8-second step can still promote.
+         c.advance()
+         self.assertTrue(c.stage_three.all())
++        self.assertEqual(c.stage_three_steps.tolist(), [0, 0, 0, 0])
+         self.assertFalse(curriculum.grasp_screw_time_out(env).any())
+         c.stage_three_steps[:] = torch.tensor([179, 180, 181, 0])
+         c.stage_three[3] = False
+@@ -460,12 +546,13 @@
+             context["_resolve_common_term_cfg"](manager, func.__name__, Config(func=func, params={}), 2)
+ 
+     def test_axis_and_inclusive_angle_boundary(self):
++        """V8 shallow tilt is <30 degrees; final screwing still uses <=5."""
+         errors = curriculum.thread_down_error(tilt_quat([0, 30, 90, 180]))
+         torch.testing.assert_close(torch.rad2deg(errors), torch.tensor([0., 30., 90., 180.]), atol=1e-4, rtol=0)
+         env, c = fixture()
+         place_at_goal(env, c)
+         c.advance()
+-        place_inserted(env, c, tilts=[0, 4.9, 5.1, 180])
++        place_inserted(env, c, tilts=[0, 29.9, 30.1, 180])
+         hold(c)
+         self.assertEqual(c.metrics["stage2_success"].tolist(), [1, 1, 0, 0])
+         self.assertFalse(c.metrics["success"].any())
+@@ -482,8 +569,7 @@
+         self.assertFalse(curriculum.update_grasp_curriculum(env).any())
+         self.assertEqual(c.stage_two.tolist(), [True, False, True, False])
+         torch.testing.assert_close(env.scene["object"].data.root_pos_w, before)
+-        expected, _ = curriculum.insertion_target(c.socket, c.scales, c.cfg)
+-        torch.testing.assert_close(c.pose_command_w[[0, 2], :3], expected[[0, 2]])
++        torch.testing.assert_close(commanded_tip(env, c)[[0, 2]], shallow_tip_goal(c)[[0, 2]])
+         self.assertFalse(c.metrics["success"].any())
+         self.assertEqual(c.metrics["stage1_success"].tolist(), [1, 0, 1, 0])
+ 
+@@ -549,8 +635,7 @@
+         env.scene["robot"].data.root_quat_w[:] = math_utils.quat_from_euler_xyz(torch.zeros(4), torch.zeros(4), torch.ones(4))
+         place_at_goal(env, c)
+         c.advance()
+-        expected, _ = curriculum.insertion_target(c.socket, c.scales, c.cfg)
+-        torch.testing.assert_close(c.pose_command_w[:, :3], expected)
++        torch.testing.assert_close(commanded_tip(env, c), shallow_tip_goal(c))
+         self.assertTrue((curriculum.thread_down_error(c.pose_command_w[:, 3:]) < 1e-3).all())
+ 
+     def test_orientation_reward_stage_contact_and_monotonicity(self):
+@@ -732,7 +817,12 @@
+         self.assertGreater(list(vars(cfg.events)).index("match_socket_scale"),
+                            list(vars(cfg.events)).index("randomize_object_scale"))
+         self.assertEqual(plain(cfg.commands.object_pose.ranges), plain(frozen.commands.object_pose.ranges))
+-        self.assertEqual(cfg.bulb_grasp_curriculum_version, 7)
++        self.assertEqual(cfg.bulb_grasp_curriculum_version, 8)
++        self.assertEqual(cfg.commands.object_pose.shallow_insertion_tilt_tolerance_deg, 30.)
++        self.assertEqual(cfg.commands.object_pose.insertion_tilt_tolerance_deg, 5.)
++        self.assertEqual(cfg.commands.object_pose.insertion_hold_s, .2)
++        self.assertEqual(cfg.commands.object_pose.insertion_speed_limit_m_s, .02)
++        self.assertEqual(cfg.commands.object_pose.insertion_angular_speed_limit_rad_s, .5)
+         self.assertEqual(cfg.episode_length_s, 14.)
+         self.assertEqual(cfg.commands.object_pose.stage3_duration_s, 6.)
+         self.assertEqual(list(vars(cfg.terminations))[0], "curriculum_update")
+@@ -808,8 +898,7 @@
+         torch.testing.assert_close(first, mouth + torch.tensor([0, 0, .15]))
+         place_at_goal(env, c)
+         c.advance()
+-        expected_height = -c.cfg.bulb_tip_offset_m[0] - .0055
+-        torch.testing.assert_close(c.pose_command_w[:, 2], mouth[:, 2] + expected_height)
++        torch.testing.assert_close(commanded_tip(env, c), mouth - torch.tensor([0, 0, .0055]))
+         torch.testing.assert_close(env.scene["socket"].data.root_state_w, socket_before)
+         self.assertFalse(c.metrics["success"].any())
+ 
+@@ -906,13 +995,14 @@
+         self.assertFalse(c.metrics["success"].any())
+ 
+     def test_insertion_hold_counts_only_physics_and_resets_on_invalid(self):
++        """V8 compute/metrics never promote; one physics hook suffices without waiting."""
+         env, c = fixture()
+         c.stage_two[:] = True
+         place_inserted(env, c)
+         for _ in range(5):
+-            c.advance()
+             c.compute(env.step_dt)
+             c._update_metrics()
++        self.assertFalse(c.stage_three.any())
+         self.assertFalse(c.metrics["success"].any())
+         c.advance()
+         self.assertTrue(c.stage_three.all())
+@@ -921,10 +1011,10 @@
+         env.scene["object"].data.root_ang_vel_w[1, 0] = .51
+         env.scene["object"].data.root_pos_w[2, 0] = float("nan")
+         c.advance()
+-        self.assertEqual(c.insertion_hold_steps.tolist(), [0, 0, 0, 0])
++        self.assertEqual(c.metrics["insertion_hold_s"].tolist(), [0, 0, 0, 0])
+         self.assertFalse(c.metrics["success"].any())
+         c.reset(torch.tensor([3]))
+-        self.assertEqual(c.insertion_hold_steps.tolist(), [0, 0, 0, 0])
++        self.assertEqual(c.metrics["insertion_hold_s"].tolist(), [0, 0, 0, 0])
+ 
+     def test_insertion_requires_stage_one_and_checks_mouth_axis(self):
+         env, c = fixture()
+@@ -933,10 +1023,10 @@
+         self.assertFalse(c.metrics["success"].any())
+         self.assertFalse(c.stage_two.any())
+         c.stage_two[:] = True
+-        # A tip on the centerline is insufficient when the axis crosses the lip off-center.
+-        place_inserted(env, c, tilts=[4.9, 4.9, 0, 0], radial=[.00045, 0, .00049, .00051])
+-        hold(c)
+-        self.assertEqual(c.metrics["stage2_success"].tolist(), [0, 1, 1, 0])
++        # Shallow entry now checks only the tip; shaft-at-lip alignment belongs to stage three.
++        place_inserted(env, c, tilts=[29., 29., 0, 0], radial=[.00045, 0, .00049, .00051])
++        hold(c)
++        self.assertEqual(c.metrics["stage2_success"].tolist(), [1, 1, 1, 0])
+ 
+     def test_socket_scale_matching_authors_usd_and_geometry_uses_it(self):
+         from pxr import Usd, UsdGeom, Gf
+--- before/scripts/rsl_rl/play_bulb_grasp_teacher.py
++++ scripts/rsl_rl/play_bulb_grasp_teacher.py
+@@ -148,7 +148,7 @@
+                 success = bool(command.metrics['success'][0].item())
+                 insertion_metrics = {name: float(command.metrics[name][0].item()) for name in (
+                     'insertion_depth_m', 'insertion_radial_error_m', 'insertion_tilt_deg',
+-                    'insertion_speed_m_s', 'insertion_angular_speed_rad_s', 'insertion_hold_s'
++                    'insertion_speed_m_s', 'insertion_angular_speed_rad_s', 'insertion_hold_s', 'insertion_tip_radial_error_m'
+                     , 'screw_turns', 'screw_angular_turns', 'screw_best_turns', 'screw_depth_target_m',
+                     'screw_helix_error_m', 'screw_hold_s', 'stage3_elapsed_s'
+                 ) if name in command.metrics}
+@@ -170,9 +170,14 @@
+                     draw.text((25, 141), f"Radial {insertion_metrics['insertion_radial_error_m'] * 1000:.2f} mm | Stable hold {insertion_metrics['screw_hold_s']:.2f}s", font=hud_font, fill='white')
+                 elif stage == 2 and insertion_metrics:
+                     depth_mm = insertion_metrics['insertion_depth_m'] * 1000
+-                    radial_mm = insertion_metrics['insertion_radial_error_m'] * 1000
+-                    draw.text((25, 81), f'Depth {depth_mm:.2f} mm (5-6) | Radial {radial_mm:.2f} mm (<=0.5) | Tilt {tilt_deg:.1f} deg (<=5)', font=hud_font, fill='white')
+-                    draw.text((25, 111), f"Stable hold {insertion_metrics['insertion_hold_s']:.2f}s (0.20) | Success: {success}", font=hud_font, fill='white')
++                    tip_entry = hasattr(command.cfg, 'shallow_insertion_tilt_tolerance_deg')
++                    radial_key = 'insertion_tip_radial_error_m' if tip_entry else 'insertion_radial_error_m'
++                    radial_mm = insertion_metrics[radial_key] * 1000
++                    tilt_limit = f'<{command.cfg.shallow_insertion_tilt_tolerance_deg:g}' if tip_entry else '<=5'
++                    draw.text((25, 81), f'Depth {depth_mm:.2f} mm (5-6) | Radial {radial_mm:.2f} mm (<=0.5) | Tilt {tilt_deg:.1f} deg ({tilt_limit})', font=hud_font, fill='white')
++                    detail = (f'Tip entry | No hold / speed gate | Tip error {position_cm:.2f} cm' if tip_entry else
++                              f"Stable hold {insertion_metrics['insertion_hold_s']:.2f}s (0.20) | Success: {success}")
++                    draw.text((25, 111), detail, font=hud_font, fill='white')
+                 else:
+                     draw.text((25, 81), f'Position {position_cm:.1f} cm (<5) | Thread tilt {tilt_deg:.1f} deg | Success: {success}', font=hud_font, fill='white')
+                 video_writer.append_data(np.asarray(frame))

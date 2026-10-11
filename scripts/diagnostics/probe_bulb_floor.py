@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """Finite native floor-reset, physical-step and throughput probe (no learning)."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import re
+import statistics
 import sys
 import time
 import traceback
@@ -16,7 +18,7 @@ def probe(args, report):
     import torch
     from isaaclab_tasks.utils import parse_env_cfg
     from isaaclab.utils.math import quat_apply
-    from pxr import UsdPhysics
+    from pxr import UsdPhysics, PhysxSchema
     sys.path.insert(0, str(ROOT / "source/BrainCo_DexHand"))
     import BrainCo_DexHand.tasks  # noqa: F401
     from BrainCo_DexHand.tasks.manager_based.dexsuite.config.RotateBulbCustom.assembly_lift import bulb_table_clearance
@@ -26,17 +28,49 @@ def probe(args, report):
     cfg.bulb_curriculum.fixed_bulb = False
     if hasattr(cfg.bulb_curriculum, "physics_hz"):
         cfg.bulb_curriculum.physics_hz = args.physics_hz
+        if args.physics_hz == 90:
+            cfg.bulb_curriculum.fast_stage0_physics = True
     else:
         cfg.sim.dt, cfg.decimation = 1 / args.physics_hz, args.physics_hz // 30
         cfg.sim.render_interval = cfg.decimation
     cfg.scene.sky_light.spawn.texture_file = None
     cfg.tactile_policy_enabled = False
+    if args.gpu_partitions is not None:
+        cfg.sim.physx.gpu_max_num_partitions = args.gpu_partitions
+    if args.lamp_asset is not None:
+        cfg.scene.lamp.spawn.usd_path = str(args.lamp_asset.resolve(strict=True))
+    # Explicit diagnostic overrides only; production defaults are unchanged.
+    # Clamp both ends: lowering a scene minimum alone can leave per-body USD
+    # iteration requests in force and does not establish the intended test.
+    for kind in ("position", "velocity"):
+        value = getattr(args, "solver_" + kind)
+        if value is not None:
+            setattr(cfg.sim.physx, "min_" + kind + "_iteration_count", value)
+            setattr(cfg.sim.physx, "max_" + kind + "_iteration_count", value)
     start = time.perf_counter()
     env = gym.make(task, cfg=cfg, render_mode="rgb_array" if args.snapshot else None).unwrapped
     report["construction_s"] = time.perf_counter() - start
     checks = {}
     try:
         obs, _ = env.reset()
+        scene_api = PhysxSchema.PhysxSceneAPI(env.sim.stage.GetPrimAtPath(cfg.sim.physics_prim_path))
+        report["solver_limits"] = {
+            "position_min": scene_api.GetMinPositionIterationCountAttr().Get(),
+            "position_max": scene_api.GetMaxPositionIterationCountAttr().Get(),
+            "velocity_min": scene_api.GetMinVelocityIterationCountAttr().Get(),
+            "velocity_max": scene_api.GetMaxVelocityIterationCountAttr().Get(),
+        }
+        report["diagnostic_solver_override"] = any(
+            getattr(args, "solver_" + kind) is not None for kind in ("position", "velocity"))
+        report["gpu_max_num_partitions"] = cfg.sim.physx.gpu_max_num_partitions
+        lamp_path = Path(cfg.scene.lamp.spawn.usd_path)
+        report["lamp_asset"] = str(lamp_path)
+        report["lamp_asset_sha256"] = hashlib.sha256(lamp_path.read_bytes()).hexdigest()
+        if args.audit_scene:
+            sys.path.insert(0, str(ROOT / "scripts/rsl_rl"))
+            from bulb_collision_fast import collision_runtime_manifest
+            (args.out / "scene_audit.json").write_text(
+                json.dumps(collision_runtime_manifest(env), indent=2) + "\n")
         if args.snapshot:
             import imageio.v3 as iio
             for _ in range(3):
@@ -72,14 +106,16 @@ def probe(args, report):
         checks["reset_no_hidden_physics"] = actual_steps[0] == 0
         checks["partial_reset_independent"] = torch.equal(untouched, robot.data.joint_pos[1:])
         action = torch.zeros((args.num_envs, env.action_manager.total_action_dim), device=env.device)
+        action_rng = torch.Generator(device=env.device).manual_seed(20261004)
         durations = []
+        clearances, speeds = [], []
         free, total = torch.cuda.mem_get_info()
         peak_device_used = total - free
         finite = True
         for step in range(args.warmup + args.steps):
             # Same bounded action distribution for each physics candidate.
             if args.random_actions:
-                action.uniform_(-.15, .15)
+                action.uniform_(-.15, .15, generator=action_rng)
             torch.cuda.synchronize()
             start = time.perf_counter()
             obs, reward, terminated, truncated, _ = env.step(action)
@@ -90,6 +126,8 @@ def probe(args, report):
             if step % 30 == 0:
                 free, total = torch.cuda.mem_get_info()
                 peak_device_used = max(peak_device_used, total - free)
+                clearances.append(float(bulb_table_clearance(env, runtime.vertices).min()))
+                speeds.append(float(bulb.data.root_lin_vel_w.norm(dim=-1).max()))
             finite &= bool(torch.isfinite(reward).all() and all(torch.isfinite(x).all() for x in obs.values()))
         checks["finite_rollout"] = finite
         checks["exact_physics_step_count"] = actual_steps[0] == (args.warmup + args.steps) * cfg.decimation
@@ -98,6 +136,12 @@ def probe(args, report):
                       physics_hz=args.physics_hz, decimation=cfg.decimation,
                       step_dt=env.step_dt, actual_physics_steps=actual_steps[0],
                       mean_control_step_s=sum(durations)/len(durations),
+                      median_control_step_s=statistics.median(durations),
+                      control_step_seconds=durations,
+                      estimated_32_step_rollout_s=32 * sum(durations)/len(durations),
+                      sampled_clearance_min_m=min(clearances),
+                      sampled_bulb_speed_max_m_s=max(speeds),
+                      action_seed=20261004,
                       transitions_per_s=args.num_envs*len(durations)/sum(durations),
                       max_torch_allocated_bytes=torch.cuda.max_memory_allocated(),
                       max_torch_reserved_bytes=torch.cuda.max_memory_reserved(),
@@ -120,12 +164,27 @@ if __name__ == "__main__":
     parser.add_argument("--num_envs", type=int, default=8)
     parser.add_argument("--steps", type=int, default=180)
     parser.add_argument("--warmup", type=int, default=30)
-    parser.add_argument("--physics-hz", type=int, choices=(120, 240), default=120)
+    parser.add_argument("--physics-hz", type=int, choices=(90, 120, 240), default=120,
+                        help="90 explicitly opts into the lower-fidelity Stage0-only clock")
+    parser.add_argument("--solver-position", type=int, default=None,
+                        help="Diagnostic scene min=max position iterations (default: unchanged)")
+    parser.add_argument("--solver-velocity", type=int, default=None,
+                        help="Diagnostic scene min=max velocity iterations (default: unchanged)")
+    parser.add_argument("--gpu-partitions", type=int, choices=(1, 2, 4, 8, 16, 32), default=None)
+    parser.add_argument("--audit-scene", action="store_true", help="Read native topology and collider configuration")
+    parser.add_argument("--lamp-asset", type=Path, default=None,
+                        help="Independent collision-geometry diagnostic; default asset is unchanged")
     parser.add_argument("--legacy", action="store_true")
     parser.add_argument("--random-actions", action="store_true")
     parser.add_argument("--snapshot", action="store_true")
     AppLauncher.add_app_launcher_args(parser)
     args = parser.parse_args()
+    if args.num_envs < 1 or args.steps < 1 or args.warmup < 0:
+        parser.error("num_envs and steps must be positive; warmup must be nonnegative")
+    if args.solver_position is not None and not 1 <= args.solver_position <= 255:
+        parser.error("solver-position must be in [1, 255]")
+    if args.solver_velocity is not None and not 0 <= args.solver_velocity <= 255:
+        parser.error("solver-velocity must be in [0, 255]")
     if args.snapshot:
         args.enable_cameras = True
     args.out.mkdir(parents=True, exist_ok=False)

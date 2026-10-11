@@ -1,0 +1,26 @@
+{
+  "result": "PASS",
+  "remote_root": "/home/brainco1/workspace/xinyu/tacsl_insertion_lab",
+  "code_matches": {
+    "scripts/validate_contract.py": true,
+    "scripts/audit_checkpoint.py": true,
+    "scripts/convert_assets.py": true,
+    "scripts/run.py": true,
+    "tacsl_insertion_lab/torch_jit_utils.py": true,
+    "tacsl_insertion_lab/__init__.py": true,
+    "tacsl_insertion_lab/task_math.py": true,
+    "tacsl_insertion_lab/env_cfg.py": true,
+    "tacsl_insertion_lab/factory_control.py": true,
+    "tacsl_insertion_lab/env.py": true
+  },
+  "asset_matches": {
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/Gelsight_Mount.obj": true,
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/Gelsight_Mount.obj.mtl": true,
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/extruded_elastomer_transformed.obj": true,
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/extruded_elastomer_transformed.obj.mtl": true,
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_gelpad_front_only_rot_z.obj": true,
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_gelpad_front_only_rot_z.obj.mtl": true,
+    "upstream/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_no_gel_coarse_x16_rot_z.obj": true
+  },
+  "checkpoint_sha256": "5a43ba98acdc71a4e80a0d034c019fc758959e92bd71159e8ad0688e70c9c372"
+}

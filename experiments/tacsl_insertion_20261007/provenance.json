@@ -1,0 +1,50 @@
+{
+  "isaacgymenvs_commit": "f769e39fe5605324e0c6b3eb04ca7b8a7681f4e0",
+  "asset_mirror_commit": "ebfa9e1784848903f642ba1b5233f42511a6de62",
+  "mirror_urdf_identical": true,
+  "original_asset_archive_hash_verified": false,
+  "assets": [
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/Gelsight_Mount.obj",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/Gelsight_Mount.obj",
+      "bytes": 115705,
+      "sha256": "d0033792e0943d681d24fb6e5482c4972864492e0afb227037407be32dbf61fc"
+    },
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/Gelsight_Mount.obj.mtl",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/Gelsight_Mount.obj.mtl",
+      "bytes": 201,
+      "sha256": "3188a7b8fb10bb272a4292eb9d8681a77c8dfbf4eb18f7f36347e97178dbc555"
+    },
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/extruded_elastomer_transformed.obj",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/extruded_elastomer_transformed.obj",
+      "bytes": 508035,
+      "sha256": "7c049da36cd1f615494081b936e13c255c10ffd00d485f8b9ef0ce38c8e49951"
+    },
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/extruded_elastomer_transformed.obj.mtl",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/extruded_elastomer_transformed.obj.mtl",
+      "bytes": 201,
+      "sha256": "4a27990ff2b6eac6cf532495b40a086316f1b514cf905a84b73c7f7b26d03176"
+    },
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_gelpad_front_only_rot_z.obj",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_gelpad_front_only_rot_z.obj",
+      "bytes": 1188529,
+      "sha256": "46446f479b6215926b733121936bfc059a5dedbed67a55a3f83e5043a4c5dbee"
+    },
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_gelpad_front_only_rot_z.obj.mtl",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_gelpad_front_only_rot_z.obj.mtl",
+      "bytes": 201,
+      "sha256": "4a27990ff2b6eac6cf532495b40a086316f1b514cf905a84b73c7f7b26d03176"
+    },
+    {
+      "path": "upstream/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_no_gel_coarse_x16_rot_z.obj",
+      "url": "https://raw.githubusercontent.com/purdue-mars/manifeel/ebfa9e1784848903f642ba1b5233f42511a6de62/assets/tacsl/mesh/gelsight_r15_meshes/gelsight_r15_finger_no_gel_coarse_x16_rot_z.obj",
+      "bytes": 550443,
+      "sha256": "ecc5e6dab74abeeeb6c95ca585c206679b83c6f3825658772f9f7df146a89f60"
+    }
+  ]
+}

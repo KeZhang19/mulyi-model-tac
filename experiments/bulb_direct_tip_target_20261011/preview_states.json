@@ -1,0 +1,200 @@
+[
+  {
+    "stage": 2,
+    "completed": [
+      true,
+      false,
+      false
+    ],
+    "position_reference": "thread_tip",
+    "target_world_m": [
+      -0.16409212350845337,
+      0.19191429018974304,
+      0.7816676497459412
+    ],
+    "tracked_world_m": [
+      -0.16409212350845337,
+      0.1931142956018448,
+      0.7831676602363586
+    ],
+    "position_error_cm": 0.19209488527849317,
+    "shallow_checks": [
+      {
+        "label": "Depth",
+        "value": 4.000007640570402,
+        "requirement": "5..6 mm",
+        "passed": false
+      },
+      {
+        "label": "Tip radial",
+        "value": 1.2000054121017456,
+        "requirement": "<= 0.5 mm",
+        "passed": false
+      },
+      {
+        "label": "Tilt",
+        "value": 19.99999237060547,
+        "requirement": "< 30 deg",
+        "passed": true
+      }
+    ],
+    "final_checks": [
+      {
+        "label": "Net turns",
+        "value": 0.0,
+        "requirement": ">= 3",
+        "passed": false
+      },
+      {
+        "label": "Final depth error",
+        "value": 13.999991584569216,
+        "requirement": "<= 1 mm",
+        "passed": false
+      },
+      {
+        "label": "Tip/lip radial",
+        "value": 1.8866925965994596,
+        "requirement": "<= 0.5 mm",
+        "passed": false
+      },
+      {
+        "label": "Final tilt",
+        "value": 19.99999237060547,
+        "requirement": "<= 5 deg",
+        "passed": false
+      },
+      {
+        "label": "Relative speed",
+        "value": 0.0,
+        "requirement": "<= 0.02 m/s",
+        "passed": true
+      },
+      {
+        "label": "Relative angular speed",
+        "value": 0.0,
+        "requirement": "<= 0.5 rad/s",
+        "passed": true
+      },
+      {
+        "label": "Stable hold",
+        "value": 0.0,
+        "requirement": ">= 0.2 s",
+        "passed": false
+      },
+      {
+        "label": "Elapsed",
+        "value": 0.0,
+        "requirement": "<= 6 s",
+        "passed": true
+      },
+      {
+        "label": "Valid helix",
+        "value": 0,
+        "requirement": "1",
+        "passed": false
+      }
+    ],
+    "screw_turns": 0.0,
+    "screw_hold_s": 0.0,
+    "success": false
+  },
+  {
+    "stage": 3,
+    "completed": [
+      true,
+      true,
+      false
+    ],
+    "position_reference": "thread_tip",
+    "target_world_m": [
+      -0.2357744574546814,
+      -0.06034708023071289,
+      0.7809176445007324
+    ],
+    "tracked_world_m": [
+      -0.2357744574546814,
+      -0.06009707972407341,
+      0.7816676497459412
+    ],
+    "position_error_cm": 0.07905745296739042,
+    "shallow_checks": [
+      {
+        "label": "Depth",
+        "value": 5.500017665326595,
+        "requirement": "5..6 mm",
+        "passed": true
+      },
+      {
+        "label": "Tip radial",
+        "value": 0.2500005066394806,
+        "requirement": "<= 0.5 mm",
+        "passed": true
+      },
+      {
+        "label": "Tilt",
+        "value": 19.99999237060547,
+        "requirement": "< 30 deg",
+        "passed": true
+      }
+    ],
+    "final_checks": [
+      {
+        "label": "Net turns",
+        "value": 0.0,
+        "requirement": ">= 3",
+        "passed": false
+      },
+      {
+        "label": "Final depth error",
+        "value": 18.000000156462193,
+        "requirement": "<= 1 mm",
+        "passed": false
+      },
+      {
+        "label": "Tip/lip radial",
+        "value": 2.0173927769064903,
+        "requirement": "<= 0.5 mm",
+        "passed": false
+      },
+      {
+        "label": "Final tilt",
+        "value": 19.99999237060547,
+        "requirement": "<= 5 deg",
+        "passed": false
+      },
+      {
+        "label": "Relative speed",
+        "value": 0.0,
+        "requirement": "<= 0.02 m/s",
+        "passed": true
+      },
+      {
+        "label": "Relative angular speed",
+        "value": 0.0,
+        "requirement": "<= 0.5 rad/s",
+        "passed": true
+      },
+      {
+        "label": "Stable hold",
+        "value": 0.0,
+        "requirement": ">= 0.2 s",
+        "passed": false
+      },
+      {
+        "label": "Elapsed",
+        "value": 0.0,
+        "requirement": "<= 6 s",
+        "passed": true
+      },
+      {
+        "label": "Valid helix",
+        "value": 0,
+        "requirement": "1",
+        "passed": false
+      }
+    ],
+    "screw_turns": 0.0,
+    "screw_hold_s": 0.0,
+    "success": false
+  }
+]

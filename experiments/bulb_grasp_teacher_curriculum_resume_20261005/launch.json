@@ -1,0 +1,21 @@
+{
+  "time": "2026-10-05T09:45:20.120994+00:00",
+  "pid": 62901,
+  "command": [
+    "bash",
+    "scripts/rsl_rl/launch_bulb_grasp_teacher_2gpu.sh",
+    "--checkpoint",
+    "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-04_scratch_2x4096/rank0/model_12000.pt"
+  ],
+  "run_dir": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-05_curriculum_resume12000_2x4096",
+  "log": "/home/admin/workspace/xinyu/mulyi-model-tac/experiments/bulb_grasp_teacher_curriculum_resume_20261005/train.log",
+  "iterations_this_launch": 18000,
+  "target_iteration_exclusive": 30000,
+  "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-04_scratch_2x4096/rank0/model_12000.pt",
+  "gpus": [
+    0,
+    1
+  ],
+  "envs_per_gpu": 4096,
+  "curriculum_version": 1
+}

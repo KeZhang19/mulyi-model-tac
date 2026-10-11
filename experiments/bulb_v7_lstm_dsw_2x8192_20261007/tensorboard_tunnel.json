@@ -1,0 +1,21 @@
+{
+  "pid": 381517,
+  "command": [
+    "ssh",
+    "-N",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ExitOnForwardFailure=yes",
+    "-o",
+    "ServerAliveInterval=30",
+    "-o",
+    "ServerAliveCountMax=3",
+    "-L",
+    "127.0.0.1:6006:127.0.0.1:6008",
+    "dsw-wpmt7kzoh4b53jpmov"
+  ],
+  "local_url": "http://127.0.0.1:6006/#scalars",
+  "remote_port": 6008,
+  "time": "2026-10-07T19:52:52.627675+08:00"
+}

@@ -1,0 +1,9 @@
+{
+  "initial_sync_mismatch": [
+    "EXPERIMENTS.md",
+    "docs/STATUS.md"
+  ],
+  "resolution": "Freeze the exact transferred archive bytes in final manifest; initial manifest retained.",
+  "first_cpu_attempt": "USD runtime path glob matched both python3.1 and python3.11; task checks had not started.",
+  "cpu_path_fix": "Use existing interpreter major.minor path; no dependency or task code change."
+}

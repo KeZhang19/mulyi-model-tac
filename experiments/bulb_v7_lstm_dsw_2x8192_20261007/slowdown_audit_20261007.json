@@ -1,0 +1,100 @@
+{
+  "time": "2026-10-07 20:01 Asia/Shanghai",
+  "method": "Read-only saved env/agent YAML comparison, outer log timing, full TensorBoard scalars, runtime/asset SHA comparison, resource snapshot. No new GPU job or training changes.",
+  "timing_seconds": {
+    "v6_last100_10651_10750": {
+      "collection": 12.08547,
+      "learning": 0.61952,
+      "total": 12.7048
+    },
+    "v5_400_499": {
+      "collection": 14.35633,
+      "learning": 0.60665,
+      "total": 14.963
+    },
+    "v7_400_499": {
+      "collection": 15.27565,
+      "learning": 1.00576,
+      "total": 16.2816
+    },
+    "v7_459_558": {
+      "collection": 16.0439,
+      "learning": 1.01905,
+      "total": 17.0629
+    },
+    "v7_480_499": {
+      "collection": 15.34455,
+      "learning": 1.0249
+    },
+    "v7_540_559": {
+      "collection": 17.96135,
+      "learning": 1.0104
+    }
+  },
+  "v7_recent_change": {
+    "rank0_abnormal_termination_480_499": 0.26378,
+    "rank0_abnormal_termination_540_559": 0.351715,
+    "both_ranks_abnormal_events_per_iteration_480_499": 729.75,
+    "both_ranks_abnormal_events_per_iteration_540_559": 1072.85,
+    "mean_episode_length_480_499": 193.3575,
+    "mean_episode_length_540_559": 180.33,
+    "definition": "abs(joint velocity)>1.2*joint velocity limit; counts aggregate both ranks; termination fractions are rank0 reset-batch metrics"
+  },
+  "v6_to_v7_config_diff": [
+    "curriculum version 6 to 7",
+    "four observation history lengths 5 to 1",
+    "add stage2_success_bonus weight10",
+    "policy ActorCritic to BulbGraspTeacherLSTM with lstm256x1",
+    "additional max_iterations20500 to 30000"
+  ],
+  "unchanged_saved_config": [
+    "8192 envs per rank",
+    "dt1/120 and decimation4",
+    "14s maximum episode",
+    "physics/solver/contacts and capacities",
+    "actions",
+    "PPO rollout32 and epochs5/minibatches4",
+    "other rewards relative to v6"
+  ],
+  "identical_file_groups": {
+    "runtime/bulb_grasp_teacher": 50,
+    "assets/bulb_grasp_teacher": 8,
+    "assets/rotate_bulb_custom": 55
+  },
+  "resources_snapshot": {
+    "gpus_pstate": [
+      "P0",
+      "P0"
+    ],
+    "sm_clocks_mhz": [
+      2670,
+      2700
+    ],
+    "memory_clocks_mhz": [
+      10501,
+      10501
+    ],
+    "temperatures_c": [
+      61,
+      68
+    ],
+    "available_host_ram_gib": 151,
+    "other_gpu_training_pids": []
+  },
+  "interpretation": {
+    "confirmed": "Most additional wall time is in collection; update time grew about0.4s vs MLP and did not explain the recent additional2.6s collection rise. Same-iteration early v5/v7 historical difference about1.32s, not the4-6s mature-v6 vs current difference.",
+    "likely_but_unproven": "Increasing abnormal joint velocities/contact/reset workload contributes to recent slowdown; LSTM per-step inference and hidden-state copies also run within collection.",
+    "reward": "New v7 bonus reads precomputed credit, masks terminated envs and divides bydt; no added simulation steps or search. No evidence it accounts for seconds of slowdown.",
+    "limits": "No per-kernel/per-function profiling or controlled same-trajectory A/B. collection includes inference, env.step including reward/reset/physics, hidden-state storage and bookkeeping; learning includes bootstrap, reductions and PPO. GPU snapshot cannot exclude transient throttling/contention."
+  },
+  "sources": [
+    "saved remote params/env.yaml and params/agent.yaml for v5/v6/v7",
+    "remote experiments/*/train.log",
+    "rank0 TensorBoard AbnormalRobot/* and Episode_Termination/*",
+    "teacher_runner.py lines502-591 and314-362",
+    "mdp/terminations.py abnormal joint mask",
+    "curriculum.py stage_two_success_bonus",
+    "runtime ppo.py act and rollout_storage.py _save_hidden_states"
+  ],
+  "gitnexus": "query produced inconsistent mappings; no conclusions from graph; source inspected directly, no production edits"
+}

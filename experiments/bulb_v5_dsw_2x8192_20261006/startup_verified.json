@@ -1,0 +1,158 @@
+{
+  "checked_at_unix": 1791218445.613372,
+  "ranks": [
+    {
+      "rank": 0,
+      "contract": {
+        "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+        "rank": 0,
+        "world_size": 2,
+        "seed": 42,
+        "num_envs_per_rank": 8192,
+        "total_envs": 16384,
+        "cuda_visible_devices": "0",
+        "checkpoint": null,
+        "from_scratch": true,
+        "initial_adr_difficulty": 0.0,
+        "initial_gravity_z": -1.0,
+        "physx_capacities_per_rank": {
+          "gpu_max_rigid_contact_count": 16777216,
+          "gpu_max_rigid_patch_count": 3000000,
+          "gpu_found_lost_pairs_capacity": 4194304,
+          "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+          "gpu_total_aggregate_pairs_capacity": 4194304,
+          "gpu_heap_capacity": 134217728,
+          "gpu_temp_buffer_capacity": 33554432,
+          "gpu_collision_stack_size": 4026531840
+        }
+      },
+      "ddp_verified": {
+        "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+        "rank": 0,
+        "world_size": 2,
+        "seed": 42,
+        "num_envs_per_rank": 8192,
+        "total_envs": 16384,
+        "cuda_visible_devices": "0",
+        "checkpoint": null,
+        "from_scratch": true,
+        "initial_adr_difficulty": 0.0,
+        "initial_gravity_z": -1.0,
+        "physx_capacities_per_rank": {
+          "gpu_max_rigid_contact_count": 16777216,
+          "gpu_max_rigid_patch_count": 3000000,
+          "gpu_found_lost_pairs_capacity": 4194304,
+          "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+          "gpu_total_aggregate_pairs_capacity": 4194304,
+          "gpu_heap_capacity": 134217728,
+          "gpu_temp_buffer_capacity": 33554432,
+          "gpu_collision_stack_size": 4026531840
+        },
+        "gradient_reductions": 1,
+        "verified": true,
+        "parameter_sha256_by_rank": [
+          "e27bd1b2d76e82e0562b3c884e548d5f14b4b0ce7d070f41c718ed3c5094b79d",
+          "e27bd1b2d76e82e0562b3c884e548d5f14b4b0ce7d070f41c718ed3c5094b79d"
+        ]
+      },
+      "curriculum_version": "5",
+      "episode_length_s": "14.0",
+      "sim_dt": "0.008333333333333333",
+      "decimation": "4",
+      "final_success_reward": "20.0",
+      "num_steps_per_env": "32",
+      "save_interval": "100"
+    },
+    {
+      "rank": 1,
+      "contract": {
+        "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+        "rank": 1,
+        "world_size": 2,
+        "seed": 43,
+        "num_envs_per_rank": 8192,
+        "total_envs": 16384,
+        "cuda_visible_devices": "1",
+        "checkpoint": null,
+        "from_scratch": true,
+        "initial_adr_difficulty": 0.0,
+        "initial_gravity_z": -1.0,
+        "physx_capacities_per_rank": {
+          "gpu_max_rigid_contact_count": 16777216,
+          "gpu_max_rigid_patch_count": 3000000,
+          "gpu_found_lost_pairs_capacity": 4194304,
+          "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+          "gpu_total_aggregate_pairs_capacity": 4194304,
+          "gpu_heap_capacity": 134217728,
+          "gpu_temp_buffer_capacity": 33554432,
+          "gpu_collision_stack_size": 4026531840
+        }
+      },
+      "ddp_verified": {
+        "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+        "rank": 1,
+        "world_size": 2,
+        "seed": 43,
+        "num_envs_per_rank": 8192,
+        "total_envs": 16384,
+        "cuda_visible_devices": "1",
+        "checkpoint": null,
+        "from_scratch": true,
+        "initial_adr_difficulty": 0.0,
+        "initial_gravity_z": -1.0,
+        "physx_capacities_per_rank": {
+          "gpu_max_rigid_contact_count": 16777216,
+          "gpu_max_rigid_patch_count": 3000000,
+          "gpu_found_lost_pairs_capacity": 4194304,
+          "gpu_found_lost_aggregate_pairs_capacity": 67108864,
+          "gpu_total_aggregate_pairs_capacity": 4194304,
+          "gpu_heap_capacity": 134217728,
+          "gpu_temp_buffer_capacity": 33554432,
+          "gpu_collision_stack_size": 4026531840
+        },
+        "gradient_reductions": 1,
+        "verified": true,
+        "parameter_sha256_by_rank": [
+          "e27bd1b2d76e82e0562b3c884e548d5f14b4b0ce7d070f41c718ed3c5094b79d",
+          "e27bd1b2d76e82e0562b3c884e548d5f14b4b0ce7d070f41c718ed3c5094b79d"
+        ]
+      },
+      "curriculum_version": "5",
+      "episode_length_s": "14.0",
+      "sim_dt": "0.008333333333333333",
+      "decimation": "4",
+      "final_success_reward": "20.0",
+      "num_steps_per_env": "32",
+      "save_interval": "100"
+    }
+  ],
+  "checkpoint": {
+    "path": "/home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192/rank0/model_0.pt",
+    "sha256": "b78229ed32edfcaf246e18808b3c8b26e3a994dd5fa4bb65a7b224472871adfa",
+    "iteration": 0,
+    "finite_model_tensors": 25,
+    "optimizer_step_min": 20.0,
+    "optimizer_step_max": 20.0
+  },
+  "latest_iteration": [
+    "9",
+    "30000"
+  ],
+  "error_scan": {
+    "/home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/experiments/bulb_v5_dsw_2x8192_20261006/train.log": {
+      "matches": 0,
+      "examples": []
+    },
+    "/tmp/bulb-grasp-teacher-I66iVO/rank1/logs/Kit/Isaac-Sim/5.1/kit_20261005_163229.log": {
+      "matches": 0,
+      "examples": []
+    },
+    "/tmp/bulb-grasp-teacher-I66iVO/rank0/logs/Kit/Isaac-Sim/5.1/kit_20261005_163212.log": {
+      "matches": 0,
+      "examples": []
+    }
+  },
+  "gpu": "0, NVIDIA GeForce RTX 4090, 46068 MiB, 35427 MiB, 99 %\n1, NVIDIA GeForce RTX 4090, 46068 MiB, 35131 MiB, 100 %\n",
+  "processes": "    PID    PPID STAT     ELAPSED %CPU   RSS COMMAND\n    948       1 Ssl        09:27  0.4 535484 /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python -m torch.distributed.run --standalone --nnodes=1 --nproc_per_node=2 scripts/rsl_rl/bulb_grasp_teacher_split_gpu.py --distributed --expected_world_size 2 --num_envs 4096 --max_iterations 30000 --seed 42 --device cuda:0 --headless --log_dir /home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192 --num_envs 8192 --physx_buffer_scale 2 --physx_collision_stack_size 4026531840\n   1009     948 Rsl        08:47  100 20274608 /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python -u scripts/rsl_rl/bulb_grasp_teacher_split_gpu.py --distributed --expected_world_size 2 --num_envs 4096 --max_iterations 30000 --seed 42 --device cuda:0 --headless --log_dir /home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192 --num_envs 8192 --physx_buffer_scale 2 --physx_collision_stack_size 4026531840\n   1010     948 Rsl        08:47  104 20282348 /home/admin/workspace/xinyu/brainco_isaaclab_2_3_2_env/.pixi/envs/default/bin/python -u scripts/rsl_rl/bulb_grasp_teacher_split_gpu.py --distributed --expected_world_size 2 --num_envs 4096 --max_iterations 30000 --seed 42 --device cuda:0 --headless --log_dir /home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192 --num_envs 8192 --physx_buffer_scale 2 --physx_collision_stack_size 4026531840\n",
+  "passed": true
+}

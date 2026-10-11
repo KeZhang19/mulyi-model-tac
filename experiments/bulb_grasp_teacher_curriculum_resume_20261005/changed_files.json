@@ -1,0 +1,9 @@
+[
+  "assets/bulb_grasp_teacher/socket.json",
+  "assets/bulb_grasp_teacher/socket.usd",
+  "scripts/diagnostics/check_bulb_grasp_curriculum.py",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/build_socket.py",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py"
+]

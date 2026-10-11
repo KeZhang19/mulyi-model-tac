@@ -1,0 +1,619 @@
+{
+  "common_end": 1015,
+  "runs": {
+    "mlp5": {
+      "path": "/home/admin/workspace/xinyu/mulyi-model-tac-v5-20261006/logs/rsl_rl/bulb_grasp_teacher_v5/2026-10-06_scratch_2x8192/rank0",
+      "latest": [
+        12158,
+        0.8631101250648499
+      ],
+      "blocks": {
+        "600-699": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.001870356945437379
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.001864213203662075
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 81.08865585327149
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.32868721008300783
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 8.286219000816345
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 0.6066361141204833
+          }
+        },
+        "700-799": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.0047669597977073866
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.0014196648192591965
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 85.6201165008545
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.5153663635253907
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 14.431542282104493
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 0.608080313205719
+          }
+        },
+        "800-899": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.08434245080687106
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.002320102568191942
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 85.83369018554687
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.42845954895019533
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 28.944406509399414
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 0.6076571130752564
+          }
+        },
+        "900-999": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.4994392040371895
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.0023283112613717094
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 84.90078353881836
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.3855990219116211
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 47.599726371765136
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 0.6072818493843078
+          }
+        },
+        "1000-1015": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 16,
+            "mean": 0.6926280185580254
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 16,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 16,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 16,
+            "mean": 0.0016963426460279152
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 16,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 16,
+            "mean": 84.86090612411499
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 16,
+            "mean": 0.36923813819885254
+          },
+          "Train/mean_reward": {
+            "n": 16,
+            "mean": 64.4212589263916
+          },
+          "Perf/learning_time": {
+            "n": 16,
+            "mean": 0.6082616895437241
+          }
+        }
+      },
+      "last100_common": {
+        "Metrics/object_pose/stage1_success": {
+          "n": 100,
+          "mean": 0.5644207590818405
+        },
+        "Metrics/object_pose/stage2_success": {
+          "n": 100,
+          "mean": 0
+        },
+        "Metrics/object_pose/stage3_success": {
+          "n": 100,
+          "mean": 0
+        },
+        "Metrics/object_pose/orientation_success": {
+          "n": 100,
+          "mean": 0.002143603569129482
+        },
+        "Metrics/object_pose/position_success": {
+          "n": 100,
+          "mean": 0
+        },
+        "Metrics/object_pose/insertion_tilt_deg": {
+          "n": 100,
+          "mean": 84.9216918182373
+        },
+        "Episode_Termination/abnormal_robot": {
+          "n": 100,
+          "mean": 0.3818181610107422
+        },
+        "Train/mean_reward": {
+          "n": 100,
+          "mean": 51.8040690612793
+        },
+        "Perf/learning_time": {
+          "n": 100,
+          "mean": 0.6074240851402283
+        }
+      },
+      "timing_cumulative_common": {
+        "Perf/learning_time": 617.4542078971863
+      },
+      "thresholds_100mean_held30": {
+        "0.01": 824,
+        "0.1": 906,
+        "0.25": 949,
+        "0.5": 1000
+      },
+      "stage_max_all": {
+        "Metrics/object_pose/stage2_success": 0,
+        "Metrics/object_pose/stage3_success": 0
+      },
+      "agent": "seed: 42\ndevice: cuda:0\nnum_steps_per_env: 32\nmax_iterations: 30000\nempirical_normalization: {}\nobs_groups:\n  policy:\n  - policy\n  - proprio\n  - perception\n  critic:\n  - policy\n  - proprio\n  - perception\nclip_actions: null\ncheck_for_nan: true\nsave_interval: 100\nexperiment_name: bulb_grasp_teacher_v2test\nrun_name: ''\nlogger: tensorboard\nneptune_project: isaaclab\nwandb_project: isaaclab\nresume: false\nload_run: .*\nload_checkpoint: model_.*.pt\nclass_name: BulbGraspTeacherRunner\nactor: {}\ncritic: {}\nalgorithm:\n  class_name: PPO\n  num_learning_epochs: 5\n  num_mini_batches: 4\n  learning_rate: 0.0002\n  schedule: adaptive\n  gamma: 0.99\n  lam: 0.95\n  entropy_coef: 0.001\n  desired_kl: 0.01\n  max_grad_norm: 1.0\n  value_loss_coef: 1.0\n  use_clipped_value_loss: true\n  clip_param: 0.2\n  normalize_advantage_per_mini_batch: false\n  share_cnn_encoders: false\n  rnd_cfg: null\n  symmetry_cfg: null\npolicy:\n  class_name: ActorCritic\n  init_noise_std: 0.5\n  noise_std_type: scalar\n  state_dependent_std: false\n  actor_obs_normalization: true\n  critic_obs_normalization: true\n  actor_hidden_dims:\n  - 512\n  - 256\n  - 128\n  critic_hidden_dims:\n  - 512\n  - 256\n  - 128\n  activation: elu\n  min_noise_std: 0.05\n  max_noise_std: 0.5\n",
+      "env_lines": [
+        "  num_envs: 8192",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 5",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      history_length: 0",
+        "    history_length: 5",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      history_length: 0",
+        "    history_length: 5",
+        "      history_length: 0",
+        "    history_length: 5",
+        "      history_length: 0",
+        "      history_length: 0",
+        "    weight: 10",
+        "bulb_grasp_curriculum_version: 5"
+      ],
+      "perf_tags": [
+        "Perf/total_fps",
+        "Perf/collection time",
+        "Perf/learning_time"
+      ]
+    },
+    "lstm": {
+      "path": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/logs/rsl_rl/bulb_grasp_teacher_v7_lstm/2026-10-07_scratch_2x8192/rank0",
+      "latest": [
+        1015,
+        0.3128221333026886
+      ],
+      "blocks": {
+        "600-699": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.009663058637524955
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.0025667221995536236
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 84.37763053894042
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.5197682571411133
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 16.569031801223755
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 1.0415064644813539
+          }
+        },
+        "700-799": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.04540439685806632
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.0029541401215828957
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 85.57498558044433
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.4775236129760742
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 25.65942735671997
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 1.0195839929580688
+          }
+        },
+        "800-899": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.11214090935885906
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.0041008594067534435
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 84.30705451965332
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.4230352020263672
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 32.425140838623044
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 1.023869318962097
+          }
+        },
+        "900-999": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 100,
+            "mean": 0.19227899804711343
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 100,
+            "mean": 0.003926706128404476
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 100,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 100,
+            "mean": 82.70035614013672
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 100,
+            "mean": 0.39699462890625
+          },
+          "Train/mean_reward": {
+            "n": 100,
+            "mean": 37.15805065155029
+          },
+          "Perf/learning_time": {
+            "n": 100,
+            "mean": 1.0156366872787475
+          }
+        },
+        "1000-1015": {
+          "Metrics/object_pose/stage1_success": {
+            "n": 16,
+            "mean": 0.28678992576897144
+          },
+          "Metrics/object_pose/stage2_success": {
+            "n": 16,
+            "mean": 0
+          },
+          "Metrics/object_pose/stage3_success": {
+            "n": 16,
+            "mean": 0
+          },
+          "Metrics/object_pose/orientation_success": {
+            "n": 16,
+            "mean": 0.003406382882531034
+          },
+          "Metrics/object_pose/position_success": {
+            "n": 16,
+            "mean": 0
+          },
+          "Metrics/object_pose/insertion_tilt_deg": {
+            "n": 16,
+            "mean": 82.08543729782104
+          },
+          "Episode_Termination/abnormal_robot": {
+            "n": 16,
+            "mean": 0.3767397403717041
+          },
+          "Train/mean_reward": {
+            "n": 16,
+            "mean": 40.07059407234192
+          },
+          "Perf/learning_time": {
+            "n": 16,
+            "mean": 0.9962517023086548
+          }
+        }
+      },
+      "last100_common": {
+        "Metrics/object_pose/stage1_success": {
+          "n": 100,
+          "mean": 0.21361300095915794
+        },
+        "Metrics/object_pose/stage2_success": {
+          "n": 100,
+          "mean": 0
+        },
+        "Metrics/object_pose/stage3_success": {
+          "n": 100,
+          "mean": 0
+        },
+        "Metrics/object_pose/orientation_success": {
+          "n": 100,
+          "mean": 0.003914160799467936
+        },
+        "Metrics/object_pose/position_success": {
+          "n": 100,
+          "mean": 0
+        },
+        "Metrics/object_pose/insertion_tilt_deg": {
+          "n": 100,
+          "mean": 82.45264633178711
+        },
+        "Episode_Termination/abnormal_robot": {
+          "n": 100,
+          "mean": 0.39046253204345704
+        },
+        "Train/mean_reward": {
+          "n": 100,
+          "mean": 38.118247241973876
+        },
+        "Perf/learning_time": {
+          "n": 100,
+          "mean": 1.008622784614563
+        }
+      },
+      "timing_cumulative_common": {
+        "Perf/learning_time": 1030.8021657466888
+      },
+      "thresholds_100mean_held30": {
+        "0.01": 701,
+        "0.1": 884,
+        "0.25": null,
+        "0.5": null
+      },
+      "stage_max_all": {
+        "Metrics/object_pose/stage2_success": 0,
+        "Metrics/object_pose/stage3_success": 0
+      },
+      "agent": "seed: 42\ndevice: cuda:0\nnum_steps_per_env: 32\nmax_iterations: 30000\nempirical_normalization: {}\nobs_groups:\n  policy:\n  - policy\n  - proprio\n  - perception\n  critic:\n  - policy\n  - proprio\n  - perception\nclip_actions: null\ncheck_for_nan: true\nsave_interval: 100\nexperiment_name: bulb_grasp_teacher_v2test\nrun_name: ''\nlogger: tensorboard\nneptune_project: isaaclab\nwandb_project: isaaclab\nresume: false\nload_run: .*\nload_checkpoint: model_.*.pt\nclass_name: BulbGraspTeacherRunner\nactor: {}\ncritic: {}\nalgorithm:\n  class_name: PPO\n  num_learning_epochs: 5\n  num_mini_batches: 4\n  learning_rate: 0.0002\n  schedule: adaptive\n  gamma: 0.99\n  lam: 0.95\n  entropy_coef: 0.001\n  desired_kl: 0.01\n  max_grad_norm: 1.0\n  value_loss_coef: 1.0\n  use_clipped_value_loss: true\n  clip_param: 0.2\n  normalize_advantage_per_mini_batch: false\n  share_cnn_encoders: false\n  rnd_cfg: null\n  symmetry_cfg: null\npolicy:\n  class_name: BulbGraspTeacherLSTM\n  init_noise_std: 0.5\n  noise_std_type: scalar\n  state_dependent_std: false\n  actor_obs_normalization: true\n  critic_obs_normalization: true\n  actor_hidden_dims:\n  - 512\n  - 256\n  - 128\n  critic_hidden_dims:\n  - 512\n  - 256\n  - 128\n  activation: elu\n  min_noise_std: 0.05\n  max_noise_std: 0.5\n  rnn_type: lstm\n  rnn_hidden_dim: 256\n  rnn_num_layers: 1\n",
+      "env_lines": [
+        "  num_envs: 8192",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 0",
+        "    history_length: 1",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      history_length: 0",
+        "    history_length: 1",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      history_length: 0",
+        "    history_length: 1",
+        "      history_length: 0",
+        "    history_length: 1",
+        "      history_length: 0",
+        "      history_length: 0",
+        "      orientation_floor: 0.2",
+        "    weight: 10",
+        "  stage2_success_bonus:",
+        "    weight: 10.0",
+        "bulb_grasp_curriculum_version: 7"
+      ],
+      "perf_tags": [
+        "Perf/total_fps",
+        "Perf/collection time",
+        "Perf/learning_time"
+      ]
+    }
+  },
+  "timing": {
+    "mlp5": {
+      "900-999": {
+        "n": 100,
+        "total_mean": 16.1869,
+        "collection_mean": 15.58026,
+        "learning_mean": 0.60727,
+        "total_sum": 1618.69
+      },
+      "916-1015": {
+        "n": 100,
+        "total_mean": 16.0321,
+        "collection_mean": 15.42527,
+        "learning_mean": 0.60742,
+        "total_sum": 1603.21
+      },
+      "0-1015": {
+        "n": 1016,
+        "total_mean": 15.465383858267716,
+        "collection_mean": 14.857812992125984,
+        "learning_mean": 0.6077322834645669,
+        "total_sum": 15712.83
+      }
+    },
+    "lstm": {
+      "900-999": {
+        "n": 100,
+        "total_mean": 17.3905,
+        "collection_mean": 16.3747,
+        "learning_mean": 1.01566,
+        "total_sum": 1739.05
+      },
+      "916-1015": {
+        "n": 100,
+        "total_mean": 17.3314,
+        "collection_mean": 16.32262,
+        "learning_mean": 1.00865,
+        "total_sum": 1733.14
+      },
+      "0-1015": {
+        "n": 1016,
+        "total_mean": 17.121122047244093,
+        "collection_mean": 16.106536417322836,
+        "learning_mean": 1.0145688976377953,
+        "total_sum": 17395.06
+      }
+    }
+  },
+  "checked_at": "2026-10-07 22:26 Asia/Shanghai",
+  "method": "Read-only remote rank0 full TensorBoard scalars, saved env/agent YAML, and stdout log timing. Means are unweighted per-iteration reset-batch metrics; no independent evaluation. Same iteration sample budgets: 2x8192 envs and rollout32. Different MDP v5 vs v7 rewards, single seed pair and machines confound architecture attribution.",
+  "graph": "Documentation impact UNKNOWN: current target files not indexed; ambiguous initial matches point only at historical snapshots (one CRITICAL candidate unrelated to edited current file). Text references checked in README/PROJECT_MAP. No runtime code edited."
+}

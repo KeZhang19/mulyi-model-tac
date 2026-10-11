@@ -1,0 +1,17 @@
+{
+  "before": {
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py": "be997dcf5d115f00ee0e61bec2297f5723faee0748e6f62fa2f3ed63e7bcdacb",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py": "232ab1e74aa3d038e887c56be811de9765f8ad8d86e0d32b4868eb2ae4798f9d",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/insertion.py": "307df1476d73ea5b6d16c664988e5ab8af8021bbabac68ebd63fde55ce0cbe63",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md": "37a36958c74668bdf76770919634663a50353e0af97bce8703d31cf1ff64a971",
+    "scripts/diagnostics/check_bulb_grasp_curriculum.py": "7da792a2ad77aaa3872132e0d70c1f45a95075b37ed9352dd4fa7ee9c988a479",
+    "scripts/rsl_rl/play_bulb_grasp_teacher.py": "7438ec2b73de90a3cea90eb7c5b993a0602c48996b5b3adfb1855c85bbac073c"
+  },
+  "protected": {
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_snapshot.json": "d19f9f82427c6f1c187c817ce979ed5ac5c8d6dd653984cd07985283ae7e15e2",
+    "assets/bulb_grasp_teacher/bulb_insert.usd": "85c83d3b3754625d2ce29d427997373ea0c5936f13ae8c1f7dd2f8e272b34eba",
+    "assets/bulb_grasp_teacher/socket.usd": "bfc25309c3f6841ad2ad1d1c26b99e63c6780e601cbfd5c728cbe7004754a654",
+    "assets/bulb_grasp_teacher/insertion_geometry.json": "09ff98e050308687ea311245967cc02de836867fc3ee444ccefba330927bce6e",
+    "assets/bulb_grasp_teacher/point_clouds_64/bulb.npy": "90a74d04c55157e07efee277599649a952786816a45ffba01c4c3365499d7353"
+  }
+}

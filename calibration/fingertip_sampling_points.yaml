@@ -1,0 +1,90 @@
+# 五指指尖初步采样点：每指1点，位于DIP触觉面XY包围盒中央附近。
+# 坐标单位：mm；坐标系：当前tag_center，轴向沿用原世界系。
+# position中的z是预定位高度，先抬到该高度并移动XY，再沿-Z下压。
+# model_surface_z_mm只是模型中心射线交点高度，不能直接当作球压头接触零点。
+# 使用当前URDF的全零手关节姿态；文件不执行运动，真机使用前需换算外参/TCP。
+schema_version: 1
+status: model_derived_candidate
+frame: tag_center
+units: mm
+coordinate_reference: press_head_tip
+position_meaning: approach_before_press
+source:
+  path_base: this_yaml_directory
+  urdf: assets/calibration_bench_visuotactile_urdf/urdf/revo3_calibration_scene_xyz.urdf
+  urdf_sha256: c5e61ecd5f946d1f005b4101d3ec6c11d6ad3c9e8c84098264397009f509b33a
+  hand_joint_positions: assets/calibration_bench_visuotactile_urdf/initial_joint_positions.json
+  hand_joint_positions_sha256: 05e143a1a366df73afcd34a726ea833181d2a05525c2ed1261e0841108abec27
+  hand_pose: all 21 hand joints at 0 rad
+  tag_origin: nominal pocket floor center; printed tag thickness not included
+approach:
+  z_mm: 40.0
+  model_highest_z_mm: 29.853841
+  minimum_clearance_above_model_mm: 10.146159
+  press_direction:
+  - 0
+  - 0
+  - -1
+  sequence:
+  - raise_tip_to_approach_z
+  - move_xy_at_approach_z
+  - press_along_negative_z
+  - retract_to_approach_z_before_next_point
+notes:
+- position.x/y/z are tool-tip approach positions in tag_center, not controller axis
+  commands.
+- model_surface_z_mm is a center-ray mesh reference, not a force-controlled stop or
+  a finite-size tool contact zero.
+- Z=40 mm clears the current hand and fixture meshes; finite tool/flange clearance
+  and physical alignment are not validated.
+samples:
+- id: P1
+  finger: thumb
+  finger_name: 拇指
+  segment: DIP
+  sensor_link: right_thumbdip_roll_rubber_link
+  position:
+    x: 29.581
+    y: -148.21
+    z: 40.0
+  model_surface_z_mm: 13.91
+- id: P2
+  finger: index
+  finger_name: 食指
+  segment: DIP
+  sensor_link: right_indexdip_roll_rubber_link
+  position:
+    x: -66.785
+    y: 10.899
+    z: 40.0
+  model_surface_z_mm: 9.413
+- id: P3
+  finger: middle
+  finger_name: 中指
+  segment: DIP
+  sensor_link: right_middip_roll_rubber_link
+  position:
+    x: -95.408
+    y: 21.317
+    z: 40.0
+  model_surface_z_mm: 8.833
+- id: P4
+  finger: ring
+  finger_name: 无名指
+  segment: DIP
+  sensor_link: right_ringdip_roll_rubber_link
+  position:
+    x: -124.513
+    y: 17.238
+    z: 40.0
+  model_surface_z_mm: 8.497
+- id: P5
+  finger: little
+  finger_name: 小指
+  segment: DIP
+  sensor_link: right_pinkydip_roll_rubber_link
+  position:
+    x: -152.768
+    y: 3.624
+    z: 40.0
+  model_surface_z_mm: 9.345

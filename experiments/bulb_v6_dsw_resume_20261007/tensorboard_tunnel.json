@@ -1,0 +1,18 @@
+{
+  "pid": 163906,
+  "command": [
+    "ssh",
+    "-NT",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ExitOnForwardFailure=yes",
+    "-o",
+    "ServerAliveInterval=30",
+    "-o",
+    "ServerAliveCountMax=3",
+    "-L",
+    "127.0.0.1:6006:127.0.0.1:6006",
+    "dsw-wpmt7kzoh4b53jpmov"
+  ]
+}

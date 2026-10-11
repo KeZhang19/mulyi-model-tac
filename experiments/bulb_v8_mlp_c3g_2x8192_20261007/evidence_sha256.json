@@ -1,0 +1,11 @@
+{
+  "launch.sh": "e2e3c7ef37134bdf3299f93c624c333ed847c54e86f90205ac6d8b41ee5b8fc2",
+  "verify_startup.py": "638e9fdb1638a9d863c166a1820e29ead78b7efa12621377b9b7d88f0504ef9e",
+  "startup_verified.json": "4a841f3ccc747cbb5a9cf28833b9ac4625ecb4d7c4658bd7916d8d50b820b588",
+  "active_processes.json": "9dcbd92bf6b639efb226e6a31daf803c3c28f238750169cf1168ad130674024e",
+  "old_stopped.json": "34bbc77f045db40a14baac26de383bc0ed29263551e89018601bbd16e7628537",
+  "sync_manifest.json": "aef4c8a68fe92efc16b60f169fcb709ca89140dfa25920561ee1e03c832a81d0",
+  "sync_verified.json": "5fef6c2b063e8dd127f887d6ae7df68c977c1d5da915cb152db8e8a137cf2aa3",
+  "cpu_verified.json": "b8b9a3a556c25dd266e2607b4db35a3671187f05f78ff4c1658141dc7fed55f6",
+  "README.md": "b5cfa1e9eac33089482521cd971fe1058fbefa725ebb76e036416876095fa14a"
+}

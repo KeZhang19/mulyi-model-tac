@@ -1,0 +1,14 @@
+{
+  "files": {
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py": "ffe382bcb12044ffa2ffcf71c0c8a161160a57596e923f0a4cbf1b0612b82440",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py": "015a3bcb98174a4b7fd4cf47f4ce0a2aebf4c566d0e2d49303b7d1f1d84ac2f5",
+    "scripts/diagnostics/check_bulb_grasp_curriculum.py": "72a6a3747d07ec23903f7396ff812ab7d202761d980d13913bebe33bfe6453c9",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md": "b8393df6f5f49997812a1c00e05e025d4eab2e87c0ae93bdd205f25e45413627"
+  },
+  "protected": {
+    "assets/bulb_grasp_teacher/bulb_grasp.usd": "d4c042789e86f384a271a6386c55b54dbea3fb605db06adfe5857a6db3553936",
+    "assets/bulb_grasp_teacher/socket.usd": "bfc25309c3f6841ad2ad1d1c26b99e63c6780e601cbfd5c728cbe7004754a654",
+    "assets/bulb_grasp_teacher/point_clouds_64/bulb.npy": "90a74d04c55157e07efee277599649a952786816a45ffba01c4c3365499d7353",
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_snapshot.json": "d19f9f82427c6f1c187c817ce979ed5ac5c8d6dd653984cd07985283ae7e15e2"
+  }
+}

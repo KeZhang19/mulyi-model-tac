@@ -31,3 +31,5 @@ from .config import RotateBulbCustom  # noqa: F401
 from .config import RotateBulbRandomized  # noqa: F401
 from .config import RotateBulbAssemblyCurriculum  # noqa: F401
 from .config import InsertDPegCustom  # noqa: F401
+
+from .config import BulbGraspTeacher  # noqa: F401

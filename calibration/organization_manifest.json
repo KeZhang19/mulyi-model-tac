@@ -1,0 +1,125 @@
+{
+  "schema": "calibration_organization_v1",
+  "date": "2026-10-04",
+  "repository_head": "167fc3c79fbf0c882fe85e3e3d8bb3f7d180f77e",
+  "moves": [
+    {
+      "old": "scripts/calibration_bench",
+      "canonical": "calibration/simulation",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "scripts/force_map",
+      "canonical": "calibration/pressure",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "scripts/tactile_representation/collect_index_cross_modal.py",
+      "canonical": "calibration/collection/collect_index_cross_modal.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "scripts/tactile_representation/prepare_mmap_cache.py",
+      "canonical": "calibration/collection/prepare_mmap_cache.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "scripts/rsl_rl/run_rl_ball_probe_pressure_calib.py",
+      "canonical": "calibration/collection/run_rl_ball_probe_pressure_calib.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "scripts/annotate_vitai_markers.py",
+      "canonical": "calibration/tools/annotate_vitai_markers.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "scripts/project_vitai_markers_to_mesh.py",
+      "canonical": "calibration/tools/project_vitai_markers_to_mesh.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "image_generator",
+      "canonical": "calibration/image_generator",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "integrate/pressure_calibration_setup.py",
+      "canonical": "calibration/pressure/pressure_calibration_setup.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "assets/head",
+      "canonical": "calibration/assets/head",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "assets/revo3_breadboard_mount",
+      "canonical": "calibration/assets/revo3_breadboard_mount",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "assets/calibration_bench_urdf",
+      "canonical": "calibration/assets/calibration_bench_urdf",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "assets/calibration_bench_visuotactile_urdf",
+      "canonical": "calibration/assets/calibration_bench_visuotactile_urdf",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "outputs/calibration_bench",
+      "canonical": "calibration/outputs/simulation",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "vitai_4Fingers-320*240",
+      "canonical": "calibration/reference/vitai_4Fingers-320*240",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "docs/pressure_sdf_tactile.md",
+      "canonical": "calibration/docs/pressure_sdf_tactile.md",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "calibration/probe_local.sh",
+      "canonical": "calibration/hardware/probe_local.sh",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "calibration/probe_revo3_readonly.py",
+      "canonical": "calibration/hardware/probe_revo3_readonly.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "calibration/probe_revo3_trimodal.py",
+      "canonical": "calibration/hardware/probe_revo3_trimodal.py",
+      "old_path": "relative_symlink"
+    },
+    {
+      "old": "calibration/标定流程.md",
+      "canonical": "calibration/docs/标定流程.md",
+      "old_path": "relative_symlink"
+    }
+  ],
+  "already_moved_document": {
+    "old": "机械标定台仿真搭建_README.md",
+    "canonical": "calibration/机械标定台仿真搭建_README.md",
+    "old_path": "removed",
+    "removed_on": "2026-10-04",
+    "reason": "User requested one documentation entry; root compatibility symlink removed, canonical content preserved."
+  },
+  "shared_links": {
+    "calibration/shared/force_map": "source/BrainCo_DexHand/BrainCo_DexHand/force_map",
+    "calibration/shared/tactile_representation": "source/BrainCo_DexHand/BrainCo_DexHand/tactile_representation",
+    "calibration/shared/tactile_runtime": "integrate",
+    "calibration/shared/tacmap": "tacmap",
+    "calibration/assets/revo21_right_touch": "assets/revo21_right_touch",
+    "calibration/shared/visualize_rl_tactile_obs.py": "scripts/rsl_rl/visualize_rl_tactile_obs.py",
+    "datasets": "calibration/datasets"
+  },
+  "historical_records": "raw captures, NPZ, JSON, USD, CAD and meshes are not rewritten; old recorded paths remain resolvable via aliases",
+  "hardware_execution": false
+}

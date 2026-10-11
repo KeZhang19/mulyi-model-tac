@@ -1,0 +1,282 @@
+{
+  "result": "PASS",
+  "network_weight_l1_change": {
+    "actor": 50.547189014963806,
+    "critic": 164.5944485962391
+  },
+  "optimizer_steps": [
+    64
+  ],
+  "finite_checkpoint_and_scalars": true,
+  "scalar_tags": [
+    "Metrics/success_rate",
+    "Metrics/completed_episodes",
+    "Loss/value",
+    "Loss/surrogate",
+    "Loss/entropy",
+    "Loss/learning_rate",
+    "Policy/mean_std",
+    "Perf/total_fps",
+    "Perf/collection_time",
+    "Perf/learning_time",
+    "Train/mean_reward",
+    "Train/mean_episode_length",
+    "Train/mean_reward/time",
+    "Train/mean_episode_length/time"
+  ],
+  "checkpoint_sha256": "5a43ba98acdc71a4e80a0d034c019fc758959e92bd71159e8ad0688e70c9c372",
+  "scalars": {
+    "Metrics/success_rate": [
+      {
+        "step": 0,
+        "value": 0.0
+      },
+      {
+        "step": 1,
+        "value": 0.0
+      },
+      {
+        "step": 2,
+        "value": 0.0
+      },
+      {
+        "step": 3,
+        "value": 0.0
+      }
+    ],
+    "Metrics/completed_episodes": [
+      {
+        "step": 0,
+        "value": 8.0
+      },
+      {
+        "step": 1,
+        "value": 8.09375
+      },
+      {
+        "step": 2,
+        "value": 16.125
+      },
+      {
+        "step": 3,
+        "value": 24.15625
+      }
+    ],
+    "Loss/value": [
+      {
+        "step": 0,
+        "value": 0.043515048921108246
+      },
+      {
+        "step": 1,
+        "value": 0.9036768078804016
+      },
+      {
+        "step": 2,
+        "value": 0.4837009310722351
+      },
+      {
+        "step": 3,
+        "value": 0.733568549156189
+      }
+    ],
+    "Loss/surrogate": [
+      {
+        "step": 0,
+        "value": -0.004539344925433397
+      },
+      {
+        "step": 1,
+        "value": -0.0037504718638956547
+      },
+      {
+        "step": 2,
+        "value": -0.00319902622140944
+      },
+      {
+        "step": 3,
+        "value": -0.0022757183760404587
+      }
+    ],
+    "Loss/entropy": [
+      {
+        "step": 0,
+        "value": 8.512092590332031
+      },
+      {
+        "step": 1,
+        "value": 8.509941101074219
+      },
+      {
+        "step": 2,
+        "value": 8.51015853881836
+      },
+      {
+        "step": 3,
+        "value": 8.509622573852539
+      }
+    ],
+    "Loss/learning_rate": [
+      {
+        "step": 0,
+        "value": 9.999999747378752e-05
+      },
+      {
+        "step": 1,
+        "value": 9.999999747378752e-05
+      },
+      {
+        "step": 2,
+        "value": 9.999999747378752e-05
+      },
+      {
+        "step": 3,
+        "value": 9.999999747378752e-05
+      }
+    ],
+    "Policy/mean_std": [
+      {
+        "step": 0,
+        "value": 0.9994674921035767
+      },
+      {
+        "step": 1,
+        "value": 0.9994043111801147
+      },
+      {
+        "step": 2,
+        "value": 0.9994133710861206
+      },
+      {
+        "step": 3,
+        "value": 0.9992008209228516
+      }
+    ],
+    "Perf/total_fps": [
+      {
+        "step": 0,
+        "value": 237.0
+      },
+      {
+        "step": 1,
+        "value": 256.0
+      },
+      {
+        "step": 2,
+        "value": 242.0
+      },
+      {
+        "step": 3,
+        "value": 247.0
+      }
+    ],
+    "Perf/collection_time": [
+      {
+        "step": 0,
+        "value": 8.333625793457031
+      },
+      {
+        "step": 1,
+        "value": 7.892421722412109
+      },
+      {
+        "step": 2,
+        "value": 8.357361793518066
+      },
+      {
+        "step": 3,
+        "value": 8.201741218566895
+      }
+    ],
+    "Perf/learning_time": [
+      {
+        "step": 0,
+        "value": 0.28667116165161133
+      },
+      {
+        "step": 1,
+        "value": 0.08510804176330566
+      },
+      {
+        "step": 2,
+        "value": 0.07883810997009277
+      },
+      {
+        "step": 3,
+        "value": 0.06376457214355469
+      }
+    ],
+    "Train/mean_reward": [
+      {
+        "step": 0,
+        "value": -4.5251922607421875
+      },
+      {
+        "step": 1,
+        "value": -7.767826080322266
+      },
+      {
+        "step": 2,
+        "value": -8.423501968383789
+      },
+      {
+        "step": 3,
+        "value": -8.892263412475586
+      }
+    ],
+    "Train/mean_episode_length": [
+      {
+        "step": 0,
+        "value": 255.0
+      },
+      {
+        "step": 1,
+        "value": 255.0
+      },
+      {
+        "step": 2,
+        "value": 255.0
+      },
+      {
+        "step": 3,
+        "value": 255.0
+      }
+    ],
+    "Train/mean_reward/time": [
+      {
+        "step": 8,
+        "value": -4.5251922607421875
+      },
+      {
+        "step": 16,
+        "value": -7.767826080322266
+      },
+      {
+        "step": 25,
+        "value": -8.423501968383789
+      },
+      {
+        "step": 33,
+        "value": -8.892263412475586
+      }
+    ],
+    "Train/mean_episode_length/time": [
+      {
+        "step": 8,
+        "value": 255.0
+      },
+      {
+        "step": 16,
+        "value": 255.0
+      },
+      {
+        "step": 25,
+        "value": 255.0
+      },
+      {
+        "step": 33,
+        "value": 255.0
+      }
+    ]
+  }
+}

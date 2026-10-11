@@ -22,7 +22,11 @@ from isaaclab.scene import InteractiveSceneCfg
 from isaaclab.sim import CapsuleCfg, ConeCfg, CuboidCfg, RigidBodyMaterialCfg, SphereCfg
 from isaaclab.utils import configclass
 from isaaclab.utils.assets import ISAAC_NUCLEUS_DIR
-from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+try:
+    from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
+except ImportError:
+    # Isaac Lab 3 renamed the additive uniform noise configuration.
+    from isaaclab.utils.noise import UniformNoiseCfg as Unoise
 
 from ... import mdp
 from ...adr_curriculum import CurriculumCfg as BaseCurriculumCfg

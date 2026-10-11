@@ -29,7 +29,6 @@ if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
 from BrainCo_DexHand.tactile_representation import (  # noqa: E402
-    TriModalCrossAutoencoder,
     TriModalCrossAutoencoderCfg,
 )
 from BrainCo_DexHand.tactile_representation.training import (  # noqa: E402
@@ -44,6 +43,13 @@ from BrainCo_DexHand.tactile_representation.training.tri_modal_objectives import
     TriModalAutoencoderLossCfg,
     compute_tri_modal_autoencoder_objective,
 )
+
+from BrainCo_DexHand.tactile_representation.models.tactspace import (
+    TactSpaceCfg, TactSpaceLossCfg, TactSpaceRGBDepthMarker,
+    compute_tactspace_objective, representation_contract, validate_sim_training_manifest,
+    OBJECTIVE_NAME as TACTSPACE_OBJECTIVE,
+)
+from BrainCo_DexHand.tactile_representation.policy import checkpoint_model_type, build_tactile_encoder
 
 
 NETWORK_TYPE = "tri_modal_cross_autoencoder"
@@ -63,6 +69,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--output", type=Path, default=Path("runs/revo3_tri_modal_cross_v1")
     )
+    parser.add_argument("--model-type", choices=("tri_modal", "tactspace"), default="tri_modal")
+    parser.add_argument("--input-modalities", nargs="+", choices=("rgb", "depth", "marker"), default=["rgb", "depth", "marker"])
+    parser.add_argument("--reconstruction-weight", type=float, default=1.0)
+    parser.add_argument("--alignment-weight", type=float, default=1.0)
+    parser.add_argument("--temperature", type=float, default=0.1)
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--epochs", type=int, default=1000)
@@ -127,6 +138,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--clean-selection-weight", type=float, default=0.25)
 
     args = parser.parse_args(argv)
+    args.explicit_options = [item.split("=")[0] for item in (sys.argv[1:] if argv is None else argv) if item.startswith("--")]
+    if args.model_type == "tactspace":
+        try:
+            TactSpaceLossCfg(args.reconstruction_weight, args.alignment_weight, args.temperature)
+        except ValueError as exc:
+            parser.error(str(exc))
     positive = {
         "epochs": args.epochs,
         "batch-size": args.batch_size,
@@ -183,7 +200,7 @@ def seed_everything(seed: int) -> None:
 def model_config(
     args: argparse.Namespace, normalization: TactileNormalization
 ) -> TriModalCrossAutoencoderCfg:
-    return TriModalCrossAutoencoderCfg(
+    cfg = TriModalCrossAutoencoderCfg(
         image_height=normalization.image_height,
         image_width=normalization.image_width,
         marker_count=normalization.marker_count,
@@ -198,11 +215,17 @@ def model_config(
         decoder_base_channels=int(args.decoder_base_channels),
         dropout=float(args.dropout),
     )
+    if args.model_type == "tactspace":
+        return TactSpaceCfg(**asdict(cfg), input_modalities=tuple(args.input_modalities))
+    return cfg
 
 
 def loss_config(
     args: argparse.Namespace, normalization: TactileNormalization
-) -> TriModalAutoencoderLossCfg:
+) -> TriModalAutoencoderLossCfg | TactSpaceLossCfg:
+    if args.model_type == "tactspace":
+        return TactSpaceLossCfg(args.reconstruction_weight, args.alignment_weight, args.temperature,
+                               args.rgb_loss_weight, args.depth_loss_weight, args.marker_loss_weight)
     return TriModalAutoencoderLossCfg(
         rgb_weight=float(args.rgb_loss_weight),
         depth_weight=float(args.depth_loss_weight),
@@ -261,10 +284,8 @@ def _load_checkpoint(path: Path) -> dict[str, Any]:
         payload = torch.load(resolved, map_location="cpu", weights_only=False)
     except TypeError:
         payload = torch.load(resolved, map_location="cpu")
-    if payload.get("network_type") != NETWORK_TYPE:
-        raise ValueError(
-            f"Checkpoint network_type={payload.get('network_type')!r} is not {NETWORK_TYPE!r}"
-        )
+    if checkpoint_model_type(payload) not in ("tri_modal", "tactspace"):
+        raise ValueError("This entry accepts tri_modal or tactspace checkpoints")
     return payload
 
 
@@ -326,12 +347,12 @@ class MetricAccumulator:
         self.samples += int(batch_size)
         for name, value in metrics.items():
             scalar = float(value.detach().to(torch.float32).cpu())
-            self.total[name] = self.total.get(name, 0.0) + scalar * int(batch_size)
+            self.total[name] = self.total.get(name, 0.0) + scalar * (1 if name.startswith("count/") else int(batch_size))
 
     def averages(self) -> dict[str, float]:
         if self.samples <= 0:
             raise RuntimeError("No metrics were accumulated")
-        return {name: value / self.samples for name, value in self.total.items()}
+        return {name: value if name.startswith("count/") else value / self.samples for name, value in self.total.items()}
 
 
 def _batch_limit(loader: DataLoader, requested: int | None) -> int:
@@ -361,7 +382,7 @@ def train_epoch(
     scaler: Any,
     device: torch.device,
     normalization: TactileNormalization,
-    objective_cfg: TriModalAutoencoderLossCfg,
+    objective_cfg: TriModalAutoencoderLossCfg | TactSpaceLossCfg,
     args: argparse.Namespace,
     amp_enabled: bool,
     seed: int,
@@ -374,12 +395,15 @@ def train_epoch(
     optimizer.zero_grad(set_to_none=True)
     optimizer_steps = 0
     skipped_steps = 0
+    active_group = False
+    trained_group = {}
     for batch_index, cpu_batch in enumerate(loader):
         if batch_index >= limit:
             break
         batch = _move_batch(cpu_batch, device)
         with _autocast(amp_enabled):
-            loss, batch_metrics = compute_tri_modal_autoencoder_objective(
+            objective = compute_tactspace_objective if isinstance(model, TactSpaceRGBDepthMarker) else compute_tri_modal_autoencoder_objective
+            loss, batch_metrics = objective(
                 model,
                 batch,
                 normalization=normalization,
@@ -396,12 +420,20 @@ def train_epoch(
             scaled_loss = loss / group_size
         if not bool(torch.isfinite(loss)):
             raise FloatingPointError(f"Training loss is non-finite at batch {batch_index}")
-        scaler.scale(scaled_loss).backward()
+        active_batch = not isinstance(model, TactSpaceRGBDepthMarker) or float(batch_metrics["count/active_sources"]) > 0
+        if active_batch:
+            scaler.scale(scaled_loss).backward()
+            active_group = True
+            for name, value in batch_metrics.items():
+                if name.startswith("count/trained_"):
+                    trained_group[name] = trained_group.get(name, 0) + float(value)
         should_step = (
             (batch_index + 1) % int(args.grad_accum_steps) == 0
             or batch_index + 1 == limit
         )
-        if should_step:
+        if should_step and not active_group:
+            batch_metrics["count/skipped_empty_updates"] = loss.new_tensor(1)
+        if should_step and active_group:
             scaler.unscale_(optimizer)
             if float(args.gradient_clip) > 0.0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), float(args.gradient_clip))
@@ -413,6 +445,10 @@ def train_epoch(
                 skipped_steps += 1
             else:
                 optimizer_steps += 1
+                if isinstance(model, TactSpaceRGBDepthMarker):
+                    model.record_trained_sources(trained_group)
+            active_group = False
+            trained_group = {}
             optimizer.zero_grad(set_to_none=True)
         metrics.update(batch_metrics, int(batch["rgb"].shape[0]))
         if (
@@ -436,13 +472,27 @@ def evaluate_epoch(
     *,
     device: torch.device,
     normalization: TactileNormalization,
-    objective_cfg: TriModalAutoencoderLossCfg,
+    objective_cfg: TriModalAutoencoderLossCfg | TactSpaceLossCfg,
     amp_enabled: bool,
     seed: int,
     max_batches: int | None,
     args: argparse.Namespace,
 ) -> dict[str, float]:
     model.eval()
+    if isinstance(model, TactSpaceRGBDepthMarker):
+        accumulator = MetricAccumulator()
+        for batch_index, cpu_batch in enumerate(loader):
+            if batch_index >= _batch_limit(loader, max_batches):
+                break
+            batch = _move_batch(cpu_batch, device)
+            with _autocast(amp_enabled):
+                loss, metrics = compute_tactspace_objective(model, batch, cfg=objective_cfg)
+            if not bool(torch.isfinite(loss)):
+                raise FloatingPointError("Non-finite TactSpace evaluation loss")
+            accumulator.update(metrics, int(batch["rgb"].shape[0]))
+        result = accumulator.averages()
+        result["loss/selection"] = result["loss/total"]
+        return result
     accumulators = {name: MetricAccumulator() for name in EVALUATION_MODES}
     generator = _generator(device, seed)
     limit = _batch_limit(loader, max_batches)
@@ -537,7 +587,7 @@ def _checkpoint_payload(
     scheduler: LambdaLR,
     scaler: Any,
     network_cfg: TriModalCrossAutoencoderCfg,
-    objective_cfg: TriModalAutoencoderLossCfg,
+    objective_cfg: TriModalAutoencoderLossCfg | TactSpaceLossCfg,
     normalization: TactileNormalization,
     splits: EpisodeSplits,
     dataset_fingerprint: str,
@@ -546,8 +596,9 @@ def _checkpoint_payload(
 ) -> dict[str, Any]:
     return {
         "schema_version": 1,
-        "network_type": NETWORK_TYPE,
-        "training_objective": OBJECTIVE_NAME,
+        "network_type": "tactspace" if isinstance(model, TactSpaceRGBDepthMarker) else NETWORK_TYPE,
+        "training_objective": TACTSPACE_OBJECTIVE if isinstance(model, TactSpaceRGBDepthMarker) else OBJECTIVE_NAME,
+        **({"representation_contract": representation_contract(model.cfg)} if isinstance(model, TactSpaceRGBDepthMarker) else {}),
         "epoch": int(epoch),
         "global_step": int(global_step),
         "best_validation_loss": float(best_validation_loss),
@@ -566,18 +617,49 @@ def _checkpoint_payload(
     }
 
 
+def _restore_checkpoint_arguments(args, payload):
+    actual = checkpoint_model_type(payload)
+    if "--model-type" in args.explicit_options and args.model_type != actual:
+        raise ValueError(f"Checkpoint model type {actual!r} conflicts with --model-type {args.model_type!r}")
+    args.model_type = actual
+    values = {key: value for key, value in payload["model_cfg"].items() if hasattr(args, key)}
+    if "input_modalities" in values:
+        values["input_modalities"] = list(values["input_modalities"])
+    values.update(depth_scale_mm=payload["normalization"]["depth_scale_m"] * 1000,
+                  marker_motion_scale_px=payload["normalization"]["marker_motion_scale_px"])
+    # Loss settings are restored as well, unless explicitly conflicting.
+    for key in vars(args):
+        if key in payload.get("args", {}) and ("weight" in key or key in (
+                "temperature", "min_degradation_severity", "max_degradation_severity", "clean_sample_probability")):
+            values[key] = payload["args"][key]
+    for key, value in values.items():
+        if "--" + key.replace("_", "-") in args.explicit_options and getattr(args, key) != value:
+            raise ValueError(f"Explicit --{key.replace('_', '-')} conflicts with checkpoint: {value!r}")
+        setattr(args, key, value)
+
+
 def main(argv: list[str] | None = None) -> None:
     args = parse_args(argv)
+    resume_payload = _load_checkpoint(args.resume) if args.resume is not None else None
+    if resume_payload is not None:
+        _restore_checkpoint_arguments(args, resume_payload)
+    if args.model_type == "tri_modal" and set(args.explicit_options) & {
+        "--input-modalities", "--reconstruction-weight", "--alignment-weight", "--temperature"
+    }:
+        raise ValueError("Input selection and joint-loss options require --model-type tactspace")
+    if args.model_type == "tactspace" and any(k in args.explicit_options for k in ("--cross-layers", "--cross-summary-tokens")):
+        raise ValueError("TactSpace has independent encoders; cross-attention options do not apply")
     seed_everything(int(args.seed))
     device = resolve_device(str(args.device))
     dataset_root, manifest = load_complete_manifest(args.dataset)
+    if args.model_type == "tactspace":
+        validate_sim_training_manifest(manifest)
     fingerprint = manifest_sha256(dataset_root)
     normalization = TactileNormalization.from_manifest(
         manifest,
         depth_scale_m=float(args.depth_scale_mm) * 1.0e-3,
         marker_motion_scale_px=float(args.marker_motion_scale_px),
     )
-    resume_payload = _load_checkpoint(args.resume) if args.resume is not None else None
     if resume_payload is not None:
         if resume_payload.get("dataset_manifest_sha256") != fingerprint:
             raise ValueError("Resume checkpoint was created from a different dataset")
@@ -632,7 +714,7 @@ def main(argv: list[str] | None = None) -> None:
 
     network_cfg = model_config(args, normalization)
     objective_cfg = loss_config(args, normalization)
-    model = TriModalCrossAutoencoder(network_cfg).to(device)
+    model = build_tactile_encoder(args.model_type, asdict(network_cfg)).to(device)
     optimizer = AdamW(
         model.parameters(),
         lr=float(args.learning_rate),
@@ -698,8 +780,9 @@ def main(argv: list[str] | None = None) -> None:
             scheduler = _make_scheduler(optimizer, args, last_epoch=start_epoch - 1)
 
     run_summary = {
-        "network_type": NETWORK_TYPE,
-        "training_objective": OBJECTIVE_NAME,
+        "network_type": "tactspace" if isinstance(model, TactSpaceRGBDepthMarker) else NETWORK_TYPE,
+        "training_objective": TACTSPACE_OBJECTIVE if isinstance(model, TactSpaceRGBDepthMarker) else OBJECTIVE_NAME,
+        **({"representation_contract": representation_contract(model.cfg)} if isinstance(model, TactSpaceRGBDepthMarker) else {}),
         "dataset": str(dataset_root),
         "dataset_manifest_sha256": fingerprint,
         "dataset_backend": next(iter(backends)),

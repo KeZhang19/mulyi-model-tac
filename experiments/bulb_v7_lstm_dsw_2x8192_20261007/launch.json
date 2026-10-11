@@ -1,0 +1,15 @@
+{
+  "pid": 14243,
+  "time": "2026-10-07T17:22:17.860977+08:00",
+  "project": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007",
+  "run": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/logs/rsl_rl/bulb_grasp_teacher_v7_lstm/2026-10-07_scratch_2x8192",
+  "log": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/experiments/bulb_v7_lstm_dsw_2x8192_20261007/train.log",
+  "launch_script_sha256": "48212baacebf08048ab7a907b511b552bea37c77622782b37b8204fc95287590",
+  "gpu_before": "0, 1\n1, 1\n",
+  "gpus": 2,
+  "envs_per_gpu": 8192,
+  "total_envs": 16384,
+  "lstm": true,
+  "max_iterations": 30000,
+  "from_scratch": true
+}

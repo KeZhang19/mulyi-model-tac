@@ -1,0 +1,128 @@
+{
+  "checked_at": "2026-10-05T09:48:44.053420+00:00",
+  "first_iteration": 12000,
+  "latest_iteration": 12012,
+  "rank_proofs": [
+    {
+      "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+      "rank": 0,
+      "world_size": 2,
+      "seed": 42,
+      "num_envs_per_rank": 4096,
+      "total_envs": 8192,
+      "cuda_visible_devices": "0",
+      "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-04_scratch_2x4096/rank0/model_12000.pt",
+      "from_scratch": false,
+      "initial_adr_difficulty": 0.7317,
+      "initial_gravity_z": -1.0,
+      "gradient_reductions": 1,
+      "verified": true,
+      "parameter_sha256_by_rank": [
+        "991050254bf75d242cc01b6bf1af647a5512cd158149189b0106d07246337bb9",
+        "991050254bf75d242cc01b6bf1af647a5512cd158149189b0106d07246337bb9"
+      ]
+    },
+    {
+      "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-v0",
+      "rank": 1,
+      "world_size": 2,
+      "seed": 43,
+      "num_envs_per_rank": 4096,
+      "total_envs": 8192,
+      "cuda_visible_devices": "1",
+      "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-04_scratch_2x4096/rank0/model_12000.pt",
+      "from_scratch": false,
+      "initial_adr_difficulty": 0.7317,
+      "initial_gravity_z": -1.0,
+      "gradient_reductions": 1,
+      "verified": true,
+      "parameter_sha256_by_rank": [
+        "991050254bf75d242cc01b6bf1af647a5512cd158149189b0106d07246337bb9",
+        "991050254bf75d242cc01b6bf1af647a5512cd158149189b0106d07246337bb9"
+      ]
+    }
+  ],
+  "configs": [
+    {
+      "rank": 0,
+      "version": "1",
+      "episode_length_s": "8.0",
+      "thread_down_weight": "5.0",
+      "socket": "/home/admin/workspace/xinyu/mulyi-model-tac/assets/bulb_grasp_teacher/socket.usd",
+      "sim_gravity": [
+        "0.0",
+        "0.0",
+        "-9.81"
+      ]
+    },
+    {
+      "rank": 1,
+      "version": "1",
+      "episode_length_s": "8.0",
+      "thread_down_weight": "5.0",
+      "socket": "/home/admin/workspace/xinyu/mulyi-model-tac/assets/bulb_grasp_teacher/socket.usd",
+      "sim_gravity": [
+        "0.0",
+        "0.0",
+        "-9.81"
+      ]
+    }
+  ],
+  "new_checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-05_curriculum_resume12000_2x4096/rank0/model_12000.pt",
+  "new_checkpoint_sha256": "d43f38adce4e78b596b37a2fb33a732e4cbda331dbebd67106343ba9d48355bc",
+  "restored_optimizer_step_before": [
+    240020.0
+  ],
+  "optimizer_step_after_first_iteration": [
+    240040.0
+  ],
+  "gravity_curriculum_state": {
+    "trigger_iteration": 5730,
+    "last_success_rate": 0.0
+  },
+  "selected_metrics": {
+    "Episode_Reward/thread_down": {
+      "step": 12012,
+      "value": 0.4992479085922241
+    },
+    "Metrics/object_pose/stage1_success": {
+      "step": 12012,
+      "value": 0.6092177629470825
+    },
+    "Metrics/object_pose/stage2_success": {
+      "step": 12012,
+      "value": 0.00532670458778739
+    },
+    "Metrics/object_pose/thread_down_error_deg": {
+      "step": 12012,
+      "value": 76.36250305175781
+    },
+    "Train/success_rate": {
+      "step": 12012,
+      "value": 0.00532670458778739
+    },
+    "GravityCurriculum/triggered": {
+      "step": 12012,
+      "value": 1.0
+    },
+    "GravityCurriculum/trigger_iteration": {
+      "step": 12012,
+      "value": 5730.0
+    },
+    "GravityCurriculum/progress": {
+      "step": 12012,
+      "value": 1.0
+    },
+    "GravityCurriculum/gravity_z": {
+      "step": 12012,
+      "value": -9.800000190734863
+    },
+    "GravityCurriculum/success_rate": {
+      "step": 12012,
+      "value": 0.006619487889111042
+    }
+  },
+  "fatal_errors": [],
+  "gpu": "0, 77 %, 8941 MiB\n1, 80 %, 9155 MiB\n",
+  "adr_resume_note": "Per-environment ADR tensors are not in checkpoint; new envs use configured initial difficulty 0.7317."
+}

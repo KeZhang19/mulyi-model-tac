@@ -1,0 +1,37 @@
+[
+  {
+    "path": "docs/STATUS.md",
+    "sha256": "dffac87b20814f2b9411583635306e1c544c9eb9eabc0a90f0af1857911c9a58",
+    "expected_remote_before": "67bf96cd7dcda9f0ecc3f2e831685a27141de4a23ff790149b652dbcfae6dfe7"
+  },
+  {
+    "path": "docs/RUNBOOK.md",
+    "sha256": "b10ef21b4541c748647098bc105109edb40db015a2fc7c217ca510256411ec5a",
+    "expected_remote_before": "00ef64a9e7db75aea9f3e07fbb8e05a43b55befca79a423027b79510fedbb52f"
+  },
+  {
+    "path": "EXPERIMENTS.md",
+    "sha256": "34415e43485eafcbd00e1a575e8afb5ee3e8b45022c69bfed94ff9338cf395d2",
+    "expected_remote_before": "b44e5e564c02ce1624c97dcff20ce63dcd0cb7796012e24bd9be1946714e2bcd"
+  },
+  {
+    "path": "docs/PROJECT_MAP.md",
+    "sha256": "2a4edd241a980de47d1f5c5995a2393ddebc481cd49ad871980cdbe658c991d1",
+    "expected_remote_before": "7631f343fa670ba490e29aa74f9adbfa9cea5414c1b14e8c61bbf7abe910a203"
+  },
+  {
+    "path": "experiments/bulb_v10_entry_region_20261011/README.md",
+    "sha256": "f18e757aef3c7e6b149a972ecd20df4211f1c42fa90a2ca6dbc1ed25414e817f",
+    "expected_remote_before": null
+  },
+  {
+    "path": "experiments/bulb_v10_entry_region_20261011/changes.patch",
+    "sha256": "ce4deffad631de4c935df8a4835ea1645e76221bff0427c23d85e364b1e22cac",
+    "expected_remote_before": null
+  },
+  {
+    "path": "experiments/bulb_v10_entry_region_20261011/cpu_checks_local.log",
+    "sha256": "d90607c828061a3ef5a83da4e029d0caeec577e08f43625f4880d1616ee8839a",
+    "expected_remote_before": null
+  }
+]

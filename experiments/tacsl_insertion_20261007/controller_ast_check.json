@@ -1,0 +1,10 @@
+{
+  "factory_control.py": {
+    "symbols": 14,
+    "identical": true
+  },
+  "torch_jit_utils.py": {
+    "symbols": 49,
+    "identical": true
+  }
+}

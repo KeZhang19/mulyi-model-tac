@@ -1,0 +1,18 @@
+{
+  "runs": [
+    "Bulb_v5_2x8192/."
+  ],
+  "tags_count": {
+    "Bulb_v5_2x8192/.": 138
+  },
+  "key_tags": {
+    "Bulb_v5_2x8192/.": [
+      "Metrics/object_pose/stage1_success",
+      "Metrics/object_pose/stage2_success",
+      "Metrics/object_pose/thread_down_error_deg",
+      "Metrics/object_pose/stage3_success",
+      "Metrics/object_pose/screw_turns"
+    ]
+  },
+  "checked_at_unix": 1791261589.3652685
+}

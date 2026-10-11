@@ -1,0 +1,773 @@
+from collections import OrderedDict
+from typing import Tuple, Union, List
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch import nn
+
+
+class Bottleneck(nn.Module):
+    expansion = 4
+
+    def __init__(self, inplanes, planes, stride=1):
+        super().__init__()
+
+        # all conv layers have stride 1. an avgpool is performed after the second convolution when stride > 1
+        self.conv1 = nn.Conv2d(inplanes, planes, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(planes)
+
+        self.conv2 = nn.Conv2d(planes, planes, 3, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+
+        self.avgpool = nn.AvgPool2d(stride) if stride > 1 else nn.Identity()
+
+        self.conv3 = nn.Conv2d(planes, planes * self.expansion, 1, bias=False)
+        self.bn3 = nn.BatchNorm2d(planes * self.expansion)
+
+        self.relu = nn.ReLU(inplace=True)
+        self.downsample = None
+        self.stride = stride
+
+        if stride > 1 or inplanes != planes * Bottleneck.expansion:
+            # downsampling layer is prepended with an avgpool, and the subsequent convolution has stride 1
+            self.downsample = nn.Sequential(OrderedDict([
+                ("-1", nn.AvgPool2d(stride)),
+                ("0", nn.Conv2d(inplanes, planes * self.expansion, 1, stride=1, bias=False)),
+                ("1", nn.BatchNorm2d(planes * self.expansion))
+            ]))
+
+    def forward(self, x: torch.Tensor):
+        identity = x
+
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.relu(self.bn2(self.conv2(out)))
+        out = self.avgpool(out)
+        out = self.bn3(self.conv3(out))
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
+        out = self.relu(out)
+        return out
+
+
+class AttentionPool2d(nn.Module):
+    def __init__(self, spacial_dim: int, embed_dim: int, num_heads: int, output_dim: int = None):
+        super().__init__()
+        self.positional_embedding = nn.Parameter(torch.randn(spacial_dim ** 2 + 1, embed_dim) / embed_dim ** 0.5)
+        self.k_proj = nn.Linear(embed_dim, embed_dim)
+        self.q_proj = nn.Linear(embed_dim, embed_dim)
+        self.v_proj = nn.Linear(embed_dim, embed_dim)
+        self.c_proj = nn.Linear(embed_dim, output_dim or embed_dim)
+        self.num_heads = num_heads
+
+    def forward(self, x):
+        x = x.reshape(x.shape[0], x.shape[1], x.shape[2] * x.shape[3]).permute(2, 0, 1)  # NCHW -> (HW)NC
+        x = torch.cat([x.mean(dim=0, keepdim=True), x], dim=0)  # (HW+1)NC
+        x = x + self.positional_embedding[:, None, :].to(x.dtype)  # (HW+1)NC
+        x, _ = F.multi_head_attention_forward(
+            query=x, key=x, value=x,
+            embed_dim_to_check=x.shape[-1],
+            num_heads=self.num_heads,
+            q_proj_weight=self.q_proj.weight,
+            k_proj_weight=self.k_proj.weight,
+            v_proj_weight=self.v_proj.weight,
+            in_proj_weight=None,
+            in_proj_bias=torch.cat([self.q_proj.bias, self.k_proj.bias, self.v_proj.bias]),
+            bias_k=None,
+            bias_v=None,
+            add_zero_attn=False,
+            dropout_p=0,
+            out_proj_weight=self.c_proj.weight,
+            out_proj_bias=self.c_proj.bias,
+            use_separate_proj_weight=True,
+            training=self.training,
+            need_weights=False
+        )
+
+        return x[0]
+
+
+class ModifiedResNet(nn.Module):
+    """
+    A ResNet class that is similar to torchvision's but contains the following changes:
+    - There are now 3 "stem" convolutions as opposed to 1, with an average pool instead of a max pool.
+    - Performs anti-aliasing strided convolutions, where an avgpool is prepended to convolutions with stride > 1
+    - The final pooling layer is a QKV attention instead of an average pool
+    """
+
+    def __init__(self, layers, output_dim, heads, input_resolution=224, width=64):
+        super().__init__()
+        self.output_dim = output_dim
+        self.input_resolution = input_resolution
+
+        # the 3-layer stem
+        self.conv1 = nn.Conv2d(3, width // 2, kernel_size=3, stride=2, padding=1, bias=False)
+        self.bn1 = nn.BatchNorm2d(width // 2)
+        self.conv2 = nn.Conv2d(width // 2, width // 2, kernel_size=3, padding=1, bias=False)
+        self.bn2 = nn.BatchNorm2d(width // 2)
+        self.conv3 = nn.Conv2d(width // 2, width, kernel_size=3, padding=1, bias=False)
+        self.bn3 = nn.BatchNorm2d(width)
+        self.avgpool = nn.AvgPool2d(2)
+        self.relu = nn.ReLU(inplace=True)
+
+        # residual layers
+        self._inplanes = width  # this is a *mutable* variable used during construction
+        self.layer1 = self._make_layer(width, layers[0])
+        self.layer2 = self._make_layer(width * 2, layers[1], stride=2)
+        self.layer3 = self._make_layer(width * 4, layers[2], stride=2)
+        self.layer4 = self._make_layer(width * 8, layers[3], stride=2)
+
+        embed_dim = width * 32  # the ResNet feature dimension
+        self.attnpool = AttentionPool2d(input_resolution // 32, embed_dim, heads, output_dim)
+
+    def _make_layer(self, planes, blocks, stride=1):
+        layers = [Bottleneck(self._inplanes, planes, stride)]
+
+        self._inplanes = planes * Bottleneck.expansion
+        for _ in range(1, blocks):
+            layers.append(Bottleneck(self._inplanes, planes))
+
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        def stem(x):
+            for conv, bn in [(self.conv1, self.bn1), (self.conv2, self.bn2), (self.conv3, self.bn3)]:
+                x = self.relu(bn(conv(x)))
+            x = self.avgpool(x)
+            return x
+
+        x = x.type(self.conv1.weight.dtype)
+        x = stem(x)
+        x1 = self.layer1(x)
+        x2 = self.layer2(x1)
+        x3 = self.layer3(x2)
+        x4 = self.layer4(x3)
+        x5 = self.attnpool(x4)
+
+        return x5
+
+
+class LayerNorm(nn.LayerNorm):
+    """Subclass torch's LayerNorm to handle fp16."""
+
+    def forward(self, x: torch.Tensor):
+        orig_type = x.dtype
+        ret = super().forward(x.type(torch.float32))
+        return ret.type(orig_type)
+
+
+class QuickGELU(nn.Module):
+    def forward(self, x: torch.Tensor):
+        return x * torch.sigmoid(1.702 * x)
+
+
+class ResidualAttentionBlock(nn.Module):
+    def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None):
+        super().__init__()
+
+        self.attn = nn.MultiheadAttention(d_model, n_head)
+        self.ln_1 = LayerNorm(d_model)
+        self.mlp = nn.Sequential(OrderedDict([
+            ("c_fc", nn.Linear(d_model, d_model * 4)),
+            ("gelu", QuickGELU()),
+            ("c_proj", nn.Linear(d_model * 4, d_model))
+        ]))
+        self.ln_2 = LayerNorm(d_model)
+        # Store the original mask for dynamic cropping based on actual sequence length
+        self._original_attn_mask = attn_mask
+
+    def attention(self, x: torch.Tensor):
+        # Get actual sequence length from input
+        seq_len = x.shape[0]
+        
+        # Dynamically crop the attention mask to match the actual sequence length
+        if self._original_attn_mask is not None:
+            # Crop mask to actual sequence length
+            if seq_len <= self._original_attn_mask.shape[0]:
+                attn_mask = self._original_attn_mask[:seq_len, :seq_len].to(dtype=x.dtype, device=x.device)
+            else:
+                # If sequence is longer than max_seq_len, create a new mask
+                mask = torch.empty(seq_len, seq_len, dtype=x.dtype, device=x.device)
+                mask.fill_(float("-inf"))
+                mask.triu_(1)
+                attn_mask = mask
+        else:
+            attn_mask = None
+        
+        return self.attn(x, x, x, need_weights=False, attn_mask=attn_mask)[0]
+
+    def forward(self, x: torch.Tensor):
+        x = x + self.attention(self.ln_1(x))
+        x = x + self.mlp(self.ln_2(x))
+        return x
+
+
+class ResidualAttentionBlockWithCache(nn.Module):
+    """ResidualAttentionBlock with K/V cache support for streaming inference."""
+    
+    def __init__(self, d_model: int, n_head: int, attn_mask: torch.Tensor = None, cache_limit: int = 128):
+        super().__init__()
+        self.d_model = d_model
+        self.n_head = n_head
+        self.head_dim = d_model // n_head
+        self.cache_limit = cache_limit
+        
+        # Separate Q, K, V projections for cache support
+        self.q_proj = nn.Linear(d_model, d_model)
+        self.k_proj = nn.Linear(d_model, d_model)
+        self.v_proj = nn.Linear(d_model, d_model)
+        self.out_proj = nn.Linear(d_model, d_model)
+        
+        self.ln_1 = LayerNorm(d_model)
+        self.mlp = nn.Sequential(OrderedDict([
+            ("c_fc", nn.Linear(d_model, d_model * 4)),
+            ("gelu", QuickGELU()),
+            ("c_proj", nn.Linear(d_model * 4, d_model))
+        ]))
+        self.ln_2 = LayerNorm(d_model)
+        self._original_attn_mask = attn_mask
+
+    def _merge_with_cache(
+        self,
+        new_k: torch.Tensor,
+        new_v: torch.Tensor,
+        cache: Tuple[torch.Tensor, torch.Tensor] | None,
+    ) -> Tuple[torch.Tensor, torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
+        """Merge new K/V with cache and return concatenated K/V for attention.
+        
+        Implements sliding window cache:
+        - First cache_limit steps: cache grows gradually (1, 2, 3, ..., cache_limit)
+        - After cache_limit steps: sliding window, keeping only the latest cache_limit tokens
+        
+        Args:
+            new_k: New key tensor of shape [1, batch, dim]
+            new_v: New value tensor of shape [1, batch, dim]
+            cache: Previous cache tuple (k_cache, v_cache) or None
+        
+        Returns:
+            k_attn: Concatenated keys for attention [total_len, batch, dim]
+            v_attn: Concatenated values for attention [total_len, batch, dim]
+            new_cache: Updated cache tuple (k_cache, v_cache)
+        """
+        if cache is None:
+            # First step: no cache, use new K/V directly
+            k_attn = new_k
+            v_attn = new_v
+            k_cache = new_k.detach()
+            v_cache = new_v.detach()
+        else:
+            k_cache, v_cache = cache
+            # Concatenate cache with new K/V: [seq_len, batch, dim] format
+            k_attn = torch.cat([k_cache, new_k], dim=0)
+            v_attn = torch.cat([v_cache, new_v], dim=0)
+            
+            # Sliding window: if total length exceeds cache_limit, keep only the latest cache_limit tokens
+            if k_attn.shape[0] > self.cache_limit:
+                k_attn = k_attn[-self.cache_limit:]
+                v_attn = v_attn[-self.cache_limit:]
+            
+            # Update cache: keep the last cache_limit tokens (for next step)
+            # Note: k_attn is already <= cache_limit at this point
+            k_cache = k_attn.detach()
+            v_cache = v_attn.detach()
+        
+        return k_attn, v_attn, (k_cache, v_cache)
+
+    def attention(self, x: torch.Tensor, cache: Tuple[torch.Tensor, torch.Tensor] | None = None):
+        """
+        Attention with K/V cache support.
+        
+        Args:
+            x: Input tensor of shape [seq_len, batch, dim] (LND format)
+            cache: Tuple of (k_cache, v_cache) from previous step, each of shape [cache_len, batch, dim]
+        
+        Returns:
+            output: Attention output of shape [seq_len, batch, dim]
+            new_cache: Updated cache tuple (k_cache, v_cache)
+        """
+        seq_len, batch_size, _ = x.shape
+        
+        # Project to Q, K, V
+        q = self.q_proj(x)  # [seq_len, batch, d_model]
+        k = self.k_proj(x)  # [seq_len, batch, d_model]
+        v = self.v_proj(x)  # [seq_len, batch, d_model]
+        
+        # Merge with cache
+        k_attn, v_attn, new_cache = self._merge_with_cache(k, v, cache)
+        
+        # k_attn and v_attn shape: [total_len, batch, d_model]
+        # Verify d_model == n_head * head_dim for correct reshape
+        d_model = k_attn.shape[2]
+        expected_d_model = self.n_head * self.head_dim
+        if d_model != expected_d_model:
+            raise ValueError(
+                f"d_model ({d_model}) doesn't match n_head * head_dim ({expected_d_model}). "
+                f"n_head={self.n_head}, head_dim={self.head_dim}"
+            )
+        
+        # Reshape for multi-head attention: [seq_len, batch, n_head, head_dim]
+        q = q.view(seq_len, batch_size, self.n_head, self.head_dim).transpose(0, 1)  # [batch, seq_len, n_head, head_dim]
+        k_attn = k_attn.view(-1, batch_size, self.n_head, self.head_dim).transpose(0, 1)  # [batch, total_len, n_head, head_dim]
+        v_attn = v_attn.view(-1, batch_size, self.n_head, self.head_dim).transpose(0, 1)  # [batch, total_len, n_head, head_dim]
+        
+        # Get total_len from reshaped k_attn to ensure it matches scores
+        total_len = k_attn.shape[1]  # [batch, total_len, n_head, head_dim] -> total_len
+        prev_len = total_len - seq_len
+        
+        # Compute attention scores: [batch, n_head, seq_len, total_len]
+        scores = torch.matmul(q, k_attn.transpose(-2, -1)) / (self.head_dim ** 0.5)
+        
+        # Apply causal mask if needed
+        if self._original_attn_mask is not None:
+            # Create mask for the full attention matrix [seq_len, total_len]
+            # Cache positions (first prev_len columns) are all visible (no mask = 0)
+            # Current sequence positions (last seq_len columns) apply causal mask
+            # Use total_len from reshaped k_attn to ensure dimensions match scores
+            mask = torch.zeros(seq_len, total_len, dtype=scores.dtype, device=scores.device)
+            
+            # Current sequence positions: apply causal mask
+            if seq_len <= self._original_attn_mask.shape[0]:
+                causal_mask = self._original_attn_mask[:seq_len, :seq_len].to(dtype=scores.dtype, device=scores.device)
+            else:
+                # If seq_len exceeds max_seq_len, create a new causal mask
+                causal_mask = torch.triu(
+                    torch.ones(seq_len, seq_len, dtype=scores.dtype, device=scores.device) * float('-inf'),
+                    diagonal=1
+                )
+            
+            # Place causal mask at the end (for current sequence positions)
+            # Cache positions (first prev_len columns) remain 0 (all visible)
+            if prev_len + seq_len <= total_len:
+                mask[:, prev_len:prev_len + seq_len] = causal_mask
+            else:
+                # Safety check: ensure we don't exceed bounds
+                mask[:, prev_len:] = causal_mask[:, :total_len - prev_len]
+            
+            # Broadcast mask to match scores shape: [batch, n_head, seq_len, total_len]
+            # scores shape: [batch, n_head, seq_len, total_len]
+            attn_mask = mask.unsqueeze(0).unsqueeze(0)  # [1, 1, seq_len, total_len]
+            
+            # Verify dimensions match
+            if attn_mask.shape[-1] != scores.shape[-1]:
+                # Debug information
+                print(f"DEBUG: k_attn before reshape: {k_attn.shape if 'k_attn' in locals() else 'N/A'}")
+                print(f"DEBUG: total_len from k_attn.shape[0]: {total_len}")
+                print(f"DEBUG: k_attn after reshape: {k_attn.shape}")
+                print(f"DEBUG: scores shape: {scores.shape}")
+                print(f"DEBUG: attn_mask shape: {attn_mask.shape}")
+                print(f"DEBUG: cache is None: {cache is None}")
+                if cache is not None:
+                    print(f"DEBUG: cache k_cache shape: {cache[0].shape if cache[0] is not None else 'None'}")
+                raise AssertionError(
+                    f"Mask total_len ({attn_mask.shape[-1]}) doesn't match scores total_len ({scores.shape[-1]}). "
+                    f"total_len={total_len}, seq_len={seq_len}, prev_len={prev_len}"
+                )
+            
+            scores = scores + attn_mask
+        
+        # Apply softmax
+        attn_weights = F.softmax(scores, dim=-1)
+        
+        # Apply attention to values
+        output = torch.matmul(attn_weights, v_attn)  # [batch, seq_len, n_head, head_dim]
+        
+        # Reshape and project
+        output = output.transpose(0, 1).contiguous()  # [seq_len, batch, n_head, head_dim]
+        output = output.view(seq_len, batch_size, self.d_model)  # [seq_len, batch, d_model]
+        output = self.out_proj(output)
+        
+        return output, new_cache
+
+    def forward(self, x: torch.Tensor, cache: Tuple[torch.Tensor, torch.Tensor] | None = None):
+        """
+        Forward pass with cache support.
+        
+        Args:
+            x: Input tensor of shape [seq_len, batch, dim]
+            cache: Cache tuple from previous step
+        
+        Returns:
+            output: Output tensor of shape [seq_len, batch, dim]
+            new_cache: Updated cache tuple
+        """
+        attn_out, new_cache = self.attention(self.ln_1(x), cache)
+        x = x + attn_out
+        x = x + self.mlp(self.ln_2(x))
+        return x, new_cache
+
+
+class Transformer(nn.Module):
+    def __init__(self, width: int, layers: int, heads: int, attn_mask: torch.Tensor = None):
+        super().__init__()
+        self.width = width
+        self.layers = layers
+        self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask) for _ in range(layers)])
+
+    def forward(self, x: torch.Tensor):
+        return self.resblocks(x)
+
+
+class TransformerWithPositionalEncoding(nn.Module):
+    """Transformer with learnable positional encoding (CLIP style)."""
+    
+    def __init__(
+        self,
+        width: int,
+        layers: int,
+        heads: int,
+        max_seq_len: int = 128,
+        attn_mask: torch.Tensor = None,
+    ):
+        super().__init__()
+        self.width = width
+        self.layers = layers
+        self.max_seq_len = max_seq_len
+        
+        # Transformer blocks
+        self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask) for _ in range(layers)])
+        
+        # Learnable positional encoding (CLIP style)
+        scale = width ** -0.5
+        self.positional_embedding = nn.Parameter(scale * torch.randn(max_seq_len, width))
+    
+    def forward(self, x: torch.Tensor):
+        """
+        Forward pass with positional encoding.
+        
+        Args:
+            x: Input tensor of shape [seq_len, batch, dim] (LND format)
+        
+        Returns:
+            Output tensor of shape [seq_len, batch, dim]
+        """
+        seq_len = x.shape[0]
+        
+        if seq_len > self.max_seq_len:
+            raise ValueError(
+                f"Sequence length {seq_len} exceeds max_seq_len {self.max_seq_len}. "
+                f"Increase max_seq_len parameter."
+            )
+        
+        # Add positional encoding: [seq_len, batch, dim] + [seq_len, 1, dim]
+        pos_emb = self.positional_embedding[:seq_len].unsqueeze(1)  # [seq_len, 1, dim]
+        x = x + pos_emb.to(x.dtype)
+        
+        # Apply transformer blocks
+        return self.resblocks(x)
+
+
+class TransformerWithPositionalEncodingCache(nn.Module):
+    """Transformer with learnable positional encoding and K/V cache support."""
+    
+    def __init__(
+        self,
+        width: int,
+        layers: int,
+        heads: int,
+        max_seq_len: int = 128,
+        cache_limit: int = 128,
+        attn_mask: torch.Tensor = None,
+    ):
+        super().__init__()
+        self.width = width
+        self.layers = layers
+        self.max_seq_len = max_seq_len
+        self.cache_limit = cache_limit
+        
+        # Transformer blocks with cache support
+        self.resblocks = nn.ModuleList([
+            ResidualAttentionBlockWithCache(width, heads, attn_mask, cache_limit) 
+            for _ in range(layers)
+        ])
+        
+        # Learnable positional encoding (CLIP style)
+        scale = width ** -0.5
+        self.positional_embedding = nn.Parameter(scale * torch.randn(max_seq_len, width))
+    
+    def forward(
+        self, 
+        x: torch.Tensor, 
+        cache: list[Tuple[torch.Tensor, torch.Tensor]] | None = None
+    ):
+        """
+        Forward pass with positional encoding and cache support.
+        
+        Args:
+            x: Input tensor of shape [seq_len, batch, dim] (LND format)
+            cache: List of cache tuples, one per layer. Each tuple is (k_cache, v_cache).
+                   If None, no cache is used.
+        
+        Returns:
+            output: Output tensor of shape [seq_len, batch, dim]
+            new_cache: List of updated cache tuples, one per layer
+        """
+        seq_len = x.shape[0]
+        
+        if seq_len > self.max_seq_len:
+            raise ValueError(
+                f"Sequence length {seq_len} exceeds max_seq_len {self.max_seq_len}. "
+                f"Increase max_seq_len parameter."
+            )
+        
+        # Add positional encoding: [seq_len, batch, dim] + [seq_len, 1, dim]
+        # For cached inference, we need to use the correct position indices
+        if cache is not None and len(cache) > 0 and cache[0] is not None:
+            # Get the current position from cache length
+            prev_len = cache[0][0].shape[0] if cache[0][0] is not None else 0
+            pos_indices = torch.arange(prev_len, prev_len + seq_len, device=x.device)
+            # Clamp to max_seq_len
+            pos_indices = torch.clamp(pos_indices, 0, self.max_seq_len - 1)
+            pos_emb = self.positional_embedding[pos_indices].unsqueeze(1)  # [seq_len, 1, dim]
+        else:
+            pos_emb = self.positional_embedding[:seq_len].unsqueeze(1)  # [seq_len, 1, dim]
+        
+        x = x + pos_emb.to(x.dtype)
+        
+        # Apply transformer blocks with cache
+        new_cache = []
+        for i, block in enumerate(self.resblocks):
+            layer_cache = cache[i] if cache is not None and i < len(cache) else None
+            x, layer_new_cache = block(x, layer_cache)
+            new_cache.append(layer_new_cache)
+        
+        return x, new_cache
+
+
+class VisionTransformer(nn.Module):
+    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int):
+        super().__init__()
+        self.input_resolution = input_resolution
+        self.output_dim = output_dim
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
+
+        scale = width ** -0.5
+        self.class_embedding = nn.Parameter(scale * torch.randn(width))
+        self.positional_embedding = nn.Parameter(scale * torch.randn((input_resolution // patch_size) ** 2 + 1, width))
+        self.ln_pre = LayerNorm(width)
+
+        self.transformer = Transformer(width, layers, heads)
+
+        self.ln_post = LayerNorm(width)
+        self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
+
+    def forward(self, x: torch.Tensor):
+        x = self.conv1(x)  # shape = [*, width, grid, grid]
+        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
+        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]
+        x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
+        x = x + self.positional_embedding.to(x.dtype)
+        x = self.ln_pre(x)
+
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        x = self.transformer(x)
+        x = x.permute(1, 0, 2)  # LND -> NLD
+
+        x = self.ln_post(x[:, 0, :])
+
+        if self.proj is not None:
+            x = x @ self.proj
+
+        return x
+
+
+class CLIP(nn.Module):
+    def __init__(self,
+                 embed_dim: int,
+                 # vision
+                 image_resolution: int,
+                 vision_layers: Union[Tuple[int, int, int, int], int],
+                 vision_width: int,
+                 vision_patch_size: int,
+                 # text
+                 context_length: int,
+                 vocab_size: int,
+                 transformer_width: int,
+                 transformer_heads: int,
+                 transformer_layers: int
+                 ):
+        super().__init__()
+
+        self.context_length = context_length
+
+        if isinstance(vision_layers, (tuple, list)):
+            vision_heads = vision_width * 32 // 64
+            self.visual = ModifiedResNet(
+                layers=vision_layers,
+                output_dim=embed_dim,
+                heads=vision_heads,
+                input_resolution=image_resolution,
+                width=vision_width
+            )
+        else:
+            vision_heads = vision_width // 64
+            self.visual = VisionTransformer(
+                input_resolution=image_resolution,
+                patch_size=vision_patch_size,
+                width=vision_width,
+                layers=vision_layers,
+                heads=vision_heads,
+                output_dim=embed_dim
+            )
+
+        self.transformer = Transformer(
+            width=transformer_width,
+            layers=transformer_layers,
+            heads=transformer_heads,
+            attn_mask=self.build_attention_mask()
+        )
+
+        self.vocab_size = vocab_size
+        self.token_embedding = nn.Embedding(vocab_size, transformer_width)
+        self.positional_embedding = nn.Parameter(torch.empty(self.context_length, transformer_width))
+        self.ln_final = LayerNorm(transformer_width)
+
+        self.text_projection = nn.Parameter(torch.empty(transformer_width, embed_dim))
+        self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
+
+        self.initialize_parameters()
+
+    def initialize_parameters(self):
+        nn.init.normal_(self.token_embedding.weight, std=0.02)
+        nn.init.normal_(self.positional_embedding, std=0.01)
+
+        if isinstance(self.visual, ModifiedResNet):
+            if self.visual.attnpool is not None:
+                std = self.visual.attnpool.c_proj.in_features ** -0.5
+                nn.init.normal_(self.visual.attnpool.q_proj.weight, std=std)
+                nn.init.normal_(self.visual.attnpool.k_proj.weight, std=std)
+                nn.init.normal_(self.visual.attnpool.v_proj.weight, std=std)
+                nn.init.normal_(self.visual.attnpool.c_proj.weight, std=std)
+
+            for resnet_block in [self.visual.layer1, self.visual.layer2, self.visual.layer3, self.visual.layer4]:
+                for name, param in resnet_block.named_parameters():
+                    if name.endswith("bn3.weight"):
+                        nn.init.zeros_(param)
+
+        proj_std = (self.transformer.width ** -0.5) * ((2 * self.transformer.layers) ** -0.5)
+        attn_std = self.transformer.width ** -0.5
+        fc_std = (2 * self.transformer.width) ** -0.5
+        for block in self.transformer.resblocks:
+            nn.init.normal_(block.attn.in_proj_weight, std=attn_std)
+            nn.init.normal_(block.attn.out_proj.weight, std=proj_std)
+            nn.init.normal_(block.mlp.c_fc.weight, std=fc_std)
+            nn.init.normal_(block.mlp.c_proj.weight, std=proj_std)
+
+        if self.text_projection is not None:
+            nn.init.normal_(self.text_projection, std=self.transformer.width ** -0.5)
+
+    def build_attention_mask(self):
+        # lazily create causal attention mask, with full attention between the vision tokens
+        # pytorch uses additive attention mask; fill with -inf
+        mask = torch.empty(self.context_length, self.context_length)
+        mask.fill_(float("-inf"))
+        mask.triu_(1)  # zero out the lower diagonal
+        return mask
+
+    @property
+    def dtype(self):
+        return self.visual.conv1.weight.dtype
+
+    def encode_image(self, image):
+        return self.visual(image.type(self.dtype))
+
+    def encode_text(self, text, use_text_adapter=False):
+        x = self.token_embedding(text).type(self.dtype)  # [batch_size, n_ctx, d_model]
+        
+        # text adapter
+        if use_text_adapter:
+            x = self.text_adapter(x)
+
+        x = x + self.positional_embedding.type(self.dtype)
+        x = x.permute(1, 0, 2)  # NLD -> LND
+        x = self.transformer(x)
+        x = x.permute(1, 0, 2)  # LND -> NLD
+        x = self.ln_final(x).type(self.dtype)
+
+        # x.shape = [batch_size, n_ctx, transformer.width]
+        # take features from the eot embedding (eot_token is the highest number in each sequence)
+        x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection
+
+        return x
+
+    def forward(self, image, text):
+        image_features = self.encode_image(image)
+        text_features = self.encode_text(text)
+
+        # normalized features
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+
+        # cosine similarity as logits
+        logit_scale = self.logit_scale.exp()
+        logits_per_image = logit_scale * image_features @ text_features.t()
+        logits_per_text = logit_scale * text_features @ image_features.t()
+
+        # shape = [global_batch_size, global_batch_size]
+        return logits_per_image, logits_per_text
+
+
+def convert_weights(model: nn.Module):
+    """Convert applicable model parameters to fp16"""
+
+    def _convert_weights_to_fp16(l):
+        if isinstance(l, (nn.Conv1d, nn.Conv2d, nn.Linear)):
+            l.weight.data = l.weight.data.half()
+            if l.bias is not None:
+                l.bias.data = l.bias.data.half()
+
+        if isinstance(l, nn.MultiheadAttention):
+            for attr in [*[f"{s}_proj_weight" for s in ["in", "q", "k", "v"]], "in_proj_bias", "bias_k", "bias_v"]:
+                tensor = getattr(l, attr)
+                if tensor is not None:
+                    tensor.data = tensor.data.half()
+
+        for name in ["text_projection", "proj"]:
+            if hasattr(l, name):
+                attr = getattr(l, name)
+                if attr is not None:
+                    attr.data = attr.data.half()
+
+    model.apply(_convert_weights_to_fp16)
+
+
+def build_model(state_dict: dict):
+    vit = "visual.proj" in state_dict
+
+    if vit:
+        vision_width = state_dict["visual.conv1.weight"].shape[0]
+        vision_layers = len([k for k in state_dict.keys() if k.startswith("visual.") and k.endswith(".attn.in_proj_weight")])
+        vision_patch_size = state_dict["visual.conv1.weight"].shape[-1]
+        grid_size = round((state_dict["visual.positional_embedding"].shape[0] - 1) ** 0.5)
+        image_resolution = vision_patch_size * grid_size
+    else:
+        counts: list = [len(set(k.split(".")[2] for k in state_dict if k.startswith(f"visual.layer{b}"))) for b in [1, 2, 3, 4]]
+        vision_layers = tuple(counts)
+        vision_width = state_dict["visual.layer1.0.conv1.weight"].shape[0]
+        output_width = round((state_dict["visual.attnpool.positional_embedding"].shape[0] - 1) ** 0.5)
+        vision_patch_size = None
+        assert output_width ** 2 + 1 == state_dict["visual.attnpool.positional_embedding"].shape[0]
+        image_resolution = output_width * 32
+
+    embed_dim = state_dict["text_projection"].shape[1]
+    context_length = state_dict["positional_embedding"].shape[0]
+    vocab_size = state_dict["token_embedding.weight"].shape[0]
+    transformer_width = state_dict["ln_final.weight"].shape[0]
+    transformer_heads = transformer_width // 64
+    transformer_layers = len(set(k.split(".")[2] for k in state_dict if k.startswith(f"transformer.resblocks")))
+
+    model = CLIP(
+        embed_dim,
+        image_resolution, vision_layers, vision_width, vision_patch_size,
+        context_length, vocab_size, transformer_width, transformer_heads, transformer_layers
+    )
+
+    for key in ["input_resolution", "context_length", "vocab_size"]:
+        if key in state_dict:
+            del state_dict[key]
+
+    convert_weights(model)
+    model.load_state_dict(state_dict, strict=False)
+    return model.eval()

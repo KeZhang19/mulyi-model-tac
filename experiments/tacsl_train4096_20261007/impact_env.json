@@ -1,0 +1,40 @@
+{
+  "target": {
+    "id": "Class:tacsl_insertion_lab/env.py:TacSLInsertionEnv",
+    "name": "TacSLInsertionEnv",
+    "type": "Class",
+    "filePath": "tacsl_insertion_lab/env.py"
+  },
+  "direction": "upstream",
+  "impactedCount": 1,
+  "risk": "LOW",
+  "riskSharedAxes": "LOW",
+  "riskScale": {
+    "comparableAcrossKinds": true,
+    "unusedAxes": []
+  },
+  "epistemic": "exact",
+  "summary": {
+    "direct": 1,
+    "processes_affected": 0,
+    "modules_affected": 0
+  },
+  "byDepthCounts": {
+    "1": 1
+  },
+  "affected_processes": [],
+  "affected_modules": [],
+  "byDepth": {
+    "1": [
+      {
+        "depth": 1,
+        "id": "File:scripts/run.py",
+        "name": "run.py",
+        "filePath": "scripts/run.py",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      }
+    ]
+  }
+}

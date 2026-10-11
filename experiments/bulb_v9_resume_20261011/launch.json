@@ -1,0 +1,20 @@
+{
+  "time": "2026-10-11T13:32:39.254250+08:00",
+  "launcher_pid": 4515,
+  "root": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007",
+  "run": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v9_mlp/2026-10-11_resume_model900_2x8192",
+  "log": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/experiments/bulb_v9_resume_20261011/train.log",
+  "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac-v8-20261007/logs/rsl_rl/bulb_grasp_teacher_v8_mlp/2026-10-07_scratch_2x8192/rank0/model_900.pt",
+  "checkpoint_sha256": "b761ac46f46831c5a244d4819863546aa2b0cbae990dd834dd8a03359b1f2bf9",
+  "iterations_additional": 29100,
+  "target_iteration": 30000,
+  "num_envs_per_gpu": 8192,
+  "gpus": [
+    0,
+    1
+  ],
+  "observation_history": 5,
+  "lstm": false,
+  "v8_to_v9_migration": true,
+  "process_poll": null
+}

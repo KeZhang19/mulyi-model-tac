@@ -1,0 +1,165 @@
+--- a/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py
++++ b/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py
+@@ -15,6 +15,7 @@
+ from .screwing import ScrewInsertionState, screw_contact_quality, socket_twist_phase
+ from .mdp.commands.pose_commands import ObjectUniformPoseCommand
+ from .mdp.curriculums import DifficultyScheduler
++from .mdp.rewards import success_reward
+ 
+ 
+ def reset_socket_from_target_ranges(env, env_ids, command_name: str = "object_pose"):
+@@ -266,6 +267,27 @@
+     return quality * command.stage_two.float() * flexiv_hand_contacts(env, 1.0).float()
+ 
+ 
++def stage_two_position_orientation_reward(
++    env, command_name, asset_cfg, align_asset_cfg, pos_std,
++    rot_std=None, orientation_floor: float = 0.2,
++) -> torch.Tensor:
++    """Scale the teacher's position reward by thread tilt only during stage two.
++
++    Keep a positional foothold at every angle and preserve free axial spin.
++    This is dense shaping, not the shallow-insertion success predicate. Stages
++    one and three retain the original reward; floor=1 restores it everywhere.
++    """
++    if not math.isfinite(orientation_floor) or not 0.0 <= orientation_floor <= 1.0:
++        raise ValueError("orientation_floor must be finite and in [0, 1]")
++    value = success_reward(env, command_name, asset_cfg, align_asset_cfg, pos_std, rot_std)
++    command = env.command_manager.get_term(command_name)
++    tilt = thread_down_error(command.object.data.root_quat_w)
++    alignment = (1.0 - tilt / math.pi).clamp(0.0, 1.0)
++    factor = orientation_floor + (1.0 - orientation_floor) * alignment.square()
++    stage_two_only = command.stage_two & ~command.stage_three
++    return value * torch.where(stage_two_only, factor, 1.0)
++
++
+ class BulbGraspCurriculumDifficulty(DifficultyScheduler):
+     """Keep ADR's update rule but use the complete two-stage success predicate."""
+ 
+--- a/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py
++++ b/source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py
+@@ -20,7 +20,7 @@
+     BulbGraspCurriculumCommand, BulbGraspCurriculumDifficulty,
+     bulb_down_orientation_penalty, bulb_thread_down_reward,
+     reset_socket_from_target_ranges, update_grasp_curriculum,
+-    grasp_screw_time_out,
++    grasp_screw_time_out, stage_two_position_orientation_reward,
+ )
+ from .insertion import match_socket_scale_to_bulb
+ from .screwing import carry_velocity_before_screwing, final_screw_success_bonus, screw_in_reward
+@@ -145,6 +145,8 @@
+         self.rewards.palm_down_orientation = None
+         self.rewards.bulb_down_orientation = RewardTermCfg(func=bulb_down_orientation_penalty, weight=-0.2)
+         self.rewards.thread_down = RewardTermCfg(func=bulb_thread_down_reward, weight=5.0)
++        self.rewards.success.func = stage_two_position_orientation_reward
++        self.rewards.success.params["orientation_floor"] = 0.2
+         for name, component in (("carry_relative_lin_vel_l2", "linear"), ("carry_relative_ang_vel_l2", "angular")):
+             term = getattr(self.rewards, name)
+             term.func = carry_velocity_before_screwing
+@@ -164,7 +166,7 @@
+         self.terminations.time_out.func = grasp_screw_time_out
+         self.curriculum.adr.func = BulbGraspCurriculumDifficulty
+         self.episode_length_s = command.stage12_duration_s + command.stage3_duration_s
+-        self.bulb_grasp_curriculum_version = 5
++        self.bulb_grasp_curriculum_version = 6
+ 
+ 
+ @configclass
+--- a/scripts/diagnostics/check_bulb_grasp_curriculum.py
++++ b/scripts/diagnostics/check_bulb_grasp_curriculum.py
+@@ -518,6 +518,72 @@
+         for value in values():
+             torch.testing.assert_close(value, torch.ones(4))
+ 
++    def test_stage_two_position_shaping_isolates_stages_and_partial_reset(self):
++        env, c = fixture()
++        c.stage_two[:] = torch.tensor([False, True, True, True])
++        c.stage_three[:] = torch.tensor([False, False, True, False])
++        env.scene["object"].data.root_quat_w[:] = tilt_quat([90, 90, 90, 0])
++        place_at_goal(env, c)
++        def values():
++            args = (env, "object_pose", NS(name="robot"), NS(name="object"), .1)
++            return curriculum.stage_two_position_orientation_reward(*args), rewards.success_reward(*args)
++        shaped, original = values()
++        torch.testing.assert_close(shaped, original * torch.tensor([1., .4, 1., 1.]))
++        c.reset(torch.tensor([1]))
++        place_at_goal(env, c)
++        shaped, original = values()
++        torch.testing.assert_close(shaped, original)
++        self.assertTrue(c.stage_three[2])
++        self.assertTrue(c.stage_two[3])
++
++    def test_stage_two_position_shaping_monotonic_bounds_and_disable(self):
++        env, c = fixture()
++        c.stage_two[:] = True
++        place_at_goal(env, c)
++        env.scene["object"].data.root_quat_w[:] = tilt_quat([0, 30, 90, 180])
++        args = (env, "object_pose", NS(name="robot"), NS(name="object"), .1)
++        actual = curriculum.stage_two_position_orientation_reward(*args)
++        torch.testing.assert_close(actual, torch.tensor([1., 34 / 45, .4, .2]))
++        self.assertTrue((actual[:-1] > actual[1:]).all())
++        torch.testing.assert_close(curriculum.stage_two_position_orientation_reward(*args, orientation_floor=1.),
++                                   rewards.success_reward(*args))
++        for invalid in (-.1, 1.1, float("nan"), float("inf")):
++            with self.assertRaises(ValueError):
++                curriculum.stage_two_position_orientation_reward(*args, orientation_floor=invalid)
++
++    def test_stage_two_position_shaping_keeps_axial_spin_and_contact_independence(self):
++        env, c = fixture()
++        c.stage_two[:] = True
++        place_at_goal(env, c)
++        q = tilt_quat([75.] * 4)
++        spin = math_utils.quat_from_euler_xyz(torch.tensor([0., 1., 2., 3.]), torch.zeros(4), torch.zeros(4))
++        env.scene["object"].data.root_quat_w[:] = math_utils.quat_mul(q, spin)
++        args = (env, "object_pose", NS(name="robot"), NS(name="object"), .1)
++        value = curriculum.stage_two_position_orientation_reward(*args)
++        torch.testing.assert_close(value, torch.full((4,), 17 / 36))
++        for sensor in env.scene.sensors.values():
++            sensor.data.force_matrix_w.zero_()
++        torch.testing.assert_close(curriculum.stage_two_position_orientation_reward(*args), value)
++        # Dense rates still integrate over dt, not as once-only bonuses.
++        for hz in (30, 60, 120):
++            torch.testing.assert_close(value * 10 * (1 / hz) * hz, value * 10)
++
++    def test_stage_two_reorientation_can_outweigh_small_position_excursion(self):
++        env, c = fixture(2)
++        c.stage_two[:] = True
++        place_at_goal(env, c)
++        env.scene["object"].data.root_quat_w[:] = tilt_quat([75, 0])
++        env.scene["object"].data.root_pos_w[1, 0] += .02
++        args = (env, "object_pose", NS(name="robot"), NS(name="object"), .1)
++        tracking = sys.modules["bulb_check.flexiv_rewards"].flexiv_position_command_error_tanh(
++            env, .2, "object_pose", NS(name="robot"), NS(name="object"))
++        common = (5 * tracking + 5 * curriculum.bulb_thread_down_reward(env)
++                  - .2 * curriculum.bulb_down_orientation_penalty(env))
++        old = common + 10 * rewards.success_reward(*args)
++        new = common + 10 * curriculum.stage_two_position_orientation_reward(*args)
++        self.assertLess(old[1], old[0])
++        self.assertGreater(new[1], new[0])
++
+     def test_terminal_step_outcome_then_reset_matches_isaac_order(self):
+         env, c = fixture()
+         place_at_goal(env, c)
+@@ -569,6 +635,13 @@
+         for name, reward in vars(frozen.rewards).items():
+             if name == "palm_down_orientation":
+                 self.assertIsNone(cfg.rewards.palm_down_orientation)
++                continue
++            if name == "success":
++                self.assertEqual(cfg.rewards.success.func, curriculum.stage_two_position_orientation_reward)
++                self.assertEqual(cfg.rewards.success.weight, reward.weight)
++                self.assertEqual(cfg.rewards.success.params["orientation_floor"], .2)
++                self.assertEqual(plain({k: v for k, v in cfg.rewards.success.params.items()
++                                       if k != "orientation_floor"}), plain(reward.params))
+                 continue
+             if name in ("carry_relative_lin_vel_l2", "carry_relative_ang_vel_l2"):
+                 adapted = getattr(cfg.rewards, name)
+@@ -598,7 +671,7 @@
+         self.assertGreater(list(vars(cfg.events)).index("match_socket_scale"),
+                            list(vars(cfg.events)).index("randomize_object_scale"))
+         self.assertEqual(plain(cfg.commands.object_pose.ranges), plain(frozen.commands.object_pose.ranges))
+-        self.assertEqual(cfg.bulb_grasp_curriculum_version, 5)
++        self.assertEqual(cfg.bulb_grasp_curriculum_version, 6)
+         self.assertEqual(cfg.episode_length_s, 14.)
+         self.assertEqual(cfg.commands.object_pose.stage3_duration_s, 6.)
+         self.assertEqual(list(vars(cfg.terminations))[0], "curriculum_update")

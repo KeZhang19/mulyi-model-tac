@@ -1,0 +1,49 @@
+{
+  "curriculum_version": 2,
+  "stage1_center_height_m": 0.15,
+  "stage2_center_height_m": 0.03,
+  "socket_xy_frame": "robot base",
+  "socket_xy_ranges_m": {
+    "x": [
+      -0.85,
+      -0.55
+    ],
+    "y": [
+      -0.25,
+      0.25
+    ]
+  },
+  "default_socket_environment_xy_ranges_m": {
+    "x": [
+      -0.41,
+      -0.11
+    ],
+    "y": [
+      -0.25,
+      0.25
+    ]
+  },
+  "stage2_nominal_tip_below_mouth_m": 0.02376016441732645,
+  "scaled_tip_depth_m": [
+    0.01300813153386116,
+    0.03451219730079173
+  ],
+  "socket_circumscribed_xy_radius_m": 0.05827267245219168,
+  "minimum_tabletop_edge_margin_m": 0.05732503476795688,
+  "tabletop_check": "All 16 combinations of socket XY and table XY range endpoints, smallest table 1.1x1.1m, actual yaw and circumscribed socket radius. Robot fixed upright as configured.",
+  "cpu_checks_passed": 23,
+  "protected_files_unchanged": {
+    "assets/bulb_grasp_teacher/bulb_grasp.usd": true,
+    "assets/bulb_grasp_teacher/socket.usd": true,
+    "assets/bulb_grasp_teacher/point_clouds_64/bulb.npy": true,
+    "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/teacher_snapshot.json": true
+  },
+  "native_physics_verified": false,
+  "remote_deployed": false,
+  "insertion_verified": false,
+  "notes": [
+    "Stage2 success remains center distance <0.05m and tilt <=30deg, so success does not certify insertion.",
+    "Original 0.8..1.2 bulb scale, convex collision, and socket triangle collision unchanged. No guarantee that every scaled bulb can enter the socket bore.",
+    "Active remote training remains version1."
+  ]
+}

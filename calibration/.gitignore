@@ -1,2 +1,10 @@
 captures/
 __pycache__/
+
+# Relocated local CAD/URDF assets and generated evidence keep their previous policy.
+/assets/
+/outputs/
+/datasets/*
+!/datasets/README.md
+/image_generator/output*/
+/image_generator/runs/

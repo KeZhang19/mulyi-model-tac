@@ -1,0 +1,11 @@
+{
+  "docs/STATUS.md": "199d1b6ab8fb0f81f7dd281b45cec4cb3407e7f23d2d02475e31e8b19d3e6d9a",
+  "docs/PROJECT_MAP.md": "7390b58c45ec7e7e3b66ec2a2ac5edc52069bc8dd16b13f903e041f5aca6fb1e",
+  "docs/RUNBOOK.md": "53c2067dd32d093bc59afc5256c8ba7aacd7c7cb87d1ef9b6d1c642ff5b551ef",
+  "EXPERIMENTS.md": "cab442584a23d690254ec107f1a87187f351c476a7fe97f5ea80782558cb6c64",
+  "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md": "85cfd221acdaf3280ac2f391e507a5db6ec2b8ef34f981333015e4882e38bada",
+  "experiments/bulb_v6_dsw_resume_20261007/README.md": "b76815643224cce84a5fc43c24bd9100994eb9b7f0550c8b148a85e4273a1cb1",
+  "experiments/bulb_v6_dsw_resume_20261007/training_entry_delta.patch": "aa8379e10d6e3a048941293abcd32162b1d5442ff7740cab1e835b26ea6a1191",
+  "experiments/bulb_v6_dsw_resume_20261007/local_source_provenance.json": "59e4566fc80c1a5eea10b0d903b3c1bc9b1cf441142e234e9e8a44d934ac9c11",
+  "experiments/bulb_v6_dsw_resume_20261007/adr_override_checks.json": "eddaa9bbe7e6609d9d2259d4d4b9d470d6eece69b5707755be055e9a87fda72a"
+}

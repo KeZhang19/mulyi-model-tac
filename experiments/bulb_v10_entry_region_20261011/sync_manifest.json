@@ -1,0 +1,44 @@
+[
+  {
+    "path": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/env_cfg.py",
+    "sha256": "8ba7f84c484bdbf74bb5ae76247e65fffe29ede506f7fbeef9f1e72d78387fae",
+    "check_before": true,
+    "before_sha256": "fd1753a2843c392ea427c9a5d5a1aee8e327755b6f6ad0936c52101d9f963f56"
+  },
+  {
+    "path": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/curriculum.py",
+    "sha256": "318c740ae67bac5150af995175a5e22095d53e4bc3fc0a13e4a413f2ee031395",
+    "check_before": true,
+    "before_sha256": "f2864304080ec0eb38c12fb32d38e44c90bf7754156babd6142741c136d43d29"
+  },
+  {
+    "path": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/progress.py",
+    "sha256": "969adbe10412f20e80b86b41abb6643d43bc4efd6b03f3fa274c336abc5cba9a",
+    "check_before": true,
+    "before_sha256": "beb38c0368d85e439e5fda5d2dd329123b6019ca0ade773797e56493ff087211"
+  },
+  {
+    "path": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/target_contract.py",
+    "sha256": "31b2feb0b327c24f5e818db25e5f1d7a2d8734cf0e0a5595b403ab349eb3024d",
+    "check_before": true,
+    "before_sha256": "ce26f2252608576631c877bdc38ea516daad16828782bad3b9722405e6a5d8df"
+  },
+  {
+    "path": "scripts/rsl_rl/train_bulb_grasp_teacher.py",
+    "sha256": "7f77fdc54ab83da93e66d3a9f8e19a3cc5705a4cb997dc56d46eb0169902ca21",
+    "check_before": true,
+    "before_sha256": "f87db91f42eb2617b5d289feacc650423837e088c846b6cc02b6776f5fcfd4f6"
+  },
+  {
+    "path": "scripts/diagnostics/check_bulb_grasp_curriculum.py",
+    "sha256": "04791d33d641812b0ad7fa43513ff34b82975d570ca8e44ffad7d5b71d65374d",
+    "check_before": true,
+    "before_sha256": "aaa75a9e2833204a65b0faa4dee53a86016a0af373e245f3763054bbbdcea222"
+  },
+  {
+    "path": "source/BrainCo_DexHand/BrainCo_DexHand/tasks/manager_based/dexsuite/config/BulbGraspTeacher/README.md",
+    "sha256": "fe7b06ad4c182666c1c74bf6fd124900b120d9e583202db61dff39cc546c8090",
+    "check_before": true,
+    "before_sha256": "0f2a88a0e7e9bc5bba73c8263a5736c11485a4e62a22b1c524dedd2cd9732bf7"
+  }
+]

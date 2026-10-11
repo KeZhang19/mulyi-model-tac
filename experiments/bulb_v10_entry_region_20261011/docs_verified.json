@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": {
+    "docs/STATUS.md": true,
+    "docs/RUNBOOK.md": true,
+    "EXPERIMENTS.md": true,
+    "docs/PROJECT_MAP.md": true,
+    "experiments/bulb_v10_entry_region_20261011/README.md": true,
+    "experiments/bulb_v10_entry_region_20261011/changes.patch": true,
+    "experiments/bulb_v10_entry_region_20261011/cpu_checks_local.log": true
+  },
+  "backup_sha256": "782079ab84de0914b9ab356eff4f7aa27147314d24dd9ddbf975c9834afa4a7d"
+}

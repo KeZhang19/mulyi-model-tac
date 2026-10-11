@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "results": {
+    "check_bulb_grasp_curriculum": {
+      "exit_code": 0,
+      "tail": [
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 52 tests in 5.846s",
+        "",
+        "OK"
+      ]
+    }
+  }
+}

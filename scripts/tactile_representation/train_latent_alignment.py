@@ -33,12 +33,6 @@ PACKAGE_ROOT = REPO_ROOT / "source" / "BrainCo_DexHand"
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(PACKAGE_ROOT))
 
-from BrainCo_DexHand.tactile_representation import (  # noqa: E402
-    CrossModalTactileNetworkCfg,
-    RobustCrossModalTactileNetwork,
-    TriModalCrossAutoencoder,
-    TriModalCrossAutoencoderCfg,
-)
 from BrainCo_DexHand.tactile_representation.models.latent_alignment import (  # noqa: E402
     TactileLatentAlignmentNetwork,
 )
@@ -50,7 +44,9 @@ from BrainCo_DexHand.tactile_representation.training import (  # noqa: E402
 )
 
 
-MODEL_TYPES = ("robust", "tri_modal")
+from BrainCo_DexHand.tactile_representation.policy import build_tactile_encoder, checkpoint_model_type
+
+MODEL_TYPES = ("robust", "tri_modal", "tactspace")
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
@@ -59,8 +55,8 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--sim-checkpoint", type=Path, required=True)
     parser.add_argument("--real-checkpoint", type=Path, required=True)
-    parser.add_argument("--sim-model-type", choices=MODEL_TYPES, default="robust")
-    parser.add_argument("--real-model-type", choices=MODEL_TYPES, default="tri_modal")
+    parser.add_argument("--sim-model-type", choices=MODEL_TYPES, default=None)
+    parser.add_argument("--real-model-type", choices=MODEL_TYPES, default=None)
     parser.add_argument(
         "--dataset",
         type=Path,
@@ -333,16 +329,9 @@ def _load_checkpoint(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _build_encoder(model_type: str, checkpoint: Mapping[str, Any]) -> nn.Module:
-    cfg_values = dict(checkpoint["model_cfg"])
-    if model_type == "robust":
-        model: nn.Module = RobustCrossModalTactileNetwork(
-            CrossModalTactileNetworkCfg(**cfg_values)
-        )
-    elif model_type == "tri_modal":
-        model = TriModalCrossAutoencoder(TriModalCrossAutoencoderCfg(**cfg_values))
-    else:  # pragma: no cover - argparse restricts this branch
-        raise ValueError(f"Unknown model type: {model_type}")
+def _build_encoder(model_type: str | None, checkpoint: Mapping[str, Any]) -> nn.Module:
+    model_type = checkpoint_model_type(checkpoint, model_type)
+    model = build_tactile_encoder(model_type, checkpoint["model_cfg"])
     model.load_state_dict(checkpoint["model_state"], strict=True)
     model.eval()
     return model
@@ -567,6 +556,15 @@ def main(argv: Sequence[str] | None = None) -> None:
     device = resolve_device(args.device)
     sim_checkpoint = _load_checkpoint(args.sim_checkpoint)
     real_checkpoint = _load_checkpoint(args.real_checkpoint)
+    args.sim_model_type = checkpoint_model_type(sim_checkpoint, args.sim_model_type)
+    args.real_model_type = checkpoint_model_type(real_checkpoint, args.real_model_type)
+    if "tactspace" in (args.sim_model_type, args.real_model_type):
+        raise ValueError(
+            "TactSpace requires joint reconstruction + alignment, not frozen projection training. "
+            "This legacy paired loader only joins episode/frame indices and cannot certify physical sim/real pairs. "
+            "Use train_tri_modal_cross_autoencoder.py --model-type tactspace for sim-only joint training; "
+            "cross-domain TactSpace training is unavailable until trusted pairing/validity is supplied."
+        )
 
     sim_split = sim_checkpoint.get("episode_splits", {})
     real_split = real_checkpoint.get("episode_splits", {})

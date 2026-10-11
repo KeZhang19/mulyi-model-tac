@@ -1,0 +1,71 @@
+{
+  "verified_at": "2026-10-07T17:01:55.065312+08:00",
+  "service": "RuntimeMaxUSec=1d\nMainPID=48279\nMemoryCurrent=10284150784\nActiveState=active\nSubState=running\n",
+  "job": "/home/brainco1/workspace/xinyu/tacsl_insertion_lab/reports/train4096_20261007_v3",
+  "iteration_numbers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "critical_log_count": 0,
+  "checkpoint": "model_0.pt",
+  "checkpoint_sha256": "4e8dc6c80ce1bc825f5c91f54387b71715b9681c11df8e4a068b875d9d205872",
+  "network_weight_l1_change": {
+    "actor": 29.653192806057632,
+    "critic": 66.99366628751159
+  },
+  "optimizer_steps": [
+    128
+  ],
+  "gpu": "NVIDIA GeForce RTX 5090, 28274 MiB, 32607 MiB, 99 %",
+  "episode_batches": [
+    {
+      "completed_episodes": 4096,
+      "batch_episodes": 4096,
+      "batch_successes": 0,
+      "total_successes": 0,
+      "keypoint_error_mean_m": 0.1327318698167801,
+      "keypoint_error_min_m": 0.028762878850102425
+    },
+    {
+      "completed_episodes": 8192,
+      "batch_episodes": 4096,
+      "batch_successes": 0,
+      "total_successes": 0,
+      "keypoint_error_mean_m": 0.12633998692035675,
+      "keypoint_error_min_m": 0.029466096311807632
+    },
+    {
+      "completed_episodes": 12288,
+      "batch_episodes": 4096,
+      "batch_successes": 0,
+      "total_successes": 0,
+      "keypoint_error_mean_m": 0.11381494253873825,
+      "keypoint_error_min_m": 0.03735961765050888
+    },
+    {
+      "completed_episodes": 16384,
+      "batch_episodes": 4096,
+      "batch_successes": 0,
+      "total_successes": 0,
+      "keypoint_error_mean_m": 0.09094592928886414,
+      "keypoint_error_min_m": 0.030409125611186028
+    },
+    {
+      "completed_episodes": 20480,
+      "batch_episodes": 4096,
+      "batch_successes": 0,
+      "total_successes": 0,
+      "keypoint_error_mean_m": 0.07020841538906097,
+      "keypoint_error_min_m": 0.030080853030085564
+    }
+  ],
+  "finite_checkpoint_optimizer_and_scalars": true
+}

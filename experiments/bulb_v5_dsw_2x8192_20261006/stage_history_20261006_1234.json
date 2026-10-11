@@ -1,0 +1,127 @@
+{
+  "checked_at_unix": 1791261281.0994124,
+  "tags": {
+    "Episode_Reward/final_screw_success": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/stage1_success": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.8411754369735718,
+      "max_all": 0.8639287352561951,
+      "nonzero_count": 2842,
+      "first_nonzero": {
+        "step": 0,
+        "value": 0.0027791503816843033
+      },
+      "mean_last100": 0.831967066526413,
+      "last_nonzero": {
+        "step": 2952,
+        "value": 0.8411754369735718
+      }
+    },
+    "Metrics/object_pose/stage2_success": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/insertion_hold_s": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/insertion_candidate": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/stage3_success": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/screw_turns": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/screw_best_turns": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "Metrics/object_pose/stage3_elapsed_s": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": 0.0,
+      "max_all": 0.0,
+      "nonzero_count": 0,
+      "first_nonzero": null,
+      "mean_last100": 0.0,
+      "last_nonzero": null
+    },
+    "GravityCurriculum/gravity_z": {
+      "count": 2953,
+      "first_step": 0,
+      "last_step": 2952,
+      "latest": -1.0,
+      "max_all": -1.0,
+      "nonzero_count": 2953,
+      "first_nonzero": {
+        "step": 0,
+        "value": -1.0
+      },
+      "mean_last100": -1.0,
+      "last_nonzero": {
+        "step": 2952,
+        "value": -1.0
+      }
+    }
+  }
+}

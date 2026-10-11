@@ -1,0 +1,21 @@
+{
+  "checkpoint": "/home/admin/workspace/xinyu/mulyi-model-tac/logs/rsl_rl/bulb_grasp_teacher_v2test/2026-10-04_scratch_2x4096/rank0/model_12000.pt",
+  "sha256": "0a4af76a184d476c1d6509e884aa814b9437a507734d2bf99fd4e323b77f7995",
+  "bytes": 27415047,
+  "iteration": 12000,
+  "keys": [
+    "model_state_dict",
+    "optimizer_state_dict",
+    "iter",
+    "infos",
+    "v2_gravity_curriculum_state"
+  ],
+  "optimizer_state_entries": 17,
+  "optimizer_steps": [
+    240020.0
+  ],
+  "gravity_curriculum_state": {
+    "trigger_iteration": 5730,
+    "last_success_rate": 0.6242622137069702
+  }
+}

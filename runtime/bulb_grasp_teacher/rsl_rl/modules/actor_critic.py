@@ -1,0 +1,240 @@
+# Copyright (c) 2021-2025, ETH Zurich and NVIDIA CORPORATION
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
+from __future__ import annotations
+
+import torch
+import torch.nn as nn
+from torch.distributions import Normal
+
+from rsl_rl.networks import MLP, EmpiricalNormalization
+
+
+class ActorCritic(nn.Module):
+    is_recurrent = False
+    is_transformerxl = False
+    # Default: feedforward MLP without explicit time axis.
+    # Sequence-aware policies (e.g. Transformer backbones) can override this
+    # flag to request full rollout sequences during PPO updates.
+    is_sequence_model = False
+
+    def __init__(
+        self,
+        obs,
+        obs_groups,
+        num_actions,
+        actor_obs_normalization=False,
+        critic_obs_normalization=False,
+        actor_hidden_dims=[256, 256, 256],
+        critic_hidden_dims=[256, 256, 256],
+        activation="elu",
+        init_noise_std=1.0,
+        noise_std_type: str = "scalar",
+        state_dependent_std=False,
+        **kwargs,
+    ):
+        self.min_noise_std = kwargs.pop("min_noise_std", None)
+        self.max_noise_std = kwargs.pop("max_noise_std", None)
+        if self.min_noise_std is not None and self.min_noise_std < 0.0:
+            raise ValueError("min_noise_std must be non-negative.")
+        if self.max_noise_std is not None and self.max_noise_std <= 0.0:
+            raise ValueError("max_noise_std must be positive.")
+        if (
+            self.min_noise_std is not None
+            and self.max_noise_std is not None
+            and self.min_noise_std > self.max_noise_std
+        ):
+            raise ValueError("min_noise_std must be less than or equal to max_noise_std.")
+        if kwargs:
+            print(
+                "ActorCritic.__init__ got unexpected arguments, which will be ignored: "
+                + str([key for key in kwargs.keys()])
+            )
+        super().__init__()
+
+        # get the observation dimensions
+        self.obs_groups = obs_groups
+        num_actor_obs = 0
+        for obs_group in obs_groups["policy"]:
+            assert len(obs[obs_group].shape) == 2, "The ActorCritic module only supports 1D observations."
+            num_actor_obs += obs[obs_group].shape[-1]
+        num_critic_obs = 0
+        for obs_group in obs_groups["critic"]:
+            assert len(obs[obs_group].shape) == 2, "The ActorCritic module only supports 1D observations."
+            num_critic_obs += obs[obs_group].shape[-1]
+
+        self.state_dependent_std = state_dependent_std
+        # actor
+        if self.state_dependent_std:
+            self.actor = MLP(num_actor_obs, [2, num_actions], actor_hidden_dims, activation)
+        else:
+            self.actor = MLP(num_actor_obs, num_actions, actor_hidden_dims, activation)
+        # actor observation normalization
+        self.actor_obs_normalization = actor_obs_normalization
+        if actor_obs_normalization:
+            self.actor_obs_normalizer = EmpiricalNormalization(num_actor_obs)
+        else:
+            self.actor_obs_normalizer = torch.nn.Identity()
+        print(f"Actor MLP: {self.actor}")
+
+        # critic
+        self.critic = MLP(num_critic_obs, 1, critic_hidden_dims, activation)
+        # critic observation normalization
+        self.critic_obs_normalization = critic_obs_normalization
+        if critic_obs_normalization:
+            self.critic_obs_normalizer = EmpiricalNormalization(num_critic_obs)
+        else:
+            self.critic_obs_normalizer = torch.nn.Identity()
+        print(f"Critic MLP: {self.critic}")
+
+        # Action noise
+        self.noise_std_type = noise_std_type
+        if self.state_dependent_std:
+            torch.nn.init.zeros_(self.actor[-2].weight[num_actions:])
+            if self.noise_std_type == "scalar":
+                torch.nn.init.constant_(self.actor[-2].bias[num_actions:], init_noise_std)
+            elif self.noise_std_type == "log":
+                torch.nn.init.constant_(
+                    self.actor[-2].bias[num_actions:], torch.log(torch.tensor(init_noise_std + 1e-7))
+                )
+            else:
+                raise ValueError(f"Unknown standard deviation type: {self.noise_std_type}. Should be 'scalar' or 'log'")
+        else:
+            if self.noise_std_type == "scalar":
+                self.std = nn.Parameter(init_noise_std * torch.ones(num_actions))
+            elif self.noise_std_type == "log":
+                self.log_std = nn.Parameter(torch.log(init_noise_std * torch.ones(num_actions)))
+            else:
+                raise ValueError(f"Unknown standard deviation type: {self.noise_std_type}. Should be 'scalar' or 'log'")
+
+        # Action distribution (populated in update_distribution)
+        self.distribution = None
+        # disable args validation for speedup
+        Normal.set_default_validate_args(False)
+
+    def reset(self, dones=None):
+        pass
+
+    def forward(self):
+        raise NotImplementedError
+
+    @property
+    def action_mean(self):
+        return self.distribution.mean
+
+    @property
+    def action_std(self):
+        return self.distribution.stddev
+
+    @property
+    def entropy(self):
+        return self.distribution.entropy().sum(dim=-1)
+
+    def _clamp_std_tensor(self, std):
+        if self.min_noise_std is None and self.max_noise_std is None:
+            return std
+        return torch.clamp(std, min=self.min_noise_std, max=self.max_noise_std)
+
+    def _clamp_noise_std_parameter(self):
+        if self.min_noise_std is None and self.max_noise_std is None:
+            return
+        with torch.no_grad():
+            if self.state_dependent_std:
+                return
+            if self.noise_std_type == "scalar":
+                self.std.clamp_(min=self.min_noise_std, max=self.max_noise_std)
+            elif self.noise_std_type == "log":
+                min_log_std = None if self.min_noise_std is None else torch.log(
+                    self.log_std.new_tensor(self.min_noise_std)
+                )
+                max_log_std = None if self.max_noise_std is None else torch.log(
+                    self.log_std.new_tensor(self.max_noise_std)
+                )
+                self.log_std.clamp_(min=min_log_std, max=max_log_std)
+
+    def update_distribution(self, obs):
+        if self.state_dependent_std:
+            # compute mean and standard deviation
+            mean_and_std = self.actor(obs)
+            if self.noise_std_type == "scalar":
+                mean, std = torch.unbind(mean_and_std, dim=-2)
+            elif self.noise_std_type == "log":
+                mean, log_std = torch.unbind(mean_and_std, dim=-2)
+                std = torch.exp(log_std)
+            else:
+                raise ValueError(f"Unknown standard deviation type: {self.noise_std_type}. Should be 'scalar' or 'log'")
+            std = self._clamp_std_tensor(std)
+        else:
+            # compute mean
+            mean = self.actor(obs)
+            # compute standard deviation
+            self._clamp_noise_std_parameter()
+            if self.noise_std_type == "scalar":
+                std = self._clamp_std_tensor(self.std).expand_as(mean)
+            elif self.noise_std_type == "log":
+                std = self._clamp_std_tensor(torch.exp(self.log_std)).expand_as(mean)
+            else:
+                raise ValueError(f"Unknown standard deviation type: {self.noise_std_type}. Should be 'scalar' or 'log'")
+        # create distribution
+        self.distribution = Normal(mean, std)
+
+    def act(self, obs, **kwargs):
+        obs = self.get_actor_obs(obs)
+        obs = self.actor_obs_normalizer(obs)
+        self.update_distribution(obs)
+        return self.distribution.sample()
+
+    def act_inference(self, obs):
+        obs = self.get_actor_obs(obs)
+        obs = self.actor_obs_normalizer(obs)
+        if self.state_dependent_std:
+            return self.actor(obs)[..., 0, :]
+        else:
+            return self.actor(obs)
+
+    def evaluate(self, obs, **kwargs):
+        obs = self.get_critic_obs(obs)
+        obs = self.critic_obs_normalizer(obs)
+        return self.critic(obs)
+
+    def get_actor_obs(self, obs):
+        obs_list = []
+        for obs_group in self.obs_groups["policy"]:
+            obs_list.append(obs[obs_group])
+        return torch.cat(obs_list, dim=-1)
+
+    def get_critic_obs(self, obs):
+        obs_list = []
+        for obs_group in self.obs_groups["critic"]:
+            obs_list.append(obs[obs_group])
+        return torch.cat(obs_list, dim=-1)
+
+    def get_actions_log_prob(self, actions):
+        return self.distribution.log_prob(actions).sum(dim=-1)
+
+    def update_normalization(self, obs):
+        if self.actor_obs_normalization:
+            actor_obs = self.get_actor_obs(obs)
+            self.actor_obs_normalizer.update(actor_obs)
+        if self.critic_obs_normalization:
+            critic_obs = self.get_critic_obs(obs)
+            self.critic_obs_normalizer.update(critic_obs)
+
+    def load_state_dict(self, state_dict, strict=True):
+        """Load the parameters of the actor-critic model.
+
+        Args:
+            state_dict (dict): State dictionary of the model.
+            strict (bool): Whether to strictly enforce that the keys in state_dict match the keys returned by this
+                           module's state_dict() function.
+
+        Returns:
+            bool: Whether this training resumes a previous training. This flag is used by the `load()` function of
+                  `OnPolicyRunner` to determine how to load further parameters (relevant for, e.g., distillation).
+        """
+
+        super().load_state_dict(state_dict, strict=strict)
+        self._clamp_noise_std_parameter()
+        return True  # training resumes
