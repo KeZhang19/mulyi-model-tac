@@ -45,6 +45,7 @@ from BrainCo_DexHand.tactile_representation.training import (  # noqa: E402
 
 
 from BrainCo_DexHand.tactile_representation.policy import build_tactile_encoder, checkpoint_model_type
+from BrainCo_DexHand.tactile_representation.training.alignment_data import AlignmentData
 
 MODEL_TYPES = ("robust", "tri_modal", "tactspace")
 
@@ -65,6 +66,10 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--sim-dataset", type=Path, default=None)
     parser.add_argument("--real-dataset", type=Path, default=None)
+    parser.add_argument("--alignment-dataset", type=Path, default=None,
+                        help="Paired alignment NPZ root with pairs.json and dataset-owned splits.")
+    parser.add_argument("--workflow-test", action="store_true",
+                        help="Explicitly allow ordinal diagnostic pairs; save nondeployable workflow checkpoints.")
     parser.add_argument(
         "--output", type=Path, default=Path("runs/revo3_latent_alignment_pilot")
     )
@@ -130,6 +135,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--max-val-batches", type=int, default=None)
     args = parser.parse_args(argv)
 
+    if args.workflow_test and args.alignment_dataset is None:
+        parser.error("--workflow-test requires --alignment-dataset")
+    if args.alignment_dataset is not None and (args.sim_dataset is not None or args.real_dataset is not None):
+        parser.error("--alignment-dataset cannot be combined with separate legacy dataset roots")
+    if args.alignment_dataset is not None and args.dataset_backend == "mmap":
+        parser.error("Paired alignment datasets currently use NPZ; choose auto or npz")
     if args.epochs <= 0 or args.batch_size <= 0 or args.num_workers < 0:
         parser.error("epochs and batch-size must be positive; num-workers must be non-negative")
     if args.learning_rate <= 0.0 or args.temperature <= 0.0:
@@ -467,13 +478,15 @@ def _save_checkpoint(
             ),
             "encoder_training": "end_to_end" if end_to_end else "frozen",
             "epoch": int(epoch),
-            "model_state": aligner.state_dict(),
+            ("workflow_model_state" if getattr(args, "workflow_test", False) else "model_state"): aligner.state_dict(),
             "optimizer_state": optimizer.state_dict(),
             "args": vars(args),
             "train_metrics": dict(train_metrics),
             "validation_metrics": dict(validation_metrics),
             "train_pairs": int(train_pairs),
             "validation_pairs": int(validation_pairs),
+            **({"workflow_test": True, "pair_valid": False, "training_ready": False}
+               if getattr(args, "workflow_test", False) else {}),
         },
         path,
     )
@@ -566,35 +579,42 @@ def main(argv: Sequence[str] | None = None) -> None:
             "cross-domain TactSpace training is unavailable until trusted pairing/validity is supplied."
         )
 
-    sim_split = sim_checkpoint.get("episode_splits", {})
-    real_split = real_checkpoint.get("episode_splits", {})
-    train_episodes = sorted(
-        set(int(value) for value in sim_split.get("train", []))
-        & set(int(value) for value in real_split.get("train", []))
-    )
-    validation_episodes = sorted(
-        set(int(value) for value in sim_split.get("validation", []))
-        & set(int(value) for value in real_split.get("validation", []))
-    )
-    if not train_episodes or not validation_episodes:
-        raise ValueError("The two checkpoints need overlapping train and validation episode splits")
-
-    sim_root = args.sim_dataset or args.dataset
-    real_root = args.real_dataset or args.dataset
-    sim_train = _make_dataset(sim_root, sim_checkpoint, train_episodes, args.dataset_backend)
-    real_train = _make_dataset(real_root, real_checkpoint, train_episodes, args.dataset_backend)
-    sim_validation = _make_dataset(
-        sim_root, sim_checkpoint, validation_episodes, args.dataset_backend
-    )
-    real_validation = _make_dataset(
-        real_root, real_checkpoint, validation_episodes, args.dataset_backend
-    )
-    train_dataset = PairedTactileDataset(
-        sim_train, real_train, episode_ids=train_episodes
-    )
-    validation_dataset = PairedTactileDataset(
-        sim_validation, real_validation, episode_ids=validation_episodes
-    )
+    args.alignment_data_contract = None
+    if args.alignment_dataset is not None:
+        alignment_data = AlignmentData(
+            args.alignment_dataset,
+            TactileNormalization(**dict(sim_checkpoint["normalization"])),
+            TactileNormalization(**dict(real_checkpoint["normalization"])),
+            workflow_test=args.workflow_test,
+        )
+        args.alignment_data_contract = alignment_data.contract
+        train_dataset = alignment_data.dataset("train")
+        validation_dataset = alignment_data.dataset("validation")
+        if args.resume is None and args.output.exists() and any(args.output.iterdir()):
+            raise FileExistsError("Use a new alignment output directory or explicitly resume a checkpoint")
+        print(f"alignment_dataset={args.alignment_dataset} workflow_test={args.workflow_test} "
+              f"data_fingerprint={alignment_data.contract['fingerprint']}", flush=True)
+    else:
+        sim_split = sim_checkpoint.get("episode_splits", {})
+        real_split = real_checkpoint.get("episode_splits", {})
+        train_episodes = sorted(
+            set(int(value) for value in sim_split.get("train", []))
+            & set(int(value) for value in real_split.get("train", []))
+        )
+        validation_episodes = sorted(
+            set(int(value) for value in sim_split.get("validation", []))
+            & set(int(value) for value in real_split.get("validation", []))
+        )
+        if not train_episodes or not validation_episodes:
+            raise ValueError("The two checkpoints need overlapping train and validation episode splits")
+        sim_root = args.sim_dataset or args.dataset
+        real_root = args.real_dataset or args.dataset
+        sim_train = _make_dataset(sim_root, sim_checkpoint, train_episodes, args.dataset_backend)
+        real_train = _make_dataset(real_root, real_checkpoint, train_episodes, args.dataset_backend)
+        sim_validation = _make_dataset(sim_root, sim_checkpoint, validation_episodes, args.dataset_backend)
+        real_validation = _make_dataset(real_root, real_checkpoint, validation_episodes, args.dataset_backend)
+        train_dataset = PairedTactileDataset(sim_train, real_train, episode_ids=train_episodes)
+        validation_dataset = PairedTactileDataset(sim_validation, real_validation, episode_ids=validation_episodes)
     train_batch_sampler = None
     if args.hard_negative_fraction > 0.0:
         train_batch_sampler = EpisodeHardNegativeBatchSampler(
@@ -653,6 +673,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     encoder_group_added = False
     if args.resume is not None:
         payload = torch.load(args.resume, map_location=device, weights_only=False)
+        if bool(payload.get("workflow_test", False)) != args.workflow_test:
+            raise ValueError("Cannot resume across workflow-test and formal alignment modes")
+        previous_contract = payload.get("args", {}).get("alignment_data_contract")
+        if previous_contract != args.alignment_data_contract:
+            raise ValueError("Resume alignment data/splits/normalization fingerprint mismatch")
         resume_epoch = int(payload["epoch"])
         # A resumed checkpoint may already contain an encoder optimizer group.
         # Recreate that group before loading optimizer state so the parameter
@@ -676,7 +701,8 @@ def main(argv: Sequence[str] | None = None) -> None:
                 weight_decay=args.weight_decay,
             )
             encoder_group_added = True
-        aligner.load_state_dict(payload["model_state"], strict=True)
+        state_key = "workflow_model_state" if args.workflow_test else "model_state"
+        aligner.load_state_dict(payload[state_key], strict=True)
         optimizer.load_state_dict(optimizer_state)
         start_epoch = resume_epoch + 1
         resume_validation_loss = float(
@@ -784,7 +810,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         if validation_metrics["loss"] < best_validation_loss:
             best_validation_loss = validation_metrics["loss"]
             _save_checkpoint(
-                args.output / "best.pt",
+                args.output / ("workflow_best.pt" if args.workflow_test else "best.pt"),
                 epoch=epoch,
                 aligner=aligner,
                 optimizer=optimizer,
@@ -794,27 +820,28 @@ def main(argv: Sequence[str] | None = None) -> None:
                 train_pairs=len(train_dataset),
                 validation_pairs=len(validation_dataset),
             )
-            _save_encoder_checkpoint(
-                args.output / "sim_encoder_best.pt",
-                encoder=aligner.sim_encoder,
-                source_checkpoint=sim_checkpoint,
-                source_checkpoint_path=args.sim_checkpoint,
-                role="simulation",
-                alignment_epoch=epoch,
-                alignment_args=args,
-            )
-            _save_encoder_checkpoint(
-                args.output / "real_encoder_best.pt",
-                encoder=aligner.real_encoder,
-                source_checkpoint=real_checkpoint,
-                source_checkpoint_path=args.real_checkpoint,
-                role="real",
-                alignment_epoch=epoch,
-                alignment_args=args,
-            )
+            if not args.workflow_test:
+                _save_encoder_checkpoint(
+                    args.output / "sim_encoder_best.pt",
+                    encoder=aligner.sim_encoder,
+                    source_checkpoint=sim_checkpoint,
+                    source_checkpoint_path=args.sim_checkpoint,
+                    role="simulation",
+                    alignment_epoch=epoch,
+                    alignment_args=args,
+                )
+                _save_encoder_checkpoint(
+                    args.output / "real_encoder_best.pt",
+                    encoder=aligner.real_encoder,
+                    source_checkpoint=real_checkpoint,
+                    source_checkpoint_path=args.real_checkpoint,
+                    role="real",
+                    alignment_epoch=epoch,
+                    alignment_args=args,
+                )
         if epoch % args.save_every == 0 or epoch == args.epochs:
             _save_checkpoint(
-                args.output / f"epoch_{epoch:04d}.pt",
+                args.output / f"{'workflow_' if args.workflow_test else ''}epoch_{epoch:04d}.pt",
                 epoch=epoch,
                 aligner=aligner,
                 optimizer=optimizer,

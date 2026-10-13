@@ -18,7 +18,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "brainco-revo3-sdk/runtime/python"))
+sys.path.insert(0, str(ROOT / "vendor/brainco-revo3-sdk/runtime/python"))
 
 
 def trimodal_write_json(path, value):
@@ -95,6 +95,9 @@ def trimodal_infer_worker(args):
         types = {"raw_bgr": D.RAW_IMG, "warped_bgr": D.WARPED_IMG, "depth": D.DEPTH_MAP,
                  "marker_origin": D.MARKER_ORIGIN_VECTOR, "marker_current": D.MARKER_CURRENT_VECTOR,
                  "marker_offset": D.MARKER_OFFSET_VECTOR}
+        if args.depth_only:
+            types = {key: value for key, value in types.items() if not key.startswith("marker_")}
+            result["marker_tracker"] = "not_requested; recorded DFS preserved by caller"
         arrays = {k: [] for k in types}
         inference_times = []
         for index in range(first, len(rgb)):
@@ -109,7 +112,7 @@ def trimodal_infer_worker(args):
                 arrays[name].append(value.copy())
             if not np.array_equal(arrays["raw_bgr"][-1], bgr):
                 raise ValueError("SDK raw frame does not match supplied source BGR")
-            if arrays["depth"][-1].ndim != 2 or arrays["marker_offset"][-1].shape[-1] != 2:
+            if arrays["depth"][-1].ndim != 2 or (not args.depth_only and arrays["marker_offset"][-1].shape[-1] != 2):
                 raise ValueError("Unexpected depth or marker shape")
         packed = {k: np.stack(v) for k, v in arrays.items()}
         packed.update(rgb=rgb[first:], source_frame_index=np.arange(first, len(rgb)),
@@ -120,8 +123,9 @@ def trimodal_infer_worker(args):
                                 "min": float(v.min()), "max": float(v.max()),
                                 "nonzero": int(np.count_nonzero(v))}
                             for k, v in packed.items() if k in types or k == "rgb"}
-        result["marker_offset_equals_current_minus_origin"] = bool(np.array_equal(
-            packed["marker_offset"], packed["marker_current"] - packed["marker_origin"]))
+        if not args.depth_only:
+            result["marker_offset_equals_current_minus_origin"] = bool(np.array_equal(
+                packed["marker_offset"], packed["marker_current"] - packed["marker_origin"]))
         result["color_order_verified"] = "SDK RAW_IMG equals supplied BGR; saved rgb is source RGB"
         result["units"] = {"depth": "SDK native; physical scale unverified",
                            "marker": "SDK image coordinates; physical scale unverified"}
@@ -148,6 +152,8 @@ def probe_revo3_trimodal():
     parser.add_argument("--reference-state", required=True,
                         choices=("unverified-current", "unloaded-confirmed"))
     parser.add_argument("--expected-cameras", type=int, default=5)
+    parser.add_argument("--depth-only", action="store_true",
+                        help="Replay RGB/warp/depth only; do not request SDK optical-flow markers")
     parser.add_argument("--serial", help=argparse.SUPPRESS)
     args = parser.parse_args()
     args.capture, args.output = args.capture.resolve(), args.output.resolve()
@@ -173,6 +179,8 @@ def probe_revo3_trimodal():
                "--output", str(args.output), "--reference-state", args.reference_state, "--serial", serial]
         if args.reference_capture:
             cmd.extend(["--reference-capture", str(args.reference_capture)])
+        if args.depth_only:
+            cmd.append("--depth-only")
         with (args.output / f"{serial}.log").open("w") as log:
             try:
                 completed = subprocess.run(cmd, stdout=log, stderr=subprocess.STDOUT, timeout=45)

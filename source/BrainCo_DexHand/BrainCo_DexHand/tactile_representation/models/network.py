@@ -72,6 +72,7 @@ class RobustCrossModalTactileNetwork(nn.Module):
             dropout=cfg.dropout,
         )
         self.rgb_decoder = ConditionedImageDecoder(
+            native_image_size=cfg.native_image_size,
             latent_dim=cfg.d_model,
             output_channels=cfg.rgb_channels,
             image_height=cfg.image_height,
@@ -82,6 +83,7 @@ class RobustCrossModalTactileNetwork(nn.Module):
             spatial_condition_dim=cfg.d_model if cfg.rgb_depth_spatial_skip else None,
         )
         self.depth_decoder = ConditionedImageDecoder(
+            native_image_size=cfg.native_image_size,
             latent_dim=cfg.d_model,
             output_channels=cfg.depth_channels,
             image_height=cfg.image_height,

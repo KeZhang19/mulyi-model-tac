@@ -42,9 +42,9 @@ app = AppLauncher(args).app
 
 import gymnasium as gym
 import torch
-from rsl_rl.modules import ActorCritic
 from isaaclab_tasks.utils import load_cfg_from_registry
 import BrainCo_DexHand  # registers this checkout's tasks
+from BrainCo_DexHand.tasks.manager_based.dexsuite.config.BulbGraspTeacher.policy import BulbGraspTeacherActorCritic
 
 TASK = 'BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-Play-v0'
 report = {'task': TASK, 'checkpoint': str(args.checkpoint.resolve()), 'passed': False}
@@ -94,17 +94,25 @@ try:
     base._rsl_rl_training_iteration = iteration
     base._v2_gravity_curriculum_trigger_iteration = trigger
     base._v2_gravity_curriculum_gravity_z = gravity
+    command = base.command_manager.get_term('object_pose')
+    if getattr(command, 'global_curriculum', None) is not None:
+        state = checkpoint.get('bulb_global_stage_curriculum')
+        if state is None:
+            raise ValueError('Checkpoint has no global reward-stage state; replay its original task version.')
+        command.global_curriculum.load_state_dict(state)
+        report['global_reward_stage'] = command.global_curriculum.stage
     if 'training_iteration' in base.event_manager.available_modes:
         base.event_manager.apply(mode='training_iteration')
     obs, _ = env.reset()
     history = cfg.observations.policy.history_length
+    assert obs['task_state'].shape == (args.num_envs, 15 * history)
     expected = {name: width * history for name, width in {'policy': 39, 'proprio': 149, 'perception': 192}.items()}
     for group, width in expected.items():
         assert obs[group].shape == (args.num_envs, width), (group, obs[group].shape)
     assert base.action_manager.total_action_dim == 28
     policy_kwargs = agent_cfg.policy.to_dict()
     policy_kwargs.pop('class_name', None)
-    policy_class = BulbGraspTeacherLSTM if args.lstm else ActorCritic
+    policy_class = BulbGraspTeacherLSTM if args.lstm else BulbGraspTeacherActorCritic
     policy = policy_class(obs, agent_cfg.obs_groups, 28, **policy_kwargs).to(base.device)
     policy.load_state_dict(checkpoint['model_state_dict'], strict=True)
     policy.eval()

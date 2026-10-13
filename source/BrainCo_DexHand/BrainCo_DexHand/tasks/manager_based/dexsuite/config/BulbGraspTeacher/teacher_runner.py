@@ -27,7 +27,8 @@ from rsl_rl.modules import (
     resolve_symmetry_config,
 )
 from rsl_rl.utils import resolve_obs_groups, store_code_state
-from .policy import BulbGraspTeacherLSTM
+from .policy import BulbGraspTeacherActorCritic, BulbGraspTeacherLSTM
+from .global_curriculum import synchronize_episode_counts
 
 
 class OnPolicyRunner:
@@ -587,6 +588,31 @@ class OnPolicyRunner:
             # update policy
             loss_dict = self.alg.update()
 
+            # All ranks participate even when logging is disabled or no episode ended.
+            bulb_stage_report = self._update_bulb_stage_curriculum()
+            if bulb_stage_report is not None and bulb_stage_report["promoted"]:
+                # The completed rollout was trained entirely under the previous objective.
+                # Start the next objective from the original reset distribution on every rank.
+                obs_raw = self._reset_bulb_reward_stage().to(self.device)
+                if self.residual_base_policy is not None and self.residual_base_action_as_obs:
+                    with torch.no_grad():
+                        base = self.residual_base_policy.act_inference(obs_raw).detach()
+                    self._residual_base_action_hist[:] = base.unsqueeze(1).repeat(
+                        1, self.residual_base_action_history, 1)
+                    obs = self._augment_obs_for_residual(
+                        obs_raw, self._residual_base_action_hist.reshape(self.env.num_envs, -1))
+                else:
+                    obs = obs_raw
+                cur_reward_sum.zero_()
+                cur_episode_length.zero_()
+                rewbuffer.clear()
+                lenbuffer.clear()
+                if self.alg.rnd:
+                    cur_ereward_sum.zero_()
+                    cur_ireward_sum.zero_()
+                    erewbuffer.clear()
+                    irewbuffer.clear()
+
             stop = time.time()
             learn_time = stop - start
             self.current_learning_iteration = it
@@ -597,6 +623,7 @@ class OnPolicyRunner:
                 self._log_v2_gravity_curriculum(it, v2_gravity_success_rate)
                 self._log_object_success_stats(object_success_stats, it)
                 self._log_abnormal_robot_stats(abnormal_robot_stats, it)
+                self._log_bulb_stage_curriculum(bulb_stage_report, it)
                 # Save model
                 if it % self.save_interval == 0:
                     # In per-task normalizer mode, all ranks must participate in saving (for all_gather),
@@ -625,6 +652,44 @@ class OnPolicyRunner:
             elif self.per_task_obs_normalizer and self.is_distributed:
                 # Participate so rank0 can package all per-task normalizers.
                 self.save(os.path.join(self.log_dir, f"model_{self.current_learning_iteration}.pt"))
+
+    def _bulb_stage_command(self):
+        env = getattr(self.env, "unwrapped", self.env)
+        manager = getattr(env, "command_manager", None)
+        if manager is None or not getattr(
+                getattr(getattr(env.cfg, "commands", None), "object_pose", None),
+                "global_stage_curriculum", False):
+            return None
+        return manager.get_term("object_pose")
+
+    def _update_bulb_stage_curriculum(self):
+        command = self._bulb_stage_command()
+        if command is None:
+            return None
+        counts = synchronize_episode_counts(command.drain_global_episode_counts())
+        return command.global_curriculum.observe(*counts)
+
+    def _reset_bulb_reward_stage(self):
+        command = self._bulb_stage_command()
+        command.discard_curriculum_reset = True
+        try:
+            with torch.inference_mode():
+                obs, _ = self.env.reset()
+                self.alg.policy.reset(torch.ones(self.env.num_envs, device=self.device, dtype=torch.bool))
+        finally:
+            command.discard_curriculum_reset = False
+        command.global_episode_counts.zero_()
+        return obs
+
+    def _log_bulb_stage_curriculum(self, report, iteration):
+        if report is None:
+            return
+        for name, value in report.items():
+            if value is not None:
+                self.writer.add_scalar(f"Curriculum/global_reward_stage/{name}", value, iteration)
+        if report["promoted"]:
+            print(f"[BULB CURRICULUM] {report['evaluated_stage']} -> {report['stage']}: "
+                  f"{report['successes']}/{report['episodes']} completed episodes; all environments reset.")
 
     def _apply_env_training_iteration(self, iteration: int) -> None:
         """Publish the RSL-RL iteration and trigger optional environment events."""
@@ -943,6 +1008,9 @@ class OnPolicyRunner:
         v2_gravity_curriculum_state = self._v2_gravity_curriculum_checkpoint_state()
         if v2_gravity_curriculum_state is not None:
             saved_dict["v2_gravity_curriculum_state"] = v2_gravity_curriculum_state
+        command = self._bulb_stage_command()
+        if command is not None:
+            saved_dict["bulb_global_stage_curriculum"] = command.global_curriculum.state_dict()
         # -- Save per-task obs normalizers (one entry per rank) when enabled
         if self.per_task_obs_normalizer and self.is_distributed and torch.distributed.is_initialized():
             local_entry = {
@@ -1007,6 +1075,12 @@ class OnPolicyRunner:
         resumed_training = self.alg.policy.load_state_dict(loaded_dict["model_state_dict"])
         if model_only:
             self.current_learning_iteration = 0
+            command = self._bulb_stage_command()
+            if command is not None:
+                command.global_curriculum.stage = 1
+                command.global_curriculum.window.clear()
+                command.global_curriculum.last_report = None
+                self._reset_bulb_reward_stage()
             return None
         # -- If checkpoint contains per-task normalizers, select the best match for this env and apply it.
         if "task_normalizers" in loaded_dict:
@@ -1029,6 +1103,13 @@ class OnPolicyRunner:
         if resumed_training:
             self.current_learning_iteration = loaded_dict["iter"]
         self._restore_v2_gravity_curriculum_checkpoint_state(loaded_dict)
+        command = self._bulb_stage_command()
+        if command is not None:
+            state = loaded_dict.get("bulb_global_stage_curriculum")
+            if state is None:
+                raise ValueError("Checkpoint has no global reward curriculum; use an explicit model-only warm start.")
+            command.global_curriculum.load_state_dict(state)
+            self._reset_bulb_reward_stage()
         return loaded_dict["infos"]
 
     def _torch_load_checkpoint(self, path: str, map_location: str | None = None) -> dict:

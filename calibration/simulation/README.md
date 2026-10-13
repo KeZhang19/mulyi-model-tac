@@ -1,5 +1,17 @@
 # 机械标定仿真系统 v1
 
+## 2026-10-11：Tag 系可视化采集入口
+
+新增 [`visual_collect.py`](visual_collect.py)，在 Isaac 中交互定位、显示三模态／模型压力、采集完整回合与回放。
+读取最新坐标YAML和ROS配置软件行程，使用当前Tag根／M6×16支架；CPU有限采集也可独立运行。
+启动命令、坐标假设、数据schema与验证边界见[使用说明](../docs/visual_collection.md)。
+旧 `run.py` 的默认资产／schema不变，下文历史离线流程继续适用。
+
+2026-10-11配置归类到 [config/simulation/](../config/README.md)，本目录的
+`config.json`、`smoke_config.json`为相对兼容链接，配置内容和无参数默认行为保持。
+新操作可显式传 `--config calibration/config/simulation/config.json`；
+真机与仿真的工作顺序见[本地标定流程](../docs/local_workflow.md)。
+
 2026-10-03更新：默认配置已切换至 `hand_asset=revo21_touch_v4`，采用任务引用的
 `assets/revo21_right_touch` 视触觉手。当前[完整URDF](../assets/calibration_bench_visuotactile_urdf/README.md)、
 [场景](../outputs/simulation/visuotactile_v1/scene.usda)、

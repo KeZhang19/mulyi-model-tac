@@ -51,8 +51,7 @@ def stage_progress_snapshot(command, index=0):
     ]
     return {
         "stage": stage,
-        "completed": [bool(command.stage_two[index].item()),
-                      bool(command.stage_three[index].item()), bool(number("success"))],
+        "completed": [passed("stage1_success"), passed("stage2_success"), bool(number("success"))],
         "position_reference": "root" if stage == 1 else "thread_tip",
         "target_world_m": command.pose_command_w[index, :3].tolist(),
         "tracked_world_m": command.tracked_position_w[index].tolist(),

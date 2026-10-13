@@ -1,11 +1,16 @@
 ## 项目协作与实验文档
 
+与相邻 `ros_ws` 的路径、SDK、接口及 AI 上下文关系统一见
+[双仓库联动规则](../ros_ws/WORKSPACE_LINK.md)。涉及联动时先检查两边未提交改动；
+纯文件检查：`python3 ../ros_ws/scripts/check_linked_workspace.py`。
+
 新会话先读 [协作规则](AGENTS.md) 和 [当前状态](docs/STATUS.md)，再按需查阅
 [项目地图](docs/PROJECT_MAP.md)、[运行手册](docs/RUNBOOK.md) 与 [实验索引](EXPERIMENTS.md)。
 根 `AGENTS.md` 当前被 Git 忽略；跨检出时需确认该本地入口存在。
 
 实体模型与几何见 [assets/](assets/README.md)，抓姿、初始化模板和采样库见
-[task_data/](task_data/README.md)，标定资产与采集流程见 [calibration/](calibration/README.md)。
+[task_data/](task_data/README.md)，标定入口见 [calibration/](calibration/README.md)，
+当前本地执行顺序见 [本地标定流程](calibration/docs/local_workflow.md)。
 任务 Python 配置仍在 `source/BrainCo_DexHand/BrainCo_DexHand/tasks/`；旧资产数据路径保留兼容链接。
 
 ## 触觉可视化观测
@@ -170,6 +175,5 @@ python scripts/tactile_representation/visualize_latent_matches.py \
 输出目录中的 `sim_to_real_correct.png` 和 `sim_to_real_incorrect.png` 分别展示正确 top-1 和高置信度错误匹配；`matches.json` 保存对应的 episode/frame key 和 cosine similarity。
 
 > 注意：可视化命令中的 `alignment-checkpoint` 需要先按上面的训练命令在本地生成；该 checkpoint 不随仓库上传。
-
 
 

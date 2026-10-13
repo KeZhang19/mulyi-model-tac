@@ -16,7 +16,10 @@ class MechanicalCalibrationBench:
     def __init__(self, cfg):
         self.cfg = cfg
         self.hand_urdf = hand_asset(cfg)
-        self.frames, self.hand, self.paths = load_assembly(self.hand_urdf, cfg['joint_positions_rad'])
+        self.frames, self.hand, self.paths = load_assembly(
+            self.hand_urdf, cfg['joint_positions_rad'],
+            mesh_only=cfg.get('mesh_visuals_only', False),
+            excluded_links=cfg.get('excluded_hand_links', ()))
         self.link = sensor_link(cfg)
         self.surface, self.normals, self.valid, self.area = sensor_grid(self.hand[self.link], *cfg['grid_hw'])
         self.tool_frames, self.tool, paths = load_assembly(HEADS[cfg['head']])

@@ -20,8 +20,14 @@ class ConditionedUpsampleBlock(nn.Module):
         self.activation = nn.GELU()
         self.refine = ResidualConvBlock(out_channels, out_channels)
 
-    def forward(self, features: torch.Tensor, latent: torch.Tensor) -> torch.Tensor:
-        features = F.interpolate(features, scale_factor=2.0, mode="bilinear", align_corners=False)
+    def forward(
+        self, features: torch.Tensor, latent: torch.Tensor,
+        output_size: tuple[int, int] | None = None,
+    ) -> torch.Tensor:
+        if output_size is None:
+            features = F.interpolate(features, scale_factor=2.0, mode="bilinear", align_corners=False)
+        else:
+            features = F.interpolate(features, size=output_size, mode="bilinear", align_corners=False)
         features = self.normalization(self.convolution(features))
         scale, shift = self.condition(latent).chunk(2, dim=-1)
         scale = torch.tanh(scale).unsqueeze(-1).unsqueeze(-1)
@@ -44,12 +50,21 @@ class ConditionedImageDecoder(nn.Module):
         reference_residual: bool = False,
         reference_residual_scale: float = 0.25,
         spatial_condition_dim: int | None = None,
+        native_image_size: bool = False,
     ) -> None:
         super().__init__()
         self.image_height = int(image_height)
         self.image_width = int(image_width)
-        self.seed_rows = self.image_height // 16
-        self.seed_cols = self.image_width // 16
+        self.seed_rows = (self.image_height + 15) // 16
+        self.seed_cols = (self.image_width + 15) // 16
+        # Reverse the encoder's actual feature sizes instead of doubling to an
+        # oversized image and cropping. Only learned feature grids are resized.
+        self.output_sizes = tuple(
+            ((self.image_height + stride - 1) // stride,
+             (self.image_width + stride - 1) // stride)
+            if native_image_size else None
+            for stride in (8, 4, 2, 1)
+        )
         self.reference_residual = bool(reference_residual)
         self.reference_residual_scale = float(reference_residual_scale)
         if not 0.0 < self.reference_residual_scale <= 1.0:
@@ -116,8 +131,8 @@ class ConditionedImageDecoder(nn.Module):
                 batch_size, self.spatial_condition_dim, self.seed_rows, self.seed_cols
             )
             features = features + self.spatial_projection(spatial_grid)
-        for block in self.blocks:
-            features = block(features, latent)
+        for block, output_size in zip(self.blocks, self.output_sizes, strict=True):
+            features = block(features, latent, output_size=output_size)
         if reference is not None and self.reference_residual:
             if tuple(reference.shape[1:]) != (
                 self.output_head.out_channels,

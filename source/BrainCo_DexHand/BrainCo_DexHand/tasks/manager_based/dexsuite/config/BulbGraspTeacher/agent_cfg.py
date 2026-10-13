@@ -17,6 +17,11 @@ class BulbGraspTeacherPPORunnerCfg(RslRlOnPolicyRunnerCfg):
                     setattr(group, name, setting)
                 value = group
             setattr(self, key, value)
+        # Discount at 30 Hz; retain more credit across grasp, insert and screw.
+        self.algorithm.gamma = 0.995
+        for name in ("policy", "critic"):
+            self.obs_groups[name].append("task_state")
+        self.policy.class_name = "BulbGraspTeacherActorCritic"
         self.class_name = "BulbGraspTeacherRunner"
         self.experiment_name = "bulb_grasp_teacher_v2test"
         self.run_name = ""

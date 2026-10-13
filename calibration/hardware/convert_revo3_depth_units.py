@@ -14,7 +14,7 @@ import sys
 
 import numpy as np
 
-SDK_ROOT = Path(__file__).resolve().parents[1] / 'brainco-revo3-sdk/runtime/python'
+SDK_ROOT = Path(__file__).resolve().parents[1] / 'vendor/brainco-revo3-sdk/runtime/python'
 METRES_PER_SDK_UNIT = 1.2 / 200.0
 
 

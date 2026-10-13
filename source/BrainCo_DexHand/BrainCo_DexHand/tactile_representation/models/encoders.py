@@ -67,8 +67,10 @@ class ImageTokenEncoder(nn.Module):
         self.image_height = int(image_height)
         self.image_width = int(image_width)
         self.empty_input_value = empty_input_value
-        self.token_rows = self.image_height // 16
-        self.token_cols = self.image_width // 16
+        # The existing stride-2 convolutions round each spatial dimension up.
+        # Compute their true output grid; the original image goes into the stem.
+        self.token_rows = (self.image_height + 15) // 16
+        self.token_cols = (self.image_width + 15) // 16
 
         self.stem = nn.Sequential(
             nn.Conv2d(in_channels, channels[0], 7, stride=2, padding=3, bias=False),

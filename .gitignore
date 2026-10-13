@@ -45,14 +45,8 @@ build/
 # Local scratch work and rendered document previews.
 /tmp/
 
-# Experiment backup copies and transfer bundles stay local.
-# Keep experiment READMEs, scripts, patches, manifests, and result summaries visible.
-/experiments/**/before/
-/experiments/**/source_snapshot/
-/experiments/**/*.tar
-/experiments/**/*.tar.gz
-/experiments/**/*.tgz
-/experiments/**/*.zip
+# All experiment files stay local.
+/experiments/
 
 # Runtime logs and generated simulation outputs
 logs/
@@ -144,3 +138,6 @@ checkpoints/*
 image_generator/*
 !image_generator/
 !image_generator/*.py
+
+# Local SDK archive
+/brainco-revo3-sdk.zip

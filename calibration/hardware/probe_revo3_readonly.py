@@ -19,7 +19,7 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-RUNTIME = ROOT / "brainco-revo3-sdk/runtime/python"
+RUNTIME = ROOT / "vendor/brainco-revo3-sdk/runtime/python"
 sys.path.insert(0, str(RUNTIME))
 
 

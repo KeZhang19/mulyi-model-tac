@@ -22,7 +22,7 @@ def validate_target_contract(checkpoint_path, curriculum_version, allow_v8_migra
     if saved_version != curriculum_version and not (v8_migration or v9_migration):
         raise ValueError(
             f"Checkpoint task contract is v{saved_version or 'unknown'}, "
-            f"but this environment is v{curriculum_version} (tip targets and stage gates). "
+            f"but this environment is v{curriculum_version} (targets, stage gates and observation layout). "
             f"Use a matching checkpoint with {metadata}, or replay the old checkpoint "
             "in its original frozen checkout. Start a fresh run for the new target contract."
         )

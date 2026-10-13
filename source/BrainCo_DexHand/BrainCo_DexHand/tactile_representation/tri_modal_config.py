@@ -17,6 +17,8 @@ class TriModalCrossAutoencoderCfg:
 
     image_height: int = 240
     image_width: int = 320
+    # Accept native dimensions without spatially transforming the input images.
+    native_image_size: bool = False
     rgb_channels: int = 3
     depth_channels: int = 1
     marker_count: int = 100
@@ -56,7 +58,7 @@ class TriModalCrossAutoencoderCfg:
         invalid = {name: value for name, value in positive.items() if int(value) <= 0}
         if invalid:
             raise ValueError(f"Network dimensions must be positive, got {invalid}")
-        if self.image_height % 16 != 0 or self.image_width % 16 != 0:
+        if not self.native_image_size and (self.image_height % 16 != 0 or self.image_width % 16 != 0):
             raise ValueError("image_height and image_width must both be divisible by 16")
         if self.d_model % self.num_heads != 0:
             raise ValueError("d_model must be divisible by num_heads")
@@ -70,11 +72,11 @@ class TriModalCrossAutoencoderCfg:
 
     @property
     def token_rows(self) -> int:
-        return self.image_height // 16
+        return (self.image_height + 15) // 16
 
     @property
     def token_cols(self) -> int:
-        return self.image_width // 16
+        return (self.image_width + 15) // 16
 
     @property
     def image_token_count(self) -> int:

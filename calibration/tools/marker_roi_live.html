@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revo3 掩码与参考点标定</title>
+<style>
+  :root { color-scheme: light dark; --bg: light-dark(#f7f8fa,#14161b); --panel:light-dark(#fff,#20242b); --fg:light-dark(#20252c,#e9edf2); --muted:light-dark(#596574,#aeb9c7); --line:light-dark(#d1d8e0,#444d59); --keep:light-dark(#086f3f,#56ebaa); --drop:light-dark(#af2837,#ff8590); --action:light-dark(#224bb8,#b9cbff); --action-fg:light-dark(#fff,#102452); }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui,sans-serif; }
+  main { max-width:900px; margin:auto; display:grid; gap:14px; }
+  h1 { margin:0; font-size:22px; font-weight:600; }
+  .meta { color:var(--muted); font-size:13px; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  button,select { font:inherit; border:1px solid var(--line); border-radius:7px; padding:8px 12px; background:var(--panel); color:var(--fg); }
+  button { cursor:pointer; }
+  button:disabled { opacity:.45; cursor:default; }
+  button.primary { background:var(--action); color:var(--action-fg); border-color:var(--action); }
+  button:focus-visible,select:focus-visible,summary:focus-visible { outline:3px solid var(--action); outline-offset:3px; }
+  svg { width:min(100%,640px,80vh); height:auto; margin-inline:auto; display:block; touch-action:none; user-select:none; border-radius:8px; }
+  .keep { color:var(--keep); } .drop,#error { color:var(--drop); }
+  #count { font-variant-numeric:tabular-nums; }
+  #error:empty,#saved:empty { display:none; }
+  #saved { overflow-wrap:anywhere; }
+  textarea { width:100%; padding:10px; font:12px/1.4 monospace; color:var(--fg); background:var(--panel); border:1px solid var(--line); border-radius:7px; }
+  .hint { color:var(--muted); font-size:13px; }
+  @media(max-width:500px){body{padding:12px;}button,select{min-height:44px;}.row{gap:8px;}}
+</style>
+</head>
+<body>
+<main id="roi-app">
+  <header>
+    <h1>Revo3 · 掩码与参考点标定</h1>
+    <div id="camera" class="meta"></div>
+  </header>
+  <div class="row">
+    <button id="freeze" type="button">冻结当前画面</button>
+    <button id="resume" type="button" disabled>切回实时预览</button>
+    <label for="mode">框选</label>
+    <select id="mode">
+      <option value="edit">拖动边界顶点</option>
+      <option value="rectangle">拖出矩形</option>
+      <option value="include">点击画包含多边形</option>
+      <option value="exclude">点击画排除多边形</option>
+      <option value="remove-point" disabled>点击删除参考点</option>
+      <option value="add-point" disabled>点击补充真实参考点</option>
+    </select>
+    <button id="close" type="button" disabled>闭合区域</button>
+    <button id="undo" type="button" disabled>撤销</button>
+  </div>
+  <svg id="picture" viewBox="0 0 640 480" role="img" aria-label="实时食指相机画面及可编辑的检测区域">
+    <title>原始食指相机图</title><desc>圆圈表示保留的检测候选，叉号表示区域外候选。框选时自动冻结画面。</desc>
+    <image id="rgb" width="640" height="480"></image>
+    <g id="shade"></g><g id="dots"></g><g id="edges"></g><g id="drawing"></g>
+  </svg>
+  <div class="row">
+    <span class="keep">○ 保留候选</span><span class="drop">× 排除候选</span>
+    <label><input id="show" type="checkbox" checked> 显示检测点</label>
+    <span id="status" class="meta" aria-live="polite">正在连接相机…</span>
+  </div>
+  <div id="count" aria-live="polite"></div>
+  <div class="row">
+    <button id="reference" type="button">从冻结帧生成参考点</button>
+    <button id="activate" type="button" disabled>固定编号并启用</button>
+    <button id="reset-reference" type="button" disabled>重新标定参考点</button>
+    <label><input id="unloaded" type="checkbox"> 已确认参考帧无接触</label>
+  </div>
+  <div id="reference-status" class="hint">先框选，再冻结无接触画面生成参考点；可删误点、补实际可见的漏点。编号启用后保持固定。</div>
+  <div id="error" role="alert"></div>
+  <div class="row">
+    <button id="save" class="primary" type="button" disabled>保存选区与近期数据</button>
+    <button id="holes" type="button" disabled>清除排除区</button>
+    <button id="full" type="button">重置为全图</button>
+    <button id="stop" type="button">结束预览并关闭相机</button>
+  </div>
+  <div id="saved" aria-live="polite"></div>
+  <div class="hint">启用后固定输出 100 行 [x0, y0, dx, dy, valid]；缺失与补齐行均为 0，原始候选另存。匹配范围最多 12 像素且小于邻点间距的 40%；范围内出现多个候选时标为无效。橙色虚圈表示缺失参考点。</div>
+  <details><summary>所选原图像素坐标</summary><label for="json" class="meta">ROI 配置</label><textarea id="json" rows="6" readonly></textarea></details>
+</main>
+<script id="initial" type="application/json">__INITIAL_CONFIG__</script>
+<script>
+(() => {
+  const q=id=>document.getElementById(id);
+  const state=JSON.parse(q('initial').textContent),initial=state.config;
+  let config=structuredClone(initial),mode='edit',sample=null,frozen=false,busy=false,stopped=false;
+  let snapshotId=null,history=[],draft=[],rectangle=null,drag=null,edited=initial.calibration_status!=='unselected',failures=0;
+  let referencePoints=null,activeTemplate=state.template,pointHistory=[];
+  const svg=q('picture'),ns='http://www.w3.org/2000/svg';
+  q('camera').textContent=`${initial.camera_serial} · 原图 640 × 480 · 实时预览约 5 帧/秒`;
+  const elem=(tag,attrs,parent)=>{const el=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,v));parent.appendChild(el);return el;};
+  const orient=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const onEdge=(p,a,b)=>Math.abs(orient(a,b,p))<1e-5&&p[0]>=Math.min(a[0],b[0])-1e-5&&p[0]<=Math.max(a[0],b[0])+1e-5&&p[1]>=Math.min(a[1],b[1])-1e-5&&p[1]<=Math.max(a[1],b[1])+1e-5;
+  function inside(p,poly){let yes=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[j],b=poly[i];if(onEdge(p,a,b))return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])yes=!yes;}return yes;}
+  const accepted=p=>config.include_polygons.some(poly=>inside(p,poly))&&!config.exclude_polygons.some(poly=>inside(p,poly));
+  const points=poly=>poly.map(p=>p.join(',')).join(' ');
+  const path=poly=>'M'+poly.map(p=>p.join(' ')).join('L')+'Z';
+  function valid(poly){if(poly.length<3)return false;let area=0;for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];if(Math.hypot(a[0]-b[0],a[1]-b[1])<.1)return false;area+=a[0]*b[1]-b[0]*a[1];for(let j=i+2;j<poly.length;j++){if(i===0&&j===poly.length-1)continue;const c=poly[j],d=poly[(j+1)%poly.length];if((orient(a,b,c)*orient(a,b,d)<0&&orient(c,d,a)*orient(c,d,b)<0)||onEdge(c,a,b)||onEdge(d,a,b)||onEdge(a,c,d)||onEdge(b,c,d))return false;}}return Math.abs(area)>2;}
+  const location=e=>{const b=svg.getBoundingClientRect();return [Math.round(Math.max(0,Math.min(639,(e.clientX-b.left)*640/b.width))*10)/10,Math.round(Math.max(0,Math.min(479,(e.clientY-b.top)*480/b.height))*10)/10];};
+  const remember=()=>{history.push({config:structuredClone(config),edited});if(history.length>25)history.shift();};
+  async function api(url,body){const response=await fetch(url,body===undefined?{cache:'no-store'}:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const result=await response.json();if(!response.ok)throw Error(result.error||'请求失败');return result;}
+  function render(){
+    for(const id of ['shade','dots','edges','drawing'])q(id).replaceChildren();
+    if(sample){
+      q('rgb').setAttribute('href',sample.image);
+      elem('path',{d:'M0 0H640V480H0Z'+path(config.include_polygons[0]),fill:'var(--bg)','fill-opacity':.6,'fill-rule':'evenodd','pointer-events':'none'},q('shade'));
+      for(const p of config.exclude_polygons)elem('polygon',{points:points(p),fill:'var(--bg)','fill-opacity':.65,'pointer-events':'none'},q('shade'));
+      if(q('show').checked)for(const p of sample.centers){
+        if(accepted(p))elem('circle',{cx:p[0],cy:p[1],r:7,fill:'none',stroke:'var(--keep)','stroke-width':1.7,'vector-effect':'non-scaling-stroke','pointer-events':'none'},q('dots'));
+        else elem('path',{d:`M${p[0]-3} ${p[1]-3}l6 6m0 -6l-6 6`,stroke:'var(--drop)','stroke-width':1.2,'vector-effect':'non-scaling-stroke','pointer-events':'none'},q('dots'));
+      }
+      const count=sample.centers.filter(accepted).length;
+      q('count').textContent=`本帧保留 ${count} / ${sample.centers.length} 个检测候选${edited?'':' · 当前全图，尚未框选'}`;
+      const tracking=sample.tracking?.template_id===activeTemplate?.template_id?sample.tracking:null;
+      if(activeTemplate){
+        const n=activeTemplate.reference_xy.length;
+        q('reference-status').textContent=`已固定 ${n} 个参考 ID · 输出 100 行 · ${Math.max(0,100-n)} 行补齐${n>100?' · 已一次性均匀选取 100 点':''} · ${activeTemplate.contact_state==='user_confirmed_unloaded'?'参考帧已确认无接触':'参考帧接触状态未确认'}`;
+        if(tracking)q('count').textContent+=`｜匹配 ${tracking.matched} · 缺失 ${tracking.missing} · 未匹配候选 ${tracking.extra} · 输出有效 ${tracking.model_valid}/100`;
+        if(q('show').checked)activeTemplate.reference_xy.forEach((p,i)=>{
+          const ok=tracking?.reference_valid[i],xy=ok?tracking.current_xy[i]:p;
+          if(!ok)elem('circle',{cx:xy[0],cy:xy[1],r:9,fill:'none',stroke:'#df9300','stroke-dasharray':'3 3','pointer-events':'none'},q('dots'));
+          elem('text',{x:xy[0]+6,y:xy[1]-6,fill:ok?'var(--keep)':'#df9300','font-size':9,'paint-order':'stroke',stroke:'var(--panel)','stroke-width':2,'pointer-events':'none'},q('dots')).textContent=i;
+        });
+      }else if(referencePoints){
+        q('reference-status').textContent=`待确认 ${referencePoints.length} 个参考点 · 用上方菜单删误点或补点，再固定编号。缺少的数量会留作无效行。`;
+        referencePoints.forEach((p,i)=>{elem('circle',{cx:p[0],cy:p[1],r:9,fill:'none',stroke:'var(--action)','stroke-width':2,'pointer-events':'none'},q('dots'));elem('text',{x:p[0]+7,y:p[1]-7,fill:'var(--fg)','font-size':9,'pointer-events':'none'},q('dots')).textContent=i;});
+      }else q('reference-status').textContent='先框选，再冻结无接触画面生成参考点；可删误点、补实际可见的漏点。编号启用后保持固定。';
+      const time=new Date(sample.host_read_end_unix_ns/1e6).toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
+      q('status').textContent=`${stopped?'已结束':frozen?'已冻结':'实时'} · 帧 ${sample.sequence} · ${time}`;
+    }
+    const scale=640/(svg.getBoundingClientRect().width||640);
+    for(const key of ['include_polygons','exclude_polygons'])config[key].forEach(poly=>{
+      elem('polygon',{points:points(poly),fill:'none',stroke:key==='include_polygons'?'var(--keep)':'var(--drop)','stroke-width':2,'stroke-dasharray':key==='exclude_polygons'?'5 3':'none','vector-effect':'non-scaling-stroke','pointer-events':'none'},q('edges'));
+      if(mode==='edit'&&!activeTemplate&&!referencePoints)for(const p of poly)elem('circle',{cx:p[0],cy:p[1],r:4*scale,fill:'var(--panel)',stroke:'var(--fg)','stroke-width':2,'vector-effect':'non-scaling-stroke','pointer-events':'none'},q('edges'));
+    });
+    if(draft.length){elem('polyline',{points:points(draft),fill:'none',stroke:mode==='exclude'?'var(--drop)':'var(--keep)','stroke-width':2,'vector-effect':'non-scaling-stroke','pointer-events':'none'},q('drawing'));for(const p of draft)elem('circle',{cx:p[0],cy:p[1],r:4*scale,fill:'var(--panel)',stroke:'var(--fg)','pointer-events':'none'},q('drawing'));}
+    if(rectangle)elem('polygon',{points:points(rectangle.poly),fill:'none',stroke:'var(--keep)','stroke-width':2,'vector-effect':'non-scaling-stroke','pointer-events':'none'},q('drawing'));
+    const referenceLocked=!!activeTemplate||!!referencePoints;
+    q('freeze').disabled=frozen||busy||stopped||!sample;q('resume').disabled=!frozen||busy||stopped||!!draft.length||!!drag||!!rectangle||!!referencePoints;
+    q('close').disabled=draft.length<3||busy||stopped;q('undo').disabled=!!activeTemplate||(referencePoints?!pointHistory.length:(!draft.length&&!history.length))||busy||stopped;
+    q('holes').disabled=!config.exclude_polygons.length||busy||stopped||referenceLocked;
+    q('save').disabled=(!edited&&!activeTemplate)||!frozen||!snapshotId||!!draft.length||!!drag||!!rectangle||busy||stopped||!!referencePoints;
+    q('mode').disabled=busy||stopped||!!activeTemplate;q('full').disabled=busy||stopped||referenceLocked;q('stop').disabled=busy||stopped;
+    for(const option of q('mode').options)option.disabled=option.value.endsWith('-point')?!referencePoints:referenceLocked;
+    q('reference').disabled=!sample||busy||stopped||referenceLocked||!!draft.length||!!rectangle||!!drag;
+    q('activate').disabled=!referencePoints?.length||busy||stopped;
+    q('reset-reference').disabled=!referenceLocked||busy||stopped;
+    q('unloaded').disabled=!!activeTemplate||busy||stopped;
+    q('json').value=JSON.stringify(config,null,2);
+  }
+  async function freeze(){if(frozen)return;busy=true;render();try{sample=await api('/api/freeze',{});snapshotId=sample.snapshot_id;frozen=true;q('error').textContent='';}finally{busy=false;render();}}
+  function closePolygon(){if(!valid(draft)){q('error').textContent='边界需要至少三个顶点，并且不能自交。';return;}remember();if(mode==='include')config.include_polygons=[structuredClone(draft)];else config.exclude_polygons.push(structuredClone(draft));edited=true;draft=[];mode='edit';q('mode').value=mode;q('error').textContent='';render();}
+  q('freeze').onclick=()=>freeze().catch(e=>q('error').textContent=e.message);
+  q('resume').onclick=()=>{frozen=false;snapshotId=null;draft=[];mode='edit';q('mode').value=mode;render();};
+  q('mode').onchange=async e=>{const chosen=e.target.value;draft=[];rectangle=null;try{await freeze();mode=chosen;}catch(error){q('error').textContent=error.message;mode='edit';q('mode').value=mode;}render();};
+  q('close').onclick=closePolygon;q('show').onchange=render;
+  q('undo').onclick=()=>{if(referencePoints&&pointHistory.length)referencePoints=pointHistory.pop();else if(draft.length)draft.pop();else if(history.length){const previous=history.pop();config=previous.config;edited=previous.edited;}q('error').textContent='';render();};
+  q('holes').onclick=()=>{remember();config.exclude_polygons=[];edited=true;render();};
+  q('full').onclick=()=>{remember();config.include_polygons=[[[0,0],[639,0],[639,479],[0,479]]];config.exclude_polygons=[];edited=true;draft=[];mode='edit';q('mode').value=mode;render();};
+  q('reference').onclick=async()=>{try{await freeze();referencePoints=sample.centers.filter(accepted).map(p=>[...p]);pointHistory=[];mode='remove-point';q('mode').value=mode;q('error').textContent='';render();}catch(e){q('error').textContent=e.message;}};
+  q('activate').onclick=async()=>{busy=true;render();try{const result=await api('/api/template',{config,points:referencePoints,snapshot_id:snapshotId,unloaded:q('unloaded').checked});activeTemplate=result.template;referencePoints=null;pointHistory=[];mode='edit';q('mode').value=mode;sample=await api('/api/freeze',{});snapshotId=sample.snapshot_id;q('saved').textContent=`参考编号已保存：${result.output}。可切回实时预览，再冻结保存近期数据。`;q('error').textContent='';}catch(e){q('error').textContent=e.message;}finally{busy=false;render();}};
+  q('reset-reference').onclick=async()=>{busy=true;render();try{if(activeTemplate)await api('/api/template',{clear:true});activeTemplate=null;referencePoints=null;pointHistory=[];q('unloaded').checked=false;mode='edit';q('mode').value=mode;q('error').textContent='';}catch(e){q('error').textContent=e.message;}finally{busy=false;render();}};
+  svg.addEventListener('pointerdown',async e=>{
+    if(e.button!==0||busy||stopped||!sample||activeTemplate)return;
+    const p=location(e);q('error').textContent='';
+    if(!frozen){try{await freeze();}catch(error){q('error').textContent=error.message;return;}if(e.buttons===0)return;}
+    if(referencePoints){
+      if(mode==='remove-point'){let nearest=-1,best=12;referencePoints.forEach((v,i)=>{const d=Math.hypot(p[0]-v[0],p[1]-v[1]);if(d<best){best=d;nearest=i;}});if(nearest>=0){pointHistory.push(structuredClone(referencePoints));referencePoints.splice(nearest,1);}}
+      else if(mode==='add-point'&&accepted(p)){let selected=p,best=10;sample.centers.filter(accepted).forEach(v=>{const d=Math.hypot(p[0]-v[0],p[1]-v[1]);if(d<best){best=d;selected=v;}});if(referencePoints.every(v=>Math.hypot(selected[0]-v[0],selected[1]-v[1])>=2)){pointHistory.push(structuredClone(referencePoints));referencePoints.push([...selected]);}}
+      render();return;
+    }
+    if(mode==='rectangle'){rectangle={start:p,poly:[p,p,p,p]};svg.setPointerCapture(e.pointerId);}
+    else if(mode==='include'||mode==='exclude')draft.push(p);
+    else{let nearest=null,best=18*640/svg.getBoundingClientRect().width;for(const key of ['include_polygons','exclude_polygons'])config[key].forEach((poly,pi)=>poly.forEach((v,vi)=>{const d=Math.hypot(p[0]-v[0],p[1]-v[1]);if(d<best){best=d;nearest={key,pi,vi};}}));if(nearest){drag={...nearest,before:structuredClone(config),edited};svg.setPointerCapture(e.pointerId);}}
+    render();
+  });
+  svg.addEventListener('pointermove',e=>{const p=location(e);if(drag){config[drag.key][drag.pi][drag.vi]=p;render();}else if(rectangle){const a=rectangle.start;rectangle.poly=[[a[0],a[1]],[p[0],a[1]],p,[a[0],p[1]]];render();}});
+  function end(e,cancelled=false){if(drag){if(cancelled||!valid(config[drag.key][drag.pi])){config=drag.before;edited=drag.edited;q('error').textContent=cancelled?'':'边界自交，已恢复原位置。';}else{history.push({config:drag.before,edited:drag.edited});edited=true;}drag=null;}if(rectangle){if(!cancelled&&valid(rectangle.poly)){remember();config.include_polygons=[rectangle.poly];edited=true;mode='edit';q('mode').value=mode;}rectangle=null;}if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);render();}
+  svg.addEventListener('pointerup',e=>end(e));svg.addEventListener('pointercancel',e=>end(e,true));
+  q('save').onclick=async()=>{busy=true;render();try{const report=await api('/api/save',{config,snapshot_id:snapshotId,template_id:activeTemplate?.template_id??null});q('saved').textContent=`已保存：本帧 ${report.selection_kept} 点；近期 ${report.recent_frames} 帧保留 ${report.recent_kept_range.join('–')} 点。${report.marker_export?`固定输出 ${report.marker_export.shape.join(' × ')}，有效点 ${report.marker_export.valid_range.join('–')}。`:''}目录：${report.output}`;q('error').textContent='';}catch(e){q('error').textContent=e.message;}finally{busy=false;render();}};
+  q('stop').onclick=async()=>{busy=true;render();try{await api('/api/stop',{});stopped=true;frozen=true;q('status').textContent='已结束，正在释放相机';}catch(e){q('error').textContent=e.message;}finally{busy=false;render();}};
+  async function poll(){if(!stopped&&!frozen&&!busy){try{const latest=await api('/api/frame');if(!frozen&&!busy){sample=latest;failures=0;q('error').textContent='';render();}}catch(e){failures++;q('error').textContent=`画面读取失败：${e.message}`;if(failures>=5){stopped=true;render();}}}if(!stopped)setTimeout(poll,200);}
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!stopped)render();});
+  new ResizeObserver(render).observe(svg);render();poll();
+})();
+</script>
+</body>
+</html>

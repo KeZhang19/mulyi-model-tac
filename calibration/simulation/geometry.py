@@ -10,6 +10,7 @@ from scipy.spatial.transform import Rotation
 ROOT = Path(__file__).resolve().parents[2]
 HAND = ROOT / 'calibration/assets/revo3_breadboard_mount/generated_calibration_v4/urdf/revo3_right_calibration_lower_mount_v4.urdf'
 TOUCH_HAND = ROOT / 'calibration/assets/revo3_breadboard_mount/generated_calibration_v4_touch/urdf/revo21_touch_calibration_lower_mount_v4.urdf'
+TAG_HAND = ROOT / 'calibration/assets/calibration_bench_visuotactile_urdf/urdf/revo3_calibration_scene_xyz.urdf'
 HEADS = {name: ROOT / f'calibration/assets/head/{name}_press_head_with_flange.urdf'
          for name in ('spherical', 'triangle', 'conical')}
 
@@ -17,11 +18,12 @@ HEADS = {name: ROOT / f'calibration/assets/head/{name}_press_head_with_flange.ur
 def hand_asset(cfg):
     """Missing version means a historical V4 recording, never silently retarget it."""
     version = cfg.get('hand_asset', 'revo3_v4')
-    return {'revo3_v4': HAND, 'revo21_touch_v4': TOUCH_HAND}[version]
+    return {'revo3_v4': HAND, 'revo21_touch_v4': TOUCH_HAND,
+            'revo21_touch_tag_m6x16': TAG_HAND}[version]
 
 
 def sensor_link(cfg):
-    if cfg.get('hand_asset', 'revo3_v4') == 'revo21_touch_v4':
+    if cfg.get('hand_asset', 'revo3_v4') in ('revo21_touch_v4', 'revo21_touch_tag_m6x16'):
         stem = {'middle': 'mid', 'little': 'pinky'}.get(cfg['finger'], cfg['finger'])
         suffix = 'rubber_link' if cfg['segment'] == 'DIP' else 'touch_link'
         return f'right_{stem}{cfg["segment"].lower()}_roll_{suffix}'
@@ -36,7 +38,7 @@ def transform(origin):
     return out
 
 
-def load_assembly(path, joint_positions=None):
+def load_assembly(path, joint_positions=None, *, mesh_only=False, excluded_links=()):
     """Preserve source frames/scales; hold hand at named URDF joint positions."""
     joint_positions = joint_positions or {}
     tree = ET.parse(path).getroot()
@@ -76,10 +78,14 @@ def load_assembly(path, joint_positions=None):
     meshes, paths = {}, {Path(path).resolve()}
     for link in tree.findall('link'):
         name = link.get('name')
+        if name in excluded_links:
+            continue
         parts = []
         for visual in link.findall('visual'):
             spec = visual.find('geometry/mesh')
             if spec is None:
+                if mesh_only:
+                    continue  # Auxiliary frame glyphs; not collision obstacles.
                 raise ValueError('This asset loader expects mesh visuals')
             mesh_path = (Path(path).parent / spec.get('filename')).resolve()
             paths.add(mesh_path)

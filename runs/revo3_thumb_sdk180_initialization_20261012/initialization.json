@@ -1,0 +1,26 @@
+{
+  "sim": {
+    "source": "/home/liuxinyu/workspace/mulyi-model-tac/runs/revo3_cross_modal_restoration_v1/best.pt",
+    "source_sha256": "c8e30bd4005aefba60d18aae46f992b722088d05a2cb9cd2ec66b316181c632a",
+    "interpolated_parameters": [
+      "rgb_encoder.position_embedding",
+      "depth_encoder.position_embedding",
+      "rgb_decoder.seed",
+      "depth_decoder.seed"
+    ],
+    "optimizer_restored": false,
+    "alignment_validated": false
+  },
+  "real": {
+    "source": "/home/liuxinyu/workspace/mulyi-model-tac/runs/revo3_tri_modal_cross_v1/best.pt",
+    "source_sha256": "65f5bca86610a62a17e174e0b6f84889da6c073795f506ed127d4fe0a8703cc3",
+    "interpolated_parameters": [
+      "rgb_encoder.position_embedding",
+      "depth_encoder.position_embedding",
+      "rgb_decoder.seed",
+      "depth_decoder.seed"
+    ],
+    "optimizer_restored": false,
+    "alignment_validated": false
+  }
+}

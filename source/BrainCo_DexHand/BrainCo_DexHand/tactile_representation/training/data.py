@@ -358,6 +358,37 @@ def split_episode_ids(
     plans = manifest.get("metadata", {}).get("episode_plans", [])
     if not plans:
         raise ValueError("Cannot split a dataset without episode plans")
+    metadata = manifest.get("metadata", {})
+    fixed = metadata.get("verified_episode_splits")
+    if fixed is not None:
+        # Real captures carry accepted splits shared with their paired sim view.
+        # Do not re-randomize sessions/references or silently leak adjacent frames.
+        names = ("train", "validation", "test")
+        if set(fixed) != set(names):
+            raise ValueError("Verified splits must contain train/validation/test")
+        values = {name: tuple(int(v) for v in fixed[name]) for name in names}
+        if any(not v or len(set(v)) != len(v) for v in values.values()):
+            raise ValueError("Verified splits must be nonempty without duplicate episodes")
+        expected = {int(plan["episode_id"]) for plan in plans}
+        assigned = [v for group in values.values() for v in group]
+        if len(set(assigned)) != len(assigned) or set(assigned) != expected:
+            raise ValueError("Verified splits overlap or do not cover episode plans")
+        partitions = {episode: name for name, ids in values.items() for episode in ids}
+        conditions = {}
+        for plan in plans:
+            group = _condition_key(plan)
+            split = partitions[int(plan["episode_id"])]
+            if conditions.setdefault(group, split) != split:
+                raise ValueError("Verified splits leak a physical condition")
+        for group_name, groups in metadata.get("split_groups", {}).items():
+            if {int(v) for v in groups} != expected:
+                raise ValueError(f"Verified {group_name} groups do not cover episodes")
+            seen = {}
+            for episode, group in groups.items():
+                split = partitions[int(episode)]
+                if seen.setdefault(str(group), split) != split:
+                    raise ValueError(f"Verified splits leak {group_name}")
+        return EpisodeSplits(**values)
     condition_episodes: dict[tuple[Any, ...], list[int]] = defaultdict(list)
     for plan in plans:
         condition_episodes[_condition_key(plan)].append(int(plan["episode_id"]))

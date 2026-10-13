@@ -8,11 +8,12 @@ from dataclasses import MISSING
 from importlib import import_module
 import inspect
 import json
+import math
 from pathlib import Path
 
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.assets import RigidObjectCfg
-from isaaclab.managers import EventTermCfg, RewardTermCfg, TerminationTermCfg
+from isaaclab.managers import EventTermCfg, ObservationGroupCfg, ObservationTermCfg, RewardTermCfg, TerminationTermCfg
 import isaaclab.sim as sim_utils
 from isaaclab.utils import configclass
 
@@ -25,6 +26,7 @@ from .curriculum import (
 )
 from .insertion import match_socket_scale_to_bulb
 from .screwing import carry_velocity_before_screwing, final_screw_success_bonus, screw_in_reward
+from .task_observations import bulb_task_state
 
 ROOT = Path(__file__).resolve().parents[8]
 PACKAGE = Path(__file__).resolve().parent
@@ -70,13 +72,14 @@ def _decode(value):
 
 @configclass
 class BulbGraspTeacherEnvCfg(ManagerBasedRLEnvCfg):
-    """28 actions; policy/proprio/perception = 195/745/960; 30 Hz control."""
+    """28 actions; 395 channels per frame, 5 frames (1975 inputs); 30 Hz."""
 
     def __post_init__(self):
         snapshot = json.loads((PACKAGE / "teacher_snapshot.json").read_text())
         frozen = _decode(snapshot)
         for name, value in vars(frozen).items():
             setattr(self, name, value)
+        self.scene.robot.init_state.joint_pos["joint7"] += math.pi / 2
         robot = ROOT / "assets/rotate_bulb_custom/robot/usd/rizon4_training.usda"
         bulb = ROOT / "assets/bulb_grasp_teacher/bulb_insert.usd"
         points = ROOT / "assets/bulb_grasp_teacher/point_clouds_64"
@@ -92,6 +95,12 @@ class BulbGraspTeacherEnvCfg(ManagerBasedRLEnvCfg):
         initial_pos = self.scene.object.init_state.pos
         self.scene.object.init_state.pos = (*initial_pos[:2], initial_pos[2] + .01)
         self.observations.perception.object_point_cloud.params["offline_point_cloud_dir"] = str(points)
+        # All channels retain matching histories; policy.py assembles complete frames.
+        self.observations.task_state = ObservationGroupCfg(
+            concatenate_terms=True, enable_corruption=False, history_length=5,
+            flatten_history_dim=True,
+        )
+        self.observations.task_state.state = ObservationTermCfg(func=bulb_task_state)
         # Keep the frozen source snapshot intact; all curriculum differences live here.
         socket = ROOT / "assets/bulb_grasp_teacher/socket.usd"
         if not socket.is_file():
@@ -147,20 +156,34 @@ class BulbGraspTeacherEnvCfg(ManagerBasedRLEnvCfg):
         command.screw_regression_deadband_turns = .01
         command.stage12_duration_s = 8.0
         command.stage3_duration_s = 6.0
+        # One reward objective for the whole population, synchronized by the runner.
+        command.global_stage_curriculum = True
+        command.stage_success_threshold = 0.8
+        command.stage_success_window_updates = 100
+        command.stage_success_min_episodes = 8192
         # Runs after the inherited bulb scale event, before PhysX cooks meshes.
         self.events.match_socket_scale = EventTermCfg(func=match_socket_scale_to_bulb, mode="prestartup")
         # Append after the teacher's table/robot/object reset events.
         self.events.reset_socket = EventTermCfg(func=reset_socket_from_target_ranges, mode="reset")
         self.rewards.palm_down_orientation = None
-        self.rewards.bulb_down_orientation = RewardTermCfg(func=bulb_down_orientation_penalty, weight=-0.2)
-        self.rewards.thread_down = RewardTermCfg(func=bulb_thread_down_reward, weight=5.0)
+        self.rewards.bulb_down_orientation = RewardTermCfg(
+            func=bulb_down_orientation_penalty, weight=-0.2, params={"stage_one_scale": 3.0})
+        self.rewards.thread_down = RewardTermCfg(
+            func=bulb_thread_down_reward, weight=5.0, params={"orientation_scale_deg": 45.0})
         self.rewards.position_tracking.func = curriculum_position_tracking_reward
         self.rewards.success.func = stage_two_position_orientation_reward
         self.rewards.success.params["orientation_floor"] = 0.2
+        # Restore the full original position rate and retain the added 5/s
+        # alignment share. Including tracking/thread_down: position <=15/s,
+        # direct alignment <=10/s, only in stage two.
+        self.rewards.success.params["orientation_mix"] = 0.5
+        self.rewards.success.params["orientation_scale_deg"] = 45.0
         for name, component in (("carry_relative_lin_vel_l2", "linear"), ("carry_relative_ang_vel_l2", "angular")):
             term = getattr(self.rewards, name)
             term.func = carry_velocity_before_screwing
             term.params["component"] = component
+            term.weight = 0.0  # Temporarily disable relative slip costs in all stages.
+        self.rewards.drop_after_lift.weight = 0.0
         # Isaac integrates reward rates over dt. New physical turns pay 9/turn,
         # once-only quarter-turn milestones pay 3/turn: maximum 36 for 3 turns.
         self.rewards.screw_in_force = RewardTermCfg(func=screw_in_reward, weight=9., params={"component": "force"})
@@ -177,7 +200,7 @@ class BulbGraspTeacherEnvCfg(ManagerBasedRLEnvCfg):
         self.terminations.time_out.func = grasp_screw_time_out
         self.curriculum.adr.func = BulbGraspCurriculumDifficulty
         self.episode_length_s = command.stage12_duration_s + command.stage3_duration_s
-        self.bulb_grasp_curriculum_version = 10
+        self.bulb_grasp_curriculum_version = 12
 
 
 @configclass

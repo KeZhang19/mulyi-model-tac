@@ -1,5 +1,15 @@
 # 真机采集入口
 
+2026-10-12 当前主标定采用视触觉与台架标准六维力。
+`py_force_calibration` 的旧压阻 ADC 采集属[其他标定](../../../ros_ws/src/py_force_ws/doc/other_calibration/README.md)，暂不参与主流程。
+
+当前工作顺序见[本地标定流程](../docs/local_workflow.md)，坐标与预定位点见[config/](../config/README.md)。
+本项目SDK副本位于 `calibration/vendor/brainco-revo3-sdk/runtime/python`；
+原 `calibration/brainco-revo3-sdk`保留兼容链接，解释器选择保持。
+
+面向仿真—真机对齐训练的详细字段、参考关联、米制深度派生与训练转换条件见
+[真机采集数据接口](../docs/real_data_interface.md)。
+
 ## 标定台 ROS 2 接口
 
 2026-10-07 已按 `/home/liuxinyu/workspace/ros_ws/src/py_force_ws/` 的接口定义和节点源码核对。
@@ -46,7 +56,7 @@
 - `probe_revo3_readonly.py`：有限次数读取关节／阵列并逐路短采相机，输出到指定的新目录。
 - `probe_revo3_trimodal.py`：对指定采集目录离线推理；不打开硬件，不代表物理标定。
 
-命令见[总入口](../README.md)，设备身份与历史读取结果见[机械说明第7节](../机械标定台仿真搭建_README.md#7-revo3-sdk与真机只读采集2026-10-03)。
+命令见[总入口](../README.md)，设备身份与历史读取结果见[机械说明第7节](../docs/机械标定台仿真搭建_README.md#7-revo3-sdk与真机只读采集2026-10-03)。
 
 ## 三模态空载与后续加载采集（2026-10-05）
 

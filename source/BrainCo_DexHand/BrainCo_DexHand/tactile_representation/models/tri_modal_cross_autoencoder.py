@@ -245,6 +245,7 @@ class TriModalCrossAutoencoder(nn.Module):
             nn.LayerNorm(cfg.d_model),
         )
         self.rgb_decoder = ConditionedImageDecoder(
+            native_image_size=cfg.native_image_size,
             latent_dim=cfg.d_model,
             output_channels=cfg.rgb_channels,
             image_height=cfg.image_height,
@@ -253,6 +254,7 @@ class TriModalCrossAutoencoder(nn.Module):
             spatial_condition_dim=cfg.d_model,
         )
         self.depth_decoder = ConditionedImageDecoder(
+            native_image_size=cfg.native_image_size,
             latent_dim=cfg.d_model,
             output_channels=cfg.depth_channels,
             image_height=cfg.image_height,

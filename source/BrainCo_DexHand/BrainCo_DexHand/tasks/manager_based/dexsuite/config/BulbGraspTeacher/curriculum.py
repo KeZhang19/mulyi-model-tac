@@ -1,7 +1,8 @@
-"""Episode-local grasp above a socket -> shallow tip entry -> three screw turns.
+"""Global reward curriculum: grasp above a socket -> shallow entry -> screw turns.
 
 The frozen teacher MDP remains the source of all original rewards and resets.
-This module owns the new command, outcome and orientation reward only.
+The runner advances the population; episode-local latches only measure outcomes.
+Legacy command configurations without the global flag retain their old behavior.
 """
 from __future__ import annotations
 
@@ -11,6 +12,7 @@ import torch
 from isaaclab.utils.math import combine_frame_transforms, quat_apply, quat_apply_inverse, subtract_frame_transforms
 
 from .flexiv_rewards import flexiv_hand_contacts
+from .global_curriculum import GlobalStageCurriculum
 from .insertion import bulb_tip_position_w, insertion_errors, insertion_tip_target
 from .screwing import ScrewInsertionState, screw_contact_quality, socket_twist_phase
 from .mdp.commands.pose_commands import ObjectUniformPoseCommand
@@ -53,7 +55,7 @@ def thread_down_error(quat_w: torch.Tensor) -> torch.Tensor:
 
 
 class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
-    """7D command: root position in stage one, direct tip position thereafter."""
+    """7D reward-phase goal: root in phase one, direct tip thereafter."""
 
     def __init__(self, cfg, env):
         super().__init__(cfg, env)
@@ -61,6 +63,15 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         self.scales = env._bulb_socket_scales
         self.stage_two = torch.zeros(self.num_envs, dtype=torch.bool, device=self.device)
         self.stage_three = torch.zeros_like(self.stage_two)
+        # Reward phase is global; these separate latches describe physical progress.
+        self.stage_one_reached = torch.zeros_like(self.stage_two)
+        self.stage_two_reached = torch.zeros_like(self.stage_two)
+        self.global_curriculum = None
+        if getattr(cfg, "global_stage_curriculum", False):
+            self.global_curriculum = GlobalStageCurriculum(
+                cfg.stage_success_threshold, cfg.stage_success_window_updates, cfg.stage_success_min_episodes)
+        self.global_episode_counts = torch.zeros(2, device=self.device, dtype=torch.long)
+        self.discard_curriculum_reset = False
         self.stage_two_bonus_credit = torch.zeros(self.num_envs, device=self.device)
         self.stage_three_steps = torch.zeros(self.num_envs, dtype=torch.long, device=self.device)
         self.screw_hold_steps = torch.zeros_like(self.stage_three_steps)
@@ -88,8 +99,20 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         ids = torch.arange(self.num_envs, device=self.device)
         if env_ids is not None:
             ids = ids[env_ids]
+        if self.global_curriculum is not None and not self.discard_curriculum_reset:
+            # Reset happens before episode_length_buf and terminal metrics are cleared.
+            completed = self._env.episode_length_buf[ids] > 0
+            success = self.metrics[f"stage{self.global_curriculum.stage}_success"][ids].bool()
+            failure = self._env.termination_manager.terminated[ids]
+            self.global_episode_counts[0] += (success & completed & ~failure).sum()
+            self.global_episode_counts[1] += completed.sum()
         self.stage_two[ids] = False
         self.stage_three[ids] = False
+        if self.global_curriculum is not None:
+            self.stage_two[ids] = self.global_curriculum.stage >= 2
+            self.stage_three[ids] = self.global_curriculum.stage >= 3
+        self.stage_one_reached[ids] = False
+        self.stage_two_reached[ids] = False
         self.stage_two_bonus_credit[ids] = 0
         self.stage_three_steps[ids] = 0
         self.screw_hold_steps[ids] = 0
@@ -97,6 +120,17 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         self.final_bonus_credit[ids] = 0
         self.screw.reset(ids)
         return super().reset(ids)
+
+    @property
+    def screw_active(self):
+        if self.global_curriculum is None:
+            return self.stage_three
+        return self.stage_three & self.stage_two_reached
+
+    def drain_global_episode_counts(self):
+        counts = self.global_episode_counts.clone()
+        self.global_episode_counts.zero_()
+        return counts
 
     def _socket_target_pose_b(self, height_m):
         # Socket's local +X points out of the mouth; its root is at CAD x=0.
@@ -129,8 +163,9 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         pos_w, quat_w = insertion_tip_target(self.socket, self.scales, self.cfg, depth_m=depth, phase=phase)
         pos_b, quat_b = subtract_frame_transforms(
             self.robot.data.root_pos_w, self.robot.data.root_quat_w, pos_w, quat_w)
-        self.pose_command_b[self.stage_three, :3] = pos_b[self.stage_three]
-        self.pose_command_b[self.stage_three, 3:] = quat_b[self.stage_three]
+        active = self.screw_active
+        self.pose_command_b[active, :3] = pos_b[active]
+        self.pose_command_b[active, 3:] = quat_b[active]
 
     @property
     def tracked_position_w(self):
@@ -163,6 +198,9 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
     def advance(self):
         """Run after physics, before rewards/reset; do not teleport or end a stage."""
         self._update_metrics()
+        if self.global_curriculum is not None:
+            self._advance_global_stage()
+            return
         reached = (~self.stage_two) & (self.metrics["position_error"] < self.cfg.position_tolerance_m)
         self.stage_two |= reached
         self._set_stage_two_target()
@@ -178,6 +216,33 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         self.stage_three |= entered
         self.stage_three_steps += was_three.long()
         self.screw.update(self.stage_three, phase, self.metrics["insertion_depth_m"],
+                          self.metrics["insertion_radial_error_m"],
+                          torch.deg2rad(self.metrics["insertion_tilt_deg"]),
+                          screw_contact_quality(self._env, self.cfg.screw_force_scale_n), self._env.step_dt)
+        self._set_stage_two_target()
+        self._update_metrics()
+        self.screw_hold_steps[:] = torch.where(self._screw_candidate, self.screw_hold_steps + 1, 0).clamp(
+            max=self.required_hold_steps)
+        self._update_metrics()
+        final = self.metrics["success"].bool()
+        self.final_bonus_credit[:] = (final & ~self.final_bonus_paid).float()
+        self.final_bonus_paid |= final
+
+    def _advance_global_stage(self):
+        """Measure local outcomes without changing the global reward phase."""
+        pos_b, _ = self._socket_target_pose_b(self.cfg.stage1_height_m)
+        goal_w, _ = combine_frame_transforms(
+            self.robot.data.root_pos_w, self.robot.data.root_quat_w, pos_b)
+        reached = torch.linalg.vector_norm(goal_w - self.object.data.root_pos_w, dim=-1)
+        self.stage_one_reached |= reached < self.cfg.position_tolerance_m
+        was_active = self.screw_active.clone()
+        entered = self.metrics["insertion_candidate"].bool() & ~self.stage_two_reached
+        self.stage_two_reached |= entered
+        self.stage_two_bonus_credit[:] = entered.float()
+        phase = socket_twist_phase(self.object, self.socket)
+        self.screw.begin(entered & self.stage_three, phase, self.metrics["insertion_depth_m"])
+        self.stage_three_steps += was_active.long()
+        self.screw.update(self.screw_active, phase, self.metrics["insertion_depth_m"],
                           self.metrics["insertion_radial_error_m"],
                           torch.deg2rad(self.metrics["insertion_tilt_deg"]),
                           screw_contact_quality(self._env, self.cfg.screw_force_scale_n), self._env.step_dt)
@@ -214,7 +279,7 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         candidate = self.stage_two & insertion_position_ok & shallow_orientation_ok
         final_depth = self.screw.entry_depth + self.cfg.screw_target_turns * self.cfg.thread_pitch_m * self.scales
         self._screw_candidate = (
-            self.stage_three & self.screw.valid & (self.screw.net_turns >= self.cfg.screw_target_turns - 1e-5)
+            self.screw_active & self.screw.valid & (self.screw.net_turns >= self.cfg.screw_target_turns - 1e-5)
             & (self.stage_three_steps <= math.ceil(self.cfg.stage3_duration_s / self._env.step_dt))
             & ((depth - final_depth).abs() <= self.cfg.screw_final_depth_tolerance_m * self.scales)
             & (radial <= self.cfg.insertion_radial_tolerance_m) & orientation_ok
@@ -224,7 +289,7 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
         self.metrics["position_error"][:] = error
         self.metrics["orientation_error"][:] = tilt
         position_reached = torch.where(self.stage_two, insertion_position_ok, position_ok)
-        position_reached = torch.where(self.stage_three,
+        position_reached = torch.where(self.screw_active,
             ((depth - final_depth).abs() <= self.cfg.screw_final_depth_tolerance_m * self.scales)
             & (radial <= self.cfg.insertion_radial_tolerance_m), position_reached)
         self.metrics["position_success"][:] = position_reached.float()
@@ -232,8 +297,10 @@ class BulbGraspCurriculumCommand(ObjectUniformPoseCommand):
             self.stage_two & ~self.stage_three, shallow_orientation_ok, orientation_ok).float()
         self.metrics["success"][:] = success.float()
         self.metrics["stage"][:] = 1.0 + self.stage_two.float() + self.stage_three.float()
-        self.metrics["stage1_success"][:] = self.stage_two.float()
-        self.metrics["stage2_success"][:] = self.stage_three.float()
+        self.metrics["stage1_success"][:] = (
+            self.stage_two if self.global_curriculum is None else self.stage_one_reached).float()
+        self.metrics["stage2_success"][:] = (
+            self.stage_three if self.global_curriculum is None else self.stage_two_reached).float()
         self.metrics["stage3_success"][:] = success.float()
         self.metrics["thread_down_error_deg"][:] = torch.rad2deg(tilt)
         self.metrics["insertion_depth_m"][:] = depth
@@ -271,31 +338,50 @@ def update_grasp_curriculum(env, command_name: str = "object_pose") -> torch.Ten
 def grasp_screw_time_out(env, command_name: str = "object_pose") -> torch.Tensor:
     """Stages 1/2 share 8 s; stage 3 receives its own 6 s from promotion."""
     command = env.command_manager.get_term(command_name)
-    return torch.where(command.stage_three,
+    return torch.where(command.screw_active,
                        command.stage_three_steps >= math.ceil(command.cfg.stage3_duration_s / env.step_dt),
                        env.episode_length_buf >= math.ceil(command.cfg.stage12_duration_s / env.step_dt))
 
 
-def bulb_down_orientation_penalty(env, command_name: str = "object_pose") -> torch.Tensor:
-    """Cosine tilt penalty on the bulb thread, in both stages without contact gating.
+def bulb_down_orientation_penalty(
+    env, command_name: str = "object_pose", stage_one_scale: float = 1.0,
+) -> torch.Tensor:
+    """Cosine tilt penalty with a stage-one multiplier, without contact gating.
 
-    Preserve the former palm penalty's [0, 1] shape: down=0, horizontal=0.5,
-    up=1. Pair with a negative weight. Spin around the thread axis is free.
+    The base shape is down=0, horizontal=0.5, up=1; only stage one is scaled.
+    Pair with a negative weight. Spin around the thread axis is free.
     """
+    if not math.isfinite(stage_one_scale) or stage_one_scale < 0.0:
+        raise ValueError("stage_one_scale must be finite and non-negative")
     command = env.command_manager.get_term(command_name)
     tilt = thread_down_error(command.object.data.root_quat_w)
-    return (0.5 * (1.0 - torch.cos(tilt))).clamp(0.0, 1.0)
+    value = (0.5 * (1.0 - torch.cos(tilt))).clamp(0.0, 1.0)
+    return torch.where(command.stage_two, value, value * stage_one_scale)
 
 
-def bulb_thread_down_reward(env, command_name: str = "object_pose") -> torch.Tensor:
-    """Dense [0,1] tilt shaping in stage two, gated like position_tracking.
+def thread_down_alignment(tilt: torch.Tensor, orientation_scale_deg: float = 0.0) -> torch.Tensor:
+    """Bounded reciprocal tilt shaping; zero scale retains the linear kernel.
 
-    Linear angle shaping retains a useful signal throughout 0..180 degrees.
-    Contact is a reward gate, not an extra success criterion.
+    (1 - theta/pi) / (1 + theta/scale) is one when down and zero when up.
+    Its slope grows smoothly toward down without a singularity at zero tilt.
     """
-    command = env.command_manager.get_term(command_name)
-    tilt = thread_down_error(command.object.data.root_quat_w)
+    if not math.isfinite(orientation_scale_deg) or orientation_scale_deg < 0.0:
+        raise ValueError("orientation_scale_deg must be finite and non-negative")
     quality = torch.nan_to_num(1.0 - tilt / math.pi, nan=0.0).clamp(0.0, 1.0)
+    if orientation_scale_deg:
+        quality = torch.nan_to_num(
+            quality / (1.0 + tilt / math.radians(orientation_scale_deg)), nan=0.0).clamp(0.0, 1.0)
+    return quality
+
+
+def bulb_thread_down_reward(
+    env, command_name: str = "object_pose", orientation_scale_deg: float = 0.0,
+) -> torch.Tensor:
+    """Contact-gated alignment; the reciprocal curve applies only in stage two."""
+    command = env.command_manager.get_term(command_name)
+    tilt = thread_down_error(command.object.data.root_quat_w)
+    quality = thread_down_alignment(tilt, orientation_scale_deg)
+    quality = torch.where(command.stage_three, thread_down_alignment(tilt), quality)
     return quality * command.stage_two.float() * flexiv_hand_contacts(env, 1.0).float()
 
 
@@ -337,24 +423,33 @@ def curriculum_position_reward(env, command_name, asset_cfg, align_asset_cfg, po
 
 def stage_two_position_orientation_reward(
     env, command_name, asset_cfg, align_asset_cfg, pos_std,
-    rot_std=None, orientation_floor: float = 0.2,
+    rot_std=None, orientation_floor: float = 0.2, orientation_mix: float = 0.0,
+    orientation_scale_deg: float = 0.0,
 ) -> torch.Tensor:
-    """Scale the teacher's position reward by thread tilt only during stage two.
+    """Preserve stage-two position shaping and add direct thread-down alignment.
 
-    Keep a positional foothold at every angle and preserve free axial spin.
-    This is dense shaping, not the shallow-insertion success predicate. Stages
-    one and three have no tilt multiplier. All retain the original kernels;
-    insertion-stage distances use the direct tip reference.
+    orientation_mix is the additive alignment fraction of this term's weight;
+    it no longer reduces the original position share. The position kernel and
+    linear tilt factor stay unchanged. Stages one/three keep their original
+    kernels, and the direct alignment bonus retains the grasp-contact gate.
     """
     if not math.isfinite(orientation_floor) or not 0.0 <= orientation_floor <= 1.0:
         raise ValueError("orientation_floor must be finite and in [0, 1]")
+    if not math.isfinite(orientation_mix) or not 0.0 <= orientation_mix <= 1.0:
+        raise ValueError("orientation_mix must be finite and in [0, 1]")
+    if not math.isfinite(orientation_scale_deg) or orientation_scale_deg < 0.0:
+        raise ValueError("orientation_scale_deg must be finite and non-negative")
     value = curriculum_position_reward(env, command_name, asset_cfg, align_asset_cfg, pos_std, rot_std)
     command = env.command_manager.get_term(command_name)
     tilt = thread_down_error(command.object.data.root_quat_w)
     alignment = (1.0 - tilt / math.pi).clamp(0.0, 1.0)
     factor = orientation_floor + (1.0 - orientation_floor) * alignment.square()
     stage_two_only = command.stage_two & ~command.stage_three
-    return value * torch.where(stage_two_only, factor, 1.0)
+    stage_two_value = value * factor
+    if orientation_mix:
+        direction = thread_down_alignment(tilt, orientation_scale_deg) * flexiv_hand_contacts(env, 1.0).float()
+        stage_two_value = stage_two_value + orientation_mix * direction
+    return torch.where(stage_two_only, stage_two_value, value)
 
 
 class BulbGraspCurriculumDifficulty(DifficultyScheduler):
@@ -363,10 +458,12 @@ class BulbGraspCurriculumDifficulty(DifficultyScheduler):
     def __call__(self, env, env_ids, asset_cfg=None, object_cfg=None, pos_tol=0.05,
                  rot_tol=None, init_difficulty=0, min_difficulty=0, max_difficulty=10,
                  promotion_only=False, fixed_difficulty=None):
+        command = env.command_manager.get_term("object_pose")
+        if command.discard_curriculum_reset:
+            return self.difficulty_frac
         if self.fixed_difficulty is not None or fixed_difficulty is not None:
             return super().__call__(env, env_ids, min_difficulty=min_difficulty,
                                     max_difficulty=max_difficulty, fixed_difficulty=fixed_difficulty)
-        command = env.command_manager.get_term("object_pose")
         move_up = command.metrics["success"][env_ids].bool()
         current = self.current_adr_difficulties[env_ids]
         self.current_adr_difficulties[env_ids] = torch.where(
