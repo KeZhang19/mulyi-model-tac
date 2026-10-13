@@ -1,9 +1,0 @@
-{
-  "error": "Target 'File:docs/PROJECT_MAP.md' not found",
-  "target": {
-    "name": "File:docs/PROJECT_MAP.md"
-  },
-  "direction": "upstream",
-  "impactedCount": null,
-  "risk": "UNKNOWN"
-}

@@ -1,9 +1,0 @@
-{
-  "error": "Target 'File:docs/STATUS.md' not found",
-  "target": {
-    "name": "File:docs/STATUS.md"
-  },
-  "direction": "upstream",
-  "impactedCount": null,
-  "risk": "UNKNOWN"
-}

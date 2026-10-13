@@ -1,9 +1,0 @@
-{
-  "pid": 13929,
-  "time": "2026-10-07T17:21:08.695620+08:00",
-  "project": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007",
-  "run": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/logs/rsl_rl/bulb_grasp_teacher_v7_lstm/2026-10-07_scratch_1x8192",
-  "log": "/home/admin/workspace/xinyu/mulyi-model-tac-v7-lstm-20261007/experiments/bulb_v7_lstm_dsw_1x8192_20261007/train.log",
-  "launch_script_sha256": "33649f2afccc2590849f0d3e9a7d1603b4e396b3a1dcbb1391486f9381f62c48",
-  "gpu_before": "0, 1\n1, 1\n"
-}

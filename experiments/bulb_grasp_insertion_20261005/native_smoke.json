@@ -1,7 +1,0 @@
-{
-  "task": "BrainCo-Dexsuite-Flexiv-Bulb-Grasp-Teacher-Play-v0",
-  "checkpoint": "/home/liuxinyu/workspace/mulyi-model-tac/checkpoints/bulb_grasp_teacher_20261004/model_22200.pt",
-  "passed": false,
-  "curriculum_version": 4,
-  "error": "ValueError(\"The term 'reset_socket' expects mandatory parameters: [] and optional parameters: ['env_ids', 'command_name'], but received: [].\")"
-}

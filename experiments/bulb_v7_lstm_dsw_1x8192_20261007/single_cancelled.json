@@ -1,6 +1,0 @@
-{
-  "time": "2026-10-07T17:21:44.752834+08:00",
-  "pid": 13929,
-  "remaining": false,
-  "reason": "User changed request to two GPUs, 8192 environments each. Single-GPU attempt cancelled during startup; no result claimed."
-}
